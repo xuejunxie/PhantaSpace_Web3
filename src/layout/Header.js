@@ -26,8 +26,8 @@ export class Header extends Component {
   render() {
     const { isAuthenticated, user } = this.props.auth;
 
-    const Explore = this.tag("Explore", "/dashboard/explore");
-    const Create = this.tag("Create", "/dashboard/create");
+    const Explore = this.tag("Explore", "/");
+    const Create = this.tag("Create", "/create");
 
     return (
       <nav className="navbar navbar-expand-sm navbar-light bg-light" style={{ height: this.props.headerHeight }}>
@@ -44,8 +44,8 @@ export class Header extends Component {
             <span className="navbar-toggler-icon" />
           </button>
           <div className="collapse navbar-collapse" id="navbarTogglerDemo01">
-            <a className="navbar-brand" href="/dashboard/explore">
-              phanta.space
+            <a className="navbar-brand" href="/">
+              Phanta.Space
             </a>
           </div>
           {Explore}
