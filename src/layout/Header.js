@@ -30,7 +30,7 @@ export class Header extends Component {
     const Create = this.tag("Create", "/create");
 
     return (
-      <nav className="navbar navbar-expand-sm navbar-light bg-light" style={{ height: this.props.headerHeight }}>
+      <nav className="navbar navbar-expand-sm navbar-dark bg-dark" style={{ height: this.props.headerHeight }}>
         <div className="container-fluid">
           <button
             className="navbar-toggler"

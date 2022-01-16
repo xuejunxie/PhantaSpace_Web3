@@ -11,7 +11,7 @@ import {
   REGISTER_SUCCESS,
   REGISTER_FAIL,
   USER_UPDATE,
-} from "./types";
+} from "../types";
 
 axios.defaults.xsrfCookieName = "csrftoken";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";

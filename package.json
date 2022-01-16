@@ -25,6 +25,7 @@
     "react-scripts": "4.0.3",
     "redux-devtools-extension": "^2.13.9",
     "redux-thunk": "^2.4.1",
+    "reselect": "^4.1.5",
     "resium": "^1.14.3",
     "use-nft": "^0.10.2",
     "walletlink": "^2.4.0",

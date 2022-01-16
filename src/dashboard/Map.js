@@ -1,13 +1,30 @@
 import React, { Component } from "react";
 import * as Cesium from "cesium";
+import { connect } from "react-redux";
+import { place, removed } from "../redux/actions/map";
 
 Cesium.Ion.defaultAccessToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjNmY0NjhmOS1iZGRjLTQ5ODgtYTQyOS0zNGFhZTQ3M2RlYzYiLCJpZCI6NzE5OTUsImlhdCI6MTYzNzIzODcyM30.C_x5USgZL8Gk2tZ7D3hd__1irF9-cyatRD-9GDaRBGc";
 const dummyCredit = document.createElement("div");
 
-export default class Map extends Component {
+var viewer = null;
+
+var handler = null;
+
+class Map extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      selected: null,
+      placed: null,
+      camera: null,
+      viewCenter: null,
+      all: [],
+    };
+  }
+
   componentDidMount() {
-    var viewer = new Cesium.Viewer("cesiumContainer", {
+    viewer = new Cesium.Viewer("cesiumContainer", {
       terrainProvider: Cesium.createWorldTerrain(),
       shouldAnimate: true,
       animation: false,
@@ -24,6 +41,12 @@ export default class Map extends Component {
       vrButton: false,
     });
     viewer.scene.globe.depthTestAgainstTerrain = true;
+    // disable single click green window pop up
+    viewer.selectionIndicator.viewModel.selectionIndicatorElement.style.visibility = "hidden";
+    // disable the double click focus
+    viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+    // disable double click zoom and tracking
+    viewer.trackedEntity = undefined;
 
     // Set the initial camera view to look at Manhattan
     var initialPosition = Cesium.Cartesian3.fromDegrees(-74.01881302800248, 40.69114333714821, 753);
@@ -99,7 +122,125 @@ export default class Map extends Component {
     );
   }
 
+  static getDerivedStateFromProps(props, state) {
+    // initialize the handler if clicked on another item
+    if (viewer) {
+      if (props.selected !== state.selected) {
+        if (handler) {
+          handler.destroy();
+        }
+        handler = null;
+        handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+        var entity = null;
+      }
+
+      // find if the item exist in the viewer
+      var entity = viewer.entities.getById(props.selected.id);
+
+      // if exist fly camera to entity
+      if (entity) {
+        viewer.flyTo(entity);
+
+        // handle the edit of the entity
+        handler = DoubleClickToPlace(entity, props);
+
+        // handle the delete of the entity
+        if (props.removing) {
+          viewer.entities.remove(entity);
+          props.removed(props.selected);
+        }
+      } else {
+        handler = DoubleClickToPlace(entity, props);
+        // Select plane when mouse down
+        // var leftDownFlag = false;
+        // handler.setInputAction(function (movement) {
+        //   leftDownFlag = true;
+        //   viewer.scene.screenSpaceCameraController.enableRotate = false; //锁定相机
+        //   let ray = viewer.camera.getPickRay(movement.position);
+        //   let cartesian = viewer.scene.globe.pick(ray, viewer.scene);
+        //   entity.position = cartesian; // update the entity position
+        // }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+
+        // // Release plane on mouse up
+        // handler.setInputAction(function () {
+        //   leftDownFlag = false;
+        //   viewer.scene.screenSpaceCameraController.enableInputs = true;
+        // }, Cesium.ScreenSpaceEventType.LEFT_UP);
+
+        // // Update plane on mouse move
+        // handler.setInputAction(function (movement) {
+        //   if (leftDownFlag === true) {
+        //     let ray = viewer.camera.getPickRay(movement.endPosition);
+        //     let cartesian = viewer.scene.globe.pick(ray, viewer.scene);
+        //     entity.position = cartesian; // update the entity position
+        //   }
+        // }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+      }
+      state.selected = props.selected;
+    }
+    return {
+      selected: props.selected,
+    };
+  }
+
   render() {
     return <div id="cesiumContainer" style={{ height: this.props.viewHeight, width: this.props.viwerWidth }}></div>;
   }
+}
+
+const mapStateToProps = (state) => {
+  return {
+    selected: state.map.selected,
+    removing: state.map.removing,
+  };
+};
+
+export default connect(mapStateToProps, { place, removed })(Map);
+
+function addModel(viewer, nft, cartesian, direction, scale) {
+  // var position = Cesium.Cartesian3.fromDegrees(latitude, longitude, height);
+  var heading = Cesium.Math.toRadians(direction);
+  var pitch = 0;
+  var roll = 0;
+  var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
+  var orientation = Cesium.Transforms.headingPitchRollQuaternion(cartesian, hpr);
+  var entity = viewer.entities.add({
+    id: nft.id,
+    name: nft.url,
+    position: cartesian,
+    orientation: orientation,
+    model: {
+      uri: nft.url,
+      minimumPixelSize: 0,
+      scale: scale,
+    },
+  });
+  return entity;
+}
+
+function relocateModel(entity, cartesian) {
+  entity.position = cartesian;
+  entity.orientation = Cesium.Transforms.headingPitchRollQuaternion(cartesian, new Cesium.HeadingPitchRoll(0, 0, 0));
+
+  return entity;
+}
+
+function DoubleClickToPlace(entity, props) {
+  console.log("here");
+  handler.setInputAction((click) => {
+    if (click.position) {
+      var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(click.position), viewer.scene);
+      if (cartesian) {
+        if (entity) {
+          entity = relocateModel(entity, cartesian);
+        } else {
+          console.log(props.selected.id);
+          entity = addModel(viewer, props.selected, cartesian, 45, 100);
+        }
+        viewer.flyTo(entity);
+        props.place(props.selected);
+      }
+    }
+  }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+  return handler;
 }

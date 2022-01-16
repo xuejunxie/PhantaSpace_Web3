@@ -16,9 +16,9 @@ export const customEnable = async () => {
     });
 
     async activate() {
-      window.ethereum = this.walletLink.makeWeb3Provider(ETH_JSONRPC_URL, CHAIN_ID);
-      await window.ethereum.enable(); // or ethereum.send('eth_requestAccounts')
-      this.web3 = new Web3(window.ethereum);
+      const ethereum = this.walletLink.makeWeb3Provider(ETH_JSONRPC_URL, CHAIN_ID);
+      await ethereum.enable(); // or ethereum.send('eth_requestAccounts')
+      this.web3 = new Web3(ethereum);
       this.isActivated = true;
       return this.web3;
     }

@@ -12,3 +12,11 @@ export const USER_UPDATE = "USER_UPDATE";
 export const ADD_MESSAGE = "ADD_MESSAGE";
 export const SET_MESSAGES = "SET_MESSAGES";
 export const GET_CHATS_SUCCESS = "GET_CHATS_SUCCESS";
+
+export const SELECT = "SELECT";
+export const PLACE = "PLACE";
+export const LOAD_OWNED = "LOAD_OWNED";
+export const CREATE = "CREATE";
+export const UPDATE = "UPDATE";
+export const REMOVE = "REMOVE";
+export const REMOVED = "REMOVED";

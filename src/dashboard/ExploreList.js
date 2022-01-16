@@ -48,7 +48,7 @@ function Nft() {
 export default class ExploreList extends PureComponent {
   render() {
     return (
-      <div>
+      <div className="text-white">
         <App />
       </div>
     );

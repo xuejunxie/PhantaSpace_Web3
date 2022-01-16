@@ -28,7 +28,7 @@ function Address(props) {
     setAddress(props?.address || (isAuthenticated && account));
   }, [account, isAuthenticated, props]);
 
-  if (!address) return <div paragraph={{ rows: 1, width: "100%" }} title={false} active />;
+  if (!address) return <div paragraph={{ rows: 1, width: "100%" }} />;
 
   const Copy = () => (
     <svg
@@ -58,7 +58,7 @@ function Address(props) {
   return (
     <div style={{ ...styles.address, ...props.style }}>
       {props.avatar === "left" && <Blockie address={address} size={7} />}
-      <p>{props.size ? getEllipsisTxt(address, props.size) : address}</p>
+      <p style={{ marginLeft: "10px" }}>{props.size ? getEllipsisTxt(address, props.size) : address}</p>
       {props.avatar === "right" && <Blockie address={address} size={7} />}
       {props.copyable && (isClicked ? <Check /> : <Copy />)}
     </div>

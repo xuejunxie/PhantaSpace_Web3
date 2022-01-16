@@ -7,21 +7,12 @@ import Header from "./layout/Header";
 import { Provider as AlertProvider } from "react-alert";
 import AlertTemplate from "react-alert-template-basic";
 import Alerts from "./layout/Alerts";
-import Login from "./accounts/Login";
-import RegisterDone from "./accounts/RegisterDone";
-import ResetPassword from "./accounts/ResetPassword";
 
-import Register from "./accounts/Register";
 import PrivateRoute from "./common/PrivateRoute";
-import Account from "./accounts/Account";
 
 import { Provider } from "react-redux";
 import store from "./redux/store";
-import ResetPasswordSent from "./accounts/ResetPasswordSent";
-import NewPassword from "./accounts/NewPassword";
-import NewEmailVerify from "./accounts/NewEmailVerify";
 
-import SignupVerify from "./accounts/SignupVerify";
 import ExploreList from "./dashboard/ExploreList";
 import CreateList from "./dashboard/CreateList";
 import Map from "./dashboard/Map";
@@ -66,14 +57,14 @@ const App = () => {
 
 function Dashboard() {
   return (
-    <div className="row">
+    <div className="row bg-dark">
       <div style={{ width: listWidth, maxHeight: height }} className="overflow-auto">
         <Routes>
           <Route exact path="" element={<ExploreList />} />
           <Route exact path="create" element={<CreateList />} />
         </Routes>
       </div>
-      {/* <Map viwerWidth={viwerWidth} viewHeight={height} /> */}
+      <Map viwerWidth={viwerWidth} viewHeight={height} />
     </div>
   );
 }

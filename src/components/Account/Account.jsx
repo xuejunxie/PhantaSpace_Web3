@@ -62,11 +62,9 @@ function Account() {
           <p style={styles.text}>Authenticate</p>
         </div>
         <Modal show={isAuthModalVisible} onHide={() => setIsAuthModalVisible(false)}>
-          <div
-            style={{ padding: "10px", display: "flex", justifyContent: "center", fontWeight: "700", fontSize: "20px" }}
-          >
-            Connect Wallet
-          </div>
+          <Modal.Header closeButton>
+            <Modal.Title>Connect Wallet</Modal.Title>
+          </Modal.Header>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
             {connectors.map(({ title, icon, connectorId }, key) => (
               <div
@@ -75,6 +73,7 @@ function Account() {
                 onClick={async () => {
                   try {
                     await authenticate({ provider: connectorId, signingMessage: signingMessage });
+
                     window.localStorage.setItem("connectorId", connectorId);
                     setIsAuthModalVisible(false);
                   } catch (e) {
@@ -93,7 +92,6 @@ function Account() {
               onClick={async () => {
                 try {
                   Moralis.setEnableWeb3(customEnable);
-                  window.Web3 = await Moralis.enableWeb3();
                   await authenticate({ signingMessage: signingMessage });
                   window.localStorage.setItem("connectorId", "injected");
                   setIsAuthModalVisible(false);
@@ -131,29 +129,35 @@ function Account() {
       </button> */}
 
       <div style={styles.account} onClick={() => setIsModalVisible(true)}>
-        <p style={{ marginRight: "5px", ...styles.text }}>{getEllipsisTxt(account, 6)}</p>
-        <Blockie currentWallet scale={3} />
+        <Blockie address={account} scale={3} />
+        <p style={{ marginLeft: "5px", ...styles.text }}>{getEllipsisTxt(account, 6)}</p>
       </div>
       <Modal show={isModalVisible} onHide={() => setIsModalVisible(false)}>
-        Account
-        <Card>
-          <Address avatar="left" size={6} copyable style={{ fontSize: "20px" }} />
-          <div style={{ marginTop: "10px", padding: "0 10px" }}>
-            <a href={`${getExplorer(chainId)}/address/${account}`} target="_blank" rel="noreferrer">
-              View on Explorer
-            </a>
-          </div>
-        </Card>
-        <Button
-          onClick={async () => {
-            await logout();
+        <Modal.Header closeButton>
+          <Modal.Title>Account</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Card>
+            <Address avatar="left" size={6} copyable style={{ fontSize: "20px" }} />
+            <div style={{ marginTop: "10px", padding: "0 10px" }}>
+              <a href={`${getExplorer(chainId)}/address/${account}`} target="_blank" rel="noreferrer">
+                View on Explorer
+              </a>
+            </div>
+          </Card>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            onClick={async () => {
+              await logout();
 
-            window.localStorage.removeItem("connectorId");
-            setIsModalVisible(false);
-          }}
-        >
-          Disconnect Wallet
-        </Button>
+              window.localStorage.removeItem("connectorId");
+              setIsModalVisible(false);
+            }}
+          >
+            Disconnect Wallet
+          </Button>
+        </Modal.Footer>
       </Modal>
     </>
   );
