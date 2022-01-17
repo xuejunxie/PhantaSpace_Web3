@@ -33,8 +33,8 @@ export default function CreateList() {
       }
 
       if (user) {
-        // account = user.attributes.accounts[0];
-        account = "0xe9956cf72cc8e49d903478142dc8dadb4ee328ff";
+        account = user.attributes.accounts[0];
+        // account = "0xe9956cf72cc8e49d903478142dc8dadb4ee328ff";
         var ownedNFTs = [];
         axios
           .get("https://api.opensea.io/api/v1/assets?owner=" + account)
