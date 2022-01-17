@@ -95,26 +95,29 @@ export default function CreateList() {
     dispatch({ type: PLACE, payload: nft });
   };
 
-  const height = (data, nft) => {
-    nft.height = data * 10;
+  const height = (value, nft) => {
+    nft.height = value * 10;
     dispatch({ type: UPDATE, payload: nft });
   };
 
-  const scale = (data, nft) => {
-    nft.scale = data;
+  const scale = (value, nft) => {
+    nft.scale = value * 5;
     dispatch({ type: UPDATE, payload: nft });
   };
 
-  const heading = (data, nft) => {
-    console.log(data);
+  const heading = (value, nft) => {
+    nft.heading = value * 5;
+    dispatch({ type: UPDATE, payload: nft });
   };
 
-  const pitch = (data, nft) => {
-    console.log(data);
+  const pitch = (value, nft) => {
+    nft.pitch = value * 5;
+    dispatch({ type: UPDATE, payload: nft });
   };
 
-  const roll = (data, nft) => {
-    console.log(data);
+  const roll = (value, nft) => {
+    nft.roll = value * 5;
+    dispatch({ type: UPDATE, payload: nft });
   };
 
   return (
@@ -140,6 +143,8 @@ export default function CreateList() {
               {nft.placed ? (
                 nft.editing ? (
                   <div className="card card-body bg-dark">
+                    <div className="row justify-content-center">Click on the map to relocate</div>
+
                     <label className="form-label">Height</label>
                     <input
                       type="range"
@@ -196,7 +201,7 @@ export default function CreateList() {
                 )
               ) : (
                 <div className="card card-body bg-dark">
-                  <div className="row justify-content-center">Double click on the map to locate the NFT</div>
+                  <div className="row justify-content-center">Double click on the map to place the NFT</div>
                 </div>
               )}
             </div>

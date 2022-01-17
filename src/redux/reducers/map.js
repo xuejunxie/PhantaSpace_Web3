@@ -11,15 +11,15 @@ export default function (state = initialState, action) {
       return {
         ...state,
         // set flag to selected
-        owned: state.owned.map((map) => {
-          if (map.id === action.payload.id) {
+        owned: state.owned.map((nft) => {
+          if (nft.id === action.payload.id) {
             return {
-              ...map,
+              ...nft,
               selected: true,
             };
           }
           return {
-            ...map,
+            ...nft,
             selected: false,
           };
         }),
@@ -28,28 +28,28 @@ export default function (state = initialState, action) {
       return {
         ...state,
         // set flag to placed
-        owned: state.owned.map((map) => {
-          if (map.id === action.payload.id) {
+        owned: state.owned.map((nft) => {
+          if (nft.id === action.payload.id) {
             return {
-              ...map,
+              ...nft,
               editing: true,
               placed: true,
             };
           }
-          return map;
+          return nft;
         }),
       };
     case UPDATE:
       return {
         ...state,
-        owned: state.owned.map((map) => {
-          if (map.id === action.payload.id) {
+        owned: state.owned.map((nft) => {
+          if (nft.id === action.payload.id) {
             return {
-              ...map,
+              ...nft,
               ...action.payload,
             };
           }
-          return map;
+          return nft;
         }),
       };
 
@@ -57,29 +57,29 @@ export default function (state = initialState, action) {
       return {
         ...state,
         //  set flag to editing false
-        owned: state.owned.map((map) => {
-          if (map.id === action.payload.id) {
+        owned: state.owned.map((nft) => {
+          if (nft.id === action.payload.id) {
             return {
-              ...map,
+              ...nft,
               editing: false,
             };
           }
-          return map;
+          return nft;
         }),
       };
     case REMOVE:
       return {
         ...state,
         //  set flag to placed false
-        owned: state.owned.map((map) => {
-          if (map.id === action.payload.id) {
+        owned: state.owned.map((nft) => {
+          if (nft.id === action.payload.id) {
             return {
-              ...map,
+              ...nft,
               editing: false,
               placed: false,
             };
           }
-          return map;
+          return nft;
         }),
       };
 

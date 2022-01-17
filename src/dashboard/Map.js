@@ -123,6 +123,17 @@ class Map extends Component {
             cartographic.height
           );
           entity.position = cartesian;
+
+          // update entity scale
+          entity.model.scale = nft.scale;
+
+          // update entity orientation
+          var heading = Cesium.Math.toRadians(nft.heading);
+          var pitch = Cesium.Math.toRadians(nft.pitch);
+          var roll = Cesium.Math.toRadians(nft.roll);
+          var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
+          var orientation = Cesium.Transforms.headingPitchRollQuaternion(cartesian, hpr);
+          entity.orientation = orientation;
         }
       }
     }
