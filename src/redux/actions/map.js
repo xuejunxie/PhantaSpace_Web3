@@ -1,4 +1,4 @@
-import { REMOVED, PLACE } from "../types";
+import { REMOVED, PLACE, DONE } from "../types";
 
 export const place = (data) => (dispatch) => {
   dispatch({
@@ -12,4 +12,8 @@ export const removed = (data) => (dispatch) => {
     type: REMOVED,
     payload: data,
   });
+};
+
+export const done = (nft) => (dispatch) => {
+  dispatch({ type: DONE, payload: nft });
 };

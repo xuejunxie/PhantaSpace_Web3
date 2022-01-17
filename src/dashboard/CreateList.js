@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
 
 import { useMoralis } from "react-moralis";
-import { LOAD_OWNED, REMOVE, SELECT, UPDATE, PLACE } from "../redux/types";
+import { LOAD_OWNED, REMOVE, SELECT, UPDATE, PLACE, DONE } from "../redux/types";
 
 export default function CreateList() {
   const { user } = useMoralis();
@@ -29,16 +29,18 @@ export default function CreateList() {
             if (allNFTs.length > 0) {
               var gltfNFTs = [];
               allNFTs.map((nft) => {
-                var url = "";
+                var url = null;
                 // find the glb gltf URL in description of the NFT
                 var urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
-                var urls = nft.description.match(urlRegex);
-                if (urls) {
-                  urls.map((resUrl) => {
-                    if (resUrl.includes(".glb") || resUrl.includes(".gltf")) {
-                      url = resUrl;
-                    }
-                  });
+                if (nft.description) {
+                  var urls = nft.description.match(urlRegex);
+                  if (urls) {
+                    urls.map((resUrl) => {
+                      if (resUrl.includes(".glb") || resUrl.includes(".gltf")) {
+                        url = resUrl;
+                      }
+                    });
+                  }
                 }
 
                 // find the glb gltf URL in animation_url of the NFT
@@ -47,22 +49,25 @@ export default function CreateList() {
                     url = nft.animation_url;
                   }
                 }
-                const id = nft.asset_contract.address + "-" + nft.token_id;
+                if (url) {
+                  const id = nft.asset_contract.address + "-" + nft.token_id;
 
-                gltfNFTs.push({
-                  metadata: nft,
-                  url: url,
-                  id: id,
-                  selected: false,
-                  editing: false,
-                  placed: false,
-                  longitude: 0,
-                  latitude: 0,
-                  height: 0,
-                  heading: 0,
-                  pitch: 0,
-                  roll: 0,
-                });
+                  gltfNFTs.push({
+                    metadata: nft,
+                    url: url,
+                    id: id,
+                    selected: false,
+                    editing: false,
+                    placed: false,
+                    longitude: 0,
+                    latitude: 0,
+                    height: 0,
+                    scale: 1,
+                    heading: 0,
+                    pitch: 0,
+                    roll: 0,
+                  });
+                }
               });
               dispatch({ type: LOAD_OWNED, payload: gltfNFTs });
             }
@@ -75,7 +80,7 @@ export default function CreateList() {
   }, [user]);
 
   const onDone = (nft) => {
-    dispatch({ type: UPDATE, payload: nft });
+    dispatch({ type: DONE, payload: nft });
   };
 
   const onRemove = (nft) => {
@@ -88,6 +93,28 @@ export default function CreateList() {
 
   const onEdit = (nft) => {
     dispatch({ type: PLACE, payload: nft });
+  };
+
+  const height = (data, nft) => {
+    nft.height = data * 10;
+    dispatch({ type: UPDATE, payload: nft });
+  };
+
+  const scale = (data, nft) => {
+    nft.scale = data;
+    dispatch({ type: UPDATE, payload: nft });
+  };
+
+  const heading = (data, nft) => {
+    console.log(data);
+  };
+
+  const pitch = (data, nft) => {
+    console.log(data);
+  };
+
+  const roll = (data, nft) => {
+    console.log(data);
   };
 
   return (
@@ -114,13 +141,40 @@ export default function CreateList() {
                 nft.editing ? (
                   <div className="card card-body bg-dark">
                     <label className="form-label">Height</label>
-                    <input type="range" className="custom-range" id="Height" />
-                    <label className="form-label">Orientation</label>
-                    <input type="range" className="custom-range" id="Orientation" />
-                    <label className="form-label">Tilt</label>
-                    <input type="range" className="custom-range" id="Tilt" />
-                    <label className="form-label">Yaw</label>
-                    <input type="range" className="custom-range" id="Yaw" />
+                    <input
+                      type="range"
+                      className="custom-range"
+                      id="Height"
+                      onChange={(e) => height(e.target.value, nft)}
+                    />
+                    <label className="form-label">Scale</label>
+                    <input
+                      type="range"
+                      className="custom-range"
+                      id="Scale"
+                      onChange={(e) => scale(e.target.value, nft)}
+                    />
+                    <label className="form-label">Heading</label>
+                    <input
+                      type="range"
+                      className="custom-range"
+                      id="Heading"
+                      onChange={(e) => heading(e.target.value, nft)}
+                    />
+                    <label className="form-label">Pitch</label>
+                    <input
+                      type="range"
+                      className="custom-range"
+                      id="Pitch"
+                      onChange={(e) => pitch(e.target.value, nft)}
+                    />
+                    <label className="form-label">Roll</label>
+                    <input
+                      type="range"
+                      className="custom-range"
+                      id="Roll"
+                      onChange={(e) => roll(e.target.value, nft)}
+                    />
                     <hr />
                     <div className="row justify-content-center">
                       <button type="button" className="  btn btn-primary rounded mr-5" onClick={() => onDone(nft)}>

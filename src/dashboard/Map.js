@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import * as Cesium from "cesium";
 import { connect } from "react-redux";
-import { place, removed } from "../redux/actions/map";
+import { place, removed, done } from "../redux/actions/map";
 
 Cesium.Ion.defaultAccessToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjNmY0NjhmOS1iZGRjLTQ5ODgtYTQyOS0zNGFhZTQ3M2RlYzYiLCJpZCI6NzE5OTUsImlhdCI6MTYzNzIzODcyM30.C_x5USgZL8Gk2tZ7D3hd__1irF9-cyatRD-9GDaRBGc";
@@ -9,13 +9,17 @@ const dummyCredit = document.createElement("div");
 
 var viewer = null;
 
-var handler = null;
+var entity = null;
+
+var nft = null;
+
+var moveHandler = null;
 
 class Map extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selected: null,
+      owned: [],
       placed: null,
       camera: null,
       viewCenter: null,
@@ -67,119 +71,63 @@ class Map extends Component {
     });
     viewer.scene.primitives.add(tileset);
 
+    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+    DoubleClickToPlace(handler, this.props.place);
+
     // Load the NYC buildings tileset  // Not working
     // var tileset = new Cesium.Cesium3DTileset({
     //   url: Cesium.IonResource.fromAssetId(75343),
     // });
     // viewer.scene.primitives.add(tileset);
-
-    function createModel(url, longitude, latitude, height, direction, scale) {
-      var position = Cesium.Cartesian3.fromDegrees(latitude, longitude, height);
-      var heading = Cesium.Math.toRadians(direction);
-      var pitch = 0;
-      var roll = 0;
-      var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
-      var orientation = Cesium.Transforms.headingPitchRollQuaternion(position, hpr);
-
-      var entity = viewer.entities.add({
-        name: url,
-        position: position,
-        orientation: orientation,
-        model: {
-          uri: url,
-          minimumPixelSize: 0,
-          scale: scale,
-        },
-      });
-    }
-
-    createModel(
-      // "https://storage.opensea.io/files/cb639bcfb20628b13bf9785c1f22e73f.gltf",
-      "https://ipfs.io/ipfs/QmbmSbbqFRi4dYRCaeXq6W8ijTn7s6rDaL9YXtG1jmioBp/nft.gltf",
-      40.71800777336079,
-      -74.00734148289514,
-      600,
-      45,
-      0.4
-    );
-
-    createModel(
-      "https://storage.opensea.io/files/fcb0f930c51013791c6ff8e05ac22870.gltf",
-      40.71190850831766,
-      -74.0042523657344,
-      300,
-      -45,
-      100
-    );
-
-    createModel(
-      "https://storage.opensea.io/files/38f06a0dd647a8e4556b5d983e41ce39.glb",
-      40.73440501787107,
-      -73.98893286773647,
-      300,
-      -45,
-      100
-    );
   }
 
   static getDerivedStateFromProps(props, state) {
     // initialize the handler if clicked on another item
+
     if (viewer) {
-      if (props.selected !== state.selected) {
-        if (handler) {
-          handler.destroy();
+      nft = props.owned.find((nft) => nft.selected === true);
+
+      if (nft) {
+        // find if the item exist in the viewer
+        entity = viewer.entities.getById(nft.id);
+        if (entity && !nft.editing) {
+          viewer.flyTo(entity);
         }
-        handler = null;
-        handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-        var entity = null;
-      }
-
-      // find if the item exist in the viewer
-      var entity = viewer.entities.getById(props.selected.id);
-
-      // if exist fly camera to entity
-      if (entity) {
-        viewer.flyTo(entity);
-
-        // handle the edit of the entity
-        handler = DoubleClickToPlace(entity, props);
 
         // handle the delete of the entity
-        if (props.removing) {
+        if (!nft.placed) {
           viewer.entities.remove(entity);
-          props.removed(props.selected);
         }
-      } else {
-        handler = DoubleClickToPlace(entity, props);
-        // Select plane when mouse down
-        // var leftDownFlag = false;
-        // handler.setInputAction(function (movement) {
-        //   leftDownFlag = true;
-        //   viewer.scene.screenSpaceCameraController.enableRotate = false; //锁定相机
-        //   let ray = viewer.camera.getPickRay(movement.position);
-        //   let cartesian = viewer.scene.globe.pick(ray, viewer.scene);
-        //   entity.position = cartesian; // update the entity position
-        // }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
 
-        // // Release plane on mouse up
-        // handler.setInputAction(function () {
-        //   leftDownFlag = false;
-        //   viewer.scene.screenSpaceCameraController.enableInputs = true;
-        // }, Cesium.ScreenSpaceEventType.LEFT_UP);
+        if (nft.editing) {
+          viewer.scene.screenSpaceCameraController.enableRotate = false; // lock the camera
 
-        // // Update plane on mouse move
-        // handler.setInputAction(function (movement) {
-        //   if (leftDownFlag === true) {
-        //     let ray = viewer.camera.getPickRay(movement.endPosition);
-        //     let cartesian = viewer.scene.globe.pick(ray, viewer.scene);
-        //     entity.position = cartesian; // update the entity position
-        //   }
-        // }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+          moveHandler = MoveEntity();
+        } else {
+          viewer.scene.screenSpaceCameraController.enableRotate = true;
+          if (moveHandler) {
+            moveHandler.destroy();
+            moveHandler = null;
+            entity = null;
+          }
+        }
+
+        // if exist fly camera to entity
+        if (entity) {
+          // update endity position and orientation based on its current position and orientation
+          var cartographic = Cesium.Cartographic.fromCartesian(entity.position._value);
+          cartographic.height = nft.height;
+          var cartesian = Cesium.Cartesian3.fromRadians(
+            cartographic.longitude,
+            cartographic.latitude,
+            cartographic.height
+          );
+          entity.position = cartesian;
+        }
       }
-      state.selected = props.selected;
     }
     return {
-      selected: props.selected,
+      owned: props.owned,
     };
   }
 
@@ -190,21 +138,21 @@ class Map extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    selected: state.map.selected,
+    owned: state.map.owned,
     removing: state.map.removing,
   };
 };
 
-export default connect(mapStateToProps, { place, removed })(Map);
+export default connect(mapStateToProps, { place, removed, done })(Map);
 
-function addModel(viewer, nft, cartesian, direction, scale) {
-  // var position = Cesium.Cartesian3.fromDegrees(latitude, longitude, height);
+function addModel(cartesian, direction, scale) {
+  // var cartesian = Cesium.Cartesian3.fromDegrees(latitude, longitude, height);
   var heading = Cesium.Math.toRadians(direction);
   var pitch = 0;
   var roll = 0;
   var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
   var orientation = Cesium.Transforms.headingPitchRollQuaternion(cartesian, hpr);
-  var entity = viewer.entities.add({
+  entity = viewer.entities.add({
     id: nft.id,
     name: nft.url,
     position: cartesian,
@@ -218,29 +166,77 @@ function addModel(viewer, nft, cartesian, direction, scale) {
   return entity;
 }
 
-function relocateModel(entity, cartesian) {
-  entity.position = cartesian;
-  entity.orientation = Cesium.Transforms.headingPitchRollQuaternion(cartesian, new Cesium.HeadingPitchRoll(0, 0, 0));
-
-  return entity;
-}
-
-function DoubleClickToPlace(entity, props) {
-  console.log("here");
+function DoubleClickToPlace(handler, place) {
   handler.setInputAction((click) => {
     if (click.position) {
       var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(click.position), viewer.scene);
       if (cartesian) {
-        if (entity) {
-          entity = relocateModel(entity, cartesian);
-        } else {
-          console.log(props.selected.id);
-          entity = addModel(viewer, props.selected, cartesian, 45, 100);
+        // increase height
+        cartesian.z += 100;
+        if (nft) {
+          // make sure the entity is not already in the viewer
+          entity = viewer.entities.getById(nft.id);
+
+          if (entity) {
+            // keep the height
+            var oldPosition = Cesium.Cartographic.fromCartesian(entity.position._value);
+            var oldHeight = oldPosition.height;
+            var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
+            var newCartesian = Cesium.Cartesian3.fromRadians(newPosition.longitude, newPosition.latitude, oldHeight);
+
+            entity.position = newCartesian;
+            entity.orientation = Cesium.Transforms.headingPitchRollQuaternion(
+              cartesian,
+              new Cesium.HeadingPitchRoll(0, 0, 0)
+            );
+          } else {
+            addModel(cartesian, 0, 100);
+            viewer.flyTo(entity);
+          }
+          place(nft);
         }
-        viewer.flyTo(entity);
-        props.place(props.selected);
       }
     }
   }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
   return handler;
+}
+
+function MoveEntity() {
+  var leftDownFlag = false;
+  moveHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+  // Select plane when mouse down
+  moveHandler.setInputAction(function (movement) {
+    leftDownFlag = true;
+    // var pickedObject = viewer.scene.pick(movement.position);
+    // if (Cesium.defined(pickedObject)) {
+    //   if (pickedObject.id) {
+    //     entity = pickedObject.id;
+    //     console.log(entity);
+    // } else {
+    //   viewer.scene.screenSpaceCameraController.enableRotate = true; // lock the camera
+    // }
+    // }
+  }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+
+  // Release plane on mouse up
+  moveHandler.setInputAction(function () {
+    leftDownFlag = false;
+    // viewer.scene.screenSpaceCameraController.enableRotate = true;
+  }, Cesium.ScreenSpaceEventType.LEFT_UP);
+  // Update plane on mouse move
+  moveHandler.setInputAction(function (movement) {
+    if (leftDownFlag === true && entity != null) {
+      let ray = viewer.camera.getPickRay(movement.endPosition);
+      let cartesian = viewer.scene.globe.pick(ray, viewer.scene);
+      // keep the height
+      var oldPosition = Cesium.Cartographic.fromCartesian(entity.position._value);
+      var oldHeight = oldPosition.height;
+      var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
+      var newCartesian = Cesium.Cartesian3.fromRadians(newPosition.longitude, newPosition.latitude, oldHeight);
+
+      entity.position = newCartesian;
+    }
+  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+  return moveHandler;
 }

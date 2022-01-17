@@ -1,9 +1,6 @@
-import { SELECT, PLACE, UPDATE, LOAD_OWNED, REMOVE, REMOVED } from "../types";
+import { SELECT, PLACE, UPDATE, LOAD_OWNED, REMOVE, REMOVED, DONE } from "../types";
 
 const initialState = {
-  selected: null,
-  editing: false,
-  removing: false,
   owned: [],
   all: [],
 };
@@ -13,7 +10,6 @@ export default function (state = initialState, action) {
     case SELECT:
       return {
         ...state,
-        selected: action.payload,
         // set flag to selected
         owned: state.owned.map((map) => {
           if (map.id === action.payload.id) {
@@ -22,14 +18,16 @@ export default function (state = initialState, action) {
               selected: true,
             };
           }
-          return map;
+          return {
+            ...map,
+            selected: false,
+          };
         }),
       };
     case PLACE:
       return {
         ...state,
         // set flag to placed
-        editing: true,
         owned: state.owned.map((map) => {
           if (map.id === action.payload.id) {
             return {
@@ -41,12 +39,24 @@ export default function (state = initialState, action) {
           return map;
         }),
       };
-
     case UPDATE:
       return {
         ...state,
+        owned: state.owned.map((map) => {
+          if (map.id === action.payload.id) {
+            return {
+              ...map,
+              ...action.payload,
+            };
+          }
+          return map;
+        }),
+      };
+
+    case DONE:
+      return {
+        ...state,
         //  set flag to editing false
-        editing: false,
         owned: state.owned.map((map) => {
           if (map.id === action.payload.id) {
             return {
@@ -61,24 +71,6 @@ export default function (state = initialState, action) {
       return {
         ...state,
         //  set flag to placed false
-        removing: true,
-        owned: state.owned.map((map) => {
-          if (map.id === action.payload.id) {
-            return {
-              ...map,
-              editing: false,
-              placed: false,
-            };
-          }
-          return map;
-        }),
-      };
-
-    case REMOVED:
-      return {
-        ...state,
-        //  set flag to placed false
-        removing: false,
         owned: state.owned.map((map) => {
           if (map.id === action.payload.id) {
             return {

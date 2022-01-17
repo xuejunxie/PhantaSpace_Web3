@@ -20,3 +20,4 @@ export const CREATE = "CREATE";
 export const UPDATE = "UPDATE";
 export const REMOVE = "REMOVE";
 export const REMOVED = "REMOVED";
+export const DONE = "DONE";
