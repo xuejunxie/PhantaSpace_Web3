@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import * as Cesium from "cesium";
 import { connect } from "react-redux";
-import { place, removed, done } from "../redux/actions/map";
+import { place, update } from "../redux/actions/map";
 
 Cesium.Ion.defaultAccessToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjNmY0NjhmOS1iZGRjLTQ5ODgtYTQyOS0zNGFhZTQ3M2RlYzYiLCJpZCI6NzE5OTUsImlhdCI6MTYzNzIzODcyM30.C_x5USgZL8Gk2tZ7D3hd__1irF9-cyatRD-9GDaRBGc";
@@ -13,16 +13,12 @@ var entity = null;
 
 var nft = null;
 
-var moveHandler = null;
-
 class Map extends Component {
   constructor(props) {
     super(props);
     this.state = {
       owned: [],
-      placed: null,
-      camera: null,
-      viewCenter: null,
+      look: null,
       all: [],
     };
   }
@@ -72,8 +68,10 @@ class Map extends Component {
     viewer.scene.primitives.add(tileset);
 
     const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
     DoubleClickToPlace(handler, this.props.place);
 
+    MoveEntity(this.props.update);
     // Load the NYC buildings tileset  // Not working
     // var tileset = new Cesium.Cesium3DTileset({
     //   url: Cesium.IonResource.fromAssetId(75343),
@@ -85,60 +83,78 @@ class Map extends Component {
     // initialize the handler if clicked on another item
 
     if (viewer) {
-      nft = props.owned.find((nft) => nft.selected === true);
+      if (props.owned !== state.owned) {
+        nft = props.owned.find((nft) => nft.selected === true);
 
-      if (nft) {
-        // find if the item exist in the viewer
-        entity = viewer.entities.getById(nft.NFTid);
-        if (entity && !nft.editing) {
-          viewer.flyTo(entity);
-        }
+        if (nft) {
+          // find if the item exist in the viewer
+          entity = viewer.entities.getById(nft.NFTid);
+          if (entity && !nft.editing) {
+            viewer.flyTo(entity);
+          }
 
-        // handle the delete of the entity
-        if (!nft.placed) {
-          viewer.entities.remove(entity);
-        }
+          // handle the delete of the entity
+          if (!nft.placed) {
+            viewer.entities.remove(entity);
+          }
 
-        if (nft.editing) {
-          viewer.scene.screenSpaceCameraController.enableRotate = false; // lock the camera
+          if (nft.editing) {
+            viewer.scene.screenSpaceCameraController.enableRotate = false; // lock the camera
+          } else {
+            viewer.scene.screenSpaceCameraController.enableRotate = true;
+          }
 
-          moveHandler = MoveEntity();
-        } else {
-          viewer.scene.screenSpaceCameraController.enableRotate = true;
-          if (moveHandler) {
-            moveHandler.destroy();
-            moveHandler = null;
-            entity = null;
+          // if exist fly camera to entity
+          if (entity) {
+            // update endity position and orientation based on its current position and orientation
+            var cartographic = Cesium.Cartographic.fromCartesian(entity.position._value);
+            cartographic.height = nft.height;
+            var cartesian = Cesium.Cartesian3.fromRadians(
+              cartographic.longitude,
+              cartographic.latitude,
+              cartographic.height
+            );
+            entity.position = cartesian;
+
+            // update entity scale
+            entity.model.scale = nft.scale;
+
+            // update entity orientation
+            var heading = Cesium.Math.toRadians(nft.heading);
+            var pitch = Cesium.Math.toRadians(nft.pitch);
+            var roll = Cesium.Math.toRadians(nft.roll);
+            var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
+            var orientation = Cesium.Transforms.headingPitchRollQuaternion(cartesian, hpr);
+            entity.orientation = orientation;
           }
         }
-
-        // if exist fly camera to entity
-        if (entity) {
-          // update endity position and orientation based on its current position and orientation
-          var cartographic = Cesium.Cartographic.fromCartesian(entity.position._value);
-          cartographic.height = nft.height;
-          var cartesian = Cesium.Cartesian3.fromRadians(
-            cartographic.longitude,
-            cartographic.latitude,
-            cartographic.height
-          );
-          entity.position = cartesian;
-
-          // update entity scale
-          entity.model.scale = nft.scale;
-
-          // update entity orientation
-          var heading = Cesium.Math.toRadians(nft.heading);
-          var pitch = Cesium.Math.toRadians(nft.pitch);
-          var roll = Cesium.Math.toRadians(nft.roll);
-          var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
-          var orientation = Cesium.Transforms.headingPitchRollQuaternion(cartesian, hpr);
-          entity.orientation = orientation;
+      }
+      if (props.all !== state.all) {
+        props.all.map((item) => {
+          // if the item is not on the map, add it
+          if (!viewer.entities.getById(item.NFTid)) {
+            const cartesian = Cesium.Cartesian3.fromRadians(item.longitude, item.latitude, item.height);
+            const heading = Cesium.Math.toRadians(item.heading);
+            const pitch = Cesium.Math.toRadians(item.pitch);
+            const roll = Cesium.Math.toRadians(item.roll);
+            const scale = item.scale;
+            addModel(cartesian, heading, pitch, roll, scale, item);
+          }
+        });
+      }
+      if (props.look !== state.look) {
+        if (props.look) {
+          console.log(props.look);
+          if (viewer.entities.getById(props.look.NFTid)) {
+            viewer.flyTo(viewer.entities.getById(props.look.NFTid));
+          }
         }
       }
     }
     return {
       owned: props.owned,
+      all: props.all,
+      look: props.look,
     };
   }
 
@@ -150,31 +166,30 @@ class Map extends Component {
 const mapStateToProps = (state) => {
   return {
     owned: state.map.owned,
-    removing: state.map.removing,
+    all: state.map.all,
+    look: state.map.look,
   };
 };
 
-export default connect(mapStateToProps, { place, removed, done })(Map);
+export default connect(mapStateToProps, { place, update })(Map);
 
-function addModel(cartesian, direction, scale) {
+function addModel(cartesian, heading, pitch, roll, scale, item) {
   // var cartesian = Cesium.Cartesian3.fromDegrees(latitude, longitude, height);
-  var heading = Cesium.Math.toRadians(direction);
-  var pitch = 0;
-  var roll = 0;
+  console.log(item);
   var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
   var orientation = Cesium.Transforms.headingPitchRollQuaternion(cartesian, hpr);
-  entity = viewer.entities.add({
-    id: nft.NFTid,
-    name: nft.url,
+  const newEntity = viewer.entities.add({
+    id: item.NFTid,
+    name: item.url,
     position: cartesian,
     orientation: orientation,
     model: {
-      uri: nft.url,
+      uri: item.url,
       minimumPixelSize: 0,
       scale: scale,
     },
   });
-  return entity;
+  return newEntity;
 }
 
 function DoubleClickToPlace(handler, place) {
@@ -187,13 +202,15 @@ function DoubleClickToPlace(handler, place) {
         if (nft) {
           // make sure the entity is not already in the viewer
           entity = viewer.entities.getById(nft.NFTid);
+          var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
 
           if (entity) {
             // keep the height
-            var oldPosition = Cesium.Cartographic.fromCartesian(entity.position._value);
-            var oldHeight = oldPosition.height;
-            var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
-            var newCartesian = Cesium.Cartesian3.fromRadians(newPosition.longitude, newPosition.latitude, oldHeight);
+            var newCartesian = Cesium.Cartesian3.fromRadians(
+              newPosition.longitude,
+              newPosition.latitude,
+              Cesium.Cartographic.fromCartesian(entity.position._value).height
+            );
 
             entity.position = newCartesian;
             entity.orientation = Cesium.Transforms.headingPitchRollQuaternion(
@@ -201,9 +218,15 @@ function DoubleClickToPlace(handler, place) {
               new Cesium.HeadingPitchRoll(0, 0, 0)
             );
           } else {
-            addModel(cartesian, 0, 100);
-            viewer.flyTo(entity);
+            var heading = Cesium.Math.toRadians(0);
+            var pitch = 0;
+            var roll = 0;
+            var scale = 100;
+            const newEntity = addModel(cartesian, heading, pitch, roll, scale, nft);
+            viewer.flyTo(newEntity);
           }
+          nft.longitude = newPosition.longitude;
+          nft.latitude = newPosition.latitude;
           place(nft);
         }
       }
@@ -212,9 +235,9 @@ function DoubleClickToPlace(handler, place) {
   return handler;
 }
 
-function MoveEntity() {
+function MoveEntity(update) {
   var leftDownFlag = false;
-  moveHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+  const moveHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
   // Select plane when mouse down
   moveHandler.setInputAction(function (movement) {
@@ -233,19 +256,27 @@ function MoveEntity() {
   // Release plane on mouse up
   moveHandler.setInputAction(function () {
     leftDownFlag = false;
+    if (nft) {
+      update(nft);
+    }
     // viewer.scene.screenSpaceCameraController.enableRotate = true;
   }, Cesium.ScreenSpaceEventType.LEFT_UP);
   // Update plane on mouse move
   moveHandler.setInputAction(function (movement) {
     if (leftDownFlag === true && entity != null) {
-      let ray = viewer.camera.getPickRay(movement.endPosition);
-      let cartesian = viewer.scene.globe.pick(ray, viewer.scene);
-      // keep the height
-      var oldPosition = Cesium.Cartographic.fromCartesian(entity.position._value);
-      var oldHeight = oldPosition.height;
-      var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
-      var newCartesian = Cesium.Cartesian3.fromRadians(newPosition.longitude, newPosition.latitude, oldHeight);
+      var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.endPosition), viewer.scene);
 
+      // keep the height
+      var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
+      var newCartesian = Cesium.Cartesian3.fromRadians(
+        newPosition.longitude,
+        newPosition.latitude,
+        Cesium.Cartographic.fromCartesian(entity.position._value).height
+      );
+      if (nft) {
+        nft.longitude = newPosition.longitude;
+        nft.latitude = newPosition.latitude;
+      }
       entity.position = newCartesian;
     }
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);

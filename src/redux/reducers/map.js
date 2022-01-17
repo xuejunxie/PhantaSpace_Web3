@@ -1,7 +1,8 @@
-import { SELECT, PLACE, UPDATE, LOAD_OWNED, REMOVE, REMOVED, DONE } from "../types";
+import { SELECT, PLACE, UPDATE, LOAD_OWNED, REMOVE, DONE, LOAD_ALL, LOOK } from "../types";
 
 const initialState = {
   owned: [],
+  look: null,
   all: [],
 };
 
@@ -12,7 +13,7 @@ export default function (state = initialState, action) {
         ...state,
         // set flag to selected
         owned: state.owned.map((nft) => {
-          if (nft.id === action.payload.id) {
+          if (nft.NFTid === action.payload.NFTid) {
             return {
               ...nft,
               selected: true,
@@ -24,12 +25,17 @@ export default function (state = initialState, action) {
           };
         }),
       };
+    case LOOK:
+      return {
+        ...state,
+        look: action.payload,
+      };
     case PLACE:
       return {
         ...state,
         // set flag to placed
         owned: state.owned.map((nft) => {
-          if (nft.id === action.payload.id) {
+          if (nft.NFTid === action.payload.NFTid) {
             return {
               ...nft,
               editing: true,
@@ -43,7 +49,7 @@ export default function (state = initialState, action) {
       return {
         ...state,
         owned: state.owned.map((nft) => {
-          if (nft.id === action.payload.id) {
+          if (nft.NFTid === action.payload.NFTid) {
             return {
               ...nft,
               ...action.payload,
@@ -58,7 +64,7 @@ export default function (state = initialState, action) {
         ...state,
         //  set flag to editing false
         owned: state.owned.map((nft) => {
-          if (nft.id === action.payload.id) {
+          if (nft.NFTid === action.payload.NFTid) {
             return {
               ...nft,
               editing: false,
@@ -72,7 +78,7 @@ export default function (state = initialState, action) {
         ...state,
         //  set flag to placed false
         owned: state.owned.map((nft) => {
-          if (nft.id === action.payload.id) {
+          if (nft.NFTid === action.payload.NFTid) {
             return {
               ...nft,
               editing: false,
@@ -82,7 +88,11 @@ export default function (state = initialState, action) {
           return nft;
         }),
       };
-
+    case LOAD_ALL:
+      return {
+        ...state,
+        all: action.payload,
+      };
     case LOAD_OWNED:
       return {
         ...state,

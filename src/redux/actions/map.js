@@ -1,19 +1,15 @@
-import { REMOVED, PLACE, DONE } from "../types";
+import { PLACE, UPDATE } from "../types";
 
-export const place = (data) => (dispatch) => {
+export const place = (nft) => (dispatch) => {
   dispatch({
     type: PLACE,
-    payload: data,
+    payload: nft,
   });
 };
 
-export const removed = (data) => (dispatch) => {
+export const update = (nft) => (dispatch) => {
   dispatch({
-    type: REMOVED,
-    payload: data,
+    type: UPDATE,
+    payload: nft,
   });
-};
-
-export const done = (nft) => (dispatch) => {
-  dispatch({ type: DONE, payload: nft });
 };

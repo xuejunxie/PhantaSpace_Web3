@@ -1,56 +1,63 @@
-import React, { PureComponent } from "react";
+import React, { useState, useEffect } from "react";
+import "./CreateList.css";
+import { useDispatch, useSelector } from "react-redux";
+import Moralis from "moralis";
+import { useMoralis, useNewMoralisObject } from "react-moralis";
+import { LOAD_ALL, LOOK, SELECT } from "../redux/types";
 
-import { getDefaultProvider } from "ethers";
-import { NftProvider, useNft } from "use-nft";
+const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
+const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
 
-// We are using the "ethers" fetcher here.
-const ethersConfig = {
-  provider: getDefaultProvider("homestead"),
-};
+Moralis.initialize(appId);
+Moralis.serverURL = serverUrl;
 
-// Alternatively, you can use the "ethereum" fetcher. Note
-// that we are using window.ethereum here (injected by wallets
-// like MetaMask), but any standard Ethereum provider would work.
-// const fetcher = ["ethereum", { ethereum }]
+export default function ExploreList() {
+  const { user } = useMoralis();
+  const { isSaving, error, save } = useNewMoralisObject("allNFT");
+  const dispatch = useDispatch();
+  const NFTs = useSelector((state) => state.map.all);
 
-// Wrap your app with <NftProvider />.
-function App() {
+  useEffect(() => {
+    async function fetchData() {
+      const dataClass = Moralis.Object.extend("allNFT");
+      const query = new Moralis.Query(dataClass);
+      query.find().then((results) => {
+        const allNFT = results.map((item) => item.attributes);
+        dispatch({ type: LOAD_ALL, payload: allNFT });
+      });
+    }
+    fetchData();
+  }, []);
+
+  const onSelect = (nft) => {
+    dispatch({ type: LOOK, payload: nft });
+  };
+
   return (
-    <NftProvider fetcher={["ethers", ethersConfig]}>
-      <Nft />
-    </NftProvider>
+    <div className="bg-dark text-light" id="accordionParent">
+      {NFTs.map((nft) => {
+        return (
+          <div className="card  bg-dark" key={nft.NFTid}>
+            <div className="card-body text-center ">
+              <a
+                className="btn rounded-pill"
+                data-toggle="collapse"
+                href={"#collapse" + nft.NFTid}
+                role="button"
+                aria-expanded="false"
+                aria-controls={"collapse" + nft.NFTid}
+                onClick={() => onSelect(nft)}
+              >
+                <img className="img-thumbnail rounded-pill" src={nft.metadata.image_thumbnail_url} alt="nft" />
+              </a>
+              <h5 className="text-center ">{nft.name}</h5>
+            </div>
+            <div className="collapse" id={"collapse" + nft.NFTid} data-parent="#accordionParent">
+              {nft.metadata.description}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
-}
-
-// useNft() is now ready to be used in your app. Pass
-// the NFT contract and token ID to fetch the metadata.
-function Nft() {
-  const { loading, error, nft } = useNft("0x3B3ee1931Dc30C1957379FAc9aba94D1C48a5405", "97681");
-
-  // nft.loading is true during load.
-  if (loading) return <>Loading…</>;
-
-  // nft.error is an Error instance in case of error.
-  if (error || !nft) return <>Error.</>;
-
-  // You can now display the NFT metadata.
-  return (
-    <section>
-      <h1>{nft.name}</h1>
-      {/* <img src={nft.image} alt="" /> */}
-      <p>{nft.description}</p>
-      <p>Owner: {nft.owner}</p>
-      <p>Metadata URL: {nft.metadataUrl}</p>
-    </section>
-  );
-}
-
-export default class ExploreList extends PureComponent {
-  render() {
-    return (
-      <div className="text-white">
-        <App />
-      </div>
-    );
-  }
 }
