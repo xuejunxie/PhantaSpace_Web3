@@ -13,7 +13,7 @@ export class Header extends Component {
 
   tag(name, link) {
     return (
-      <ul className="navbar-nav ml-auto mt-2 mt-lg-0">
+      <ul className="navbar-nav ">
         <li className="nav-item">
           <Link to={link} className="nav-link">
             {name}
@@ -32,17 +32,6 @@ export class Header extends Component {
     return (
       <nav className="navbar navbar-expand-sm navbar-dark bg-dark" style={{ height: this.props.headerHeight }}>
         <div className="container-fluid">
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-toggle="collapse"
-            data-target="#navbarTogglerDemo01"
-            aria-controls="navbarTogglerDemo01"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon" />
-          </button>
           <div className="collapse navbar-collapse" id="navbarTogglerDemo01">
             <a className="navbar-brand" href="/">
               Phanta.Space
@@ -50,6 +39,7 @@ export class Header extends Component {
           </div>
           {Explore}
           {Create}
+
           <Account />
         </div>
       </nav>
