@@ -53,7 +53,9 @@ export default function ExploreList() {
               <h5 className="text-center ">{nft.name}</h5>
             </div>
             <div className="collapse" id={"collapse" + nft.NFTid} data-parent="#accordionParent">
-              {nft.metadata.description}
+              <a href={nft.metadata.permalink} className="text-light" target="_blank">
+                {nft.metadata.description}
+              </a>
             </div>
           </div>
         );

@@ -1,6 +1,6 @@
 import { useEffect, Fragment } from "react";
 import { useMoralis } from "react-moralis";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import "./style.css";
 
 import Header from "./layout/Header";
@@ -22,7 +22,7 @@ const alertOptions = {
   position: "top center",
 };
 
-const listWidth = "300px";
+const listWidth = "250px";
 const headerHeight = "50px";
 const viwerWidth = "calc(100vw - " + listWidth + ")";
 const height = "calc(100vh - " + headerHeight + ")";

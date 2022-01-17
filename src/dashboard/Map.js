@@ -103,7 +103,6 @@ class Map extends Component {
           } else {
             viewer.scene.screenSpaceCameraController.enableRotate = true;
             entity = null;
-            nft = null;
           }
 
           // if exist fly camera to entity
@@ -146,7 +145,6 @@ class Map extends Component {
       }
       if (props.look !== state.look) {
         if (props.look) {
-          console.log(props.look);
           if (viewer.entities.getById(props.look.NFTid)) {
             viewer.flyTo(viewer.entities.getById(props.look.NFTid));
           }
@@ -177,7 +175,6 @@ export default connect(mapStateToProps, { place, update })(Map);
 
 function addModel(cartesian, heading, pitch, roll, scale, item) {
   // var cartesian = Cesium.Cartesian3.fromDegrees(latitude, longitude, height);
-  console.log(item);
   var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
   var orientation = Cesium.Transforms.headingPitchRollQuaternion(cartesian, hpr);
   const newEntity = viewer.entities.add({
@@ -259,7 +256,9 @@ function MoveEntity(update) {
   moveHandler.setInputAction(function () {
     leftDownFlag = false;
     if (nft) {
-      update(nft);
+      if (nft.editing) {
+        update(nft);
+      }
     }
     // viewer.scene.screenSpaceCameraController.enableRotate = true;
   }, Cesium.ScreenSpaceEventType.LEFT_UP);
