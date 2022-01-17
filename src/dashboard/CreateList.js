@@ -55,7 +55,7 @@ export default function CreateList() {
                   gltfNFTs.push({
                     metadata: nft,
                     url: url,
-                    id: id,
+                    NFTid: id,
                     selected: false,
                     editing: false,
                     placed: false,
@@ -124,22 +124,22 @@ export default function CreateList() {
     <div className="bg-dark text-light" id="accordionParent">
       {NFTs.map((nft) => {
         return (
-          <div className="card  bg-dark" key={nft.id}>
+          <div className="card  bg-dark" key={nft.NFTid}>
             <div className="card-body text-center ">
               <a
                 className="btn rounded-pill"
                 data-toggle="collapse"
-                href={"#collapse" + nft.id}
+                href={"#collapse" + nft.NFTid}
                 role="button"
                 aria-expanded="false"
-                aria-controls={"collapse" + nft.id}
+                aria-controls={"collapse" + nft.NFTid}
                 onClick={() => onSelect(nft)}
               >
                 <img className="img-thumbnail rounded-pill" src={nft.metadata.image_thumbnail_url} alt="nft" />
               </a>
               <h5 className="text-center ">{nft.name}</h5>
             </div>
-            <div className="collapse" id={"collapse" + nft.id} data-parent="#accordionParent">
+            <div className="collapse" id={"collapse" + nft.NFTid} data-parent="#accordionParent">
               {nft.placed ? (
                 nft.editing ? (
                   <div className="card card-body bg-dark">

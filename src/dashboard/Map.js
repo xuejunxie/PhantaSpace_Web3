@@ -89,7 +89,7 @@ class Map extends Component {
 
       if (nft) {
         // find if the item exist in the viewer
-        entity = viewer.entities.getById(nft.id);
+        entity = viewer.entities.getById(nft.NFTid);
         if (entity && !nft.editing) {
           viewer.flyTo(entity);
         }
@@ -164,7 +164,7 @@ function addModel(cartesian, direction, scale) {
   var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
   var orientation = Cesium.Transforms.headingPitchRollQuaternion(cartesian, hpr);
   entity = viewer.entities.add({
-    id: nft.id,
+    id: nft.NFTid,
     name: nft.url,
     position: cartesian,
     orientation: orientation,
@@ -186,7 +186,7 @@ function DoubleClickToPlace(handler, place) {
         cartesian.z += 100;
         if (nft) {
           // make sure the entity is not already in the viewer
-          entity = viewer.entities.getById(nft.id);
+          entity = viewer.entities.getById(nft.NFTid);
 
           if (entity) {
             // keep the height
