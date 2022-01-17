@@ -32,7 +32,7 @@ export default function CreateList() {
         });
       }
 
-      if (1) {
+      if (user) {
         // account = user.attributes.accounts[0];
         account = "0xe9956cf72cc8e49d903478142dc8dadb4ee328ff";
         var ownedNFTs = [];
