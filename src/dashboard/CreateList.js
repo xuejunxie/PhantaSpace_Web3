@@ -5,7 +5,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import Moralis from "moralis";
 import { useMoralis } from "react-moralis";
-import { LOAD_OWNED, REMOVE, SELECT, UPDATE, PLACE, DONE } from "../redux/types";
+import { LOAD_OWNED, REMOVE, SELECT, UPDATE, PLACE, DONE, LOAD_ALL } from "../redux/types";
+
+const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
+const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
+
+Moralis.initialize(appId);
+Moralis.serverURL = serverUrl;
 
 export default function CreateList() {
   const { user } = useMoralis();
@@ -17,6 +23,15 @@ export default function CreateList() {
   // var NFTs = [];
   useEffect(() => {
     async function fetchData() {
+      if (allNFTs.length === 0) {
+        const dataClass = Moralis.Object.extend("allNFT");
+        const query = new Moralis.Query(dataClass);
+        query.find().then((results) => {
+          const allNFT = results.map((item) => item.attributes);
+          dispatch({ type: LOAD_ALL, payload: allNFT });
+        });
+      }
+
       if (1) {
         // account = user.attributes.accounts[0];
         account = "0xe9956cf72cc8e49d903478142dc8dadb4ee328ff";
@@ -82,14 +97,12 @@ export default function CreateList() {
   }, [user]);
 
   const onDone = async (nft) => {
-    console.log(nft.longitude);
     dispatch({ type: DONE, payload: nft });
     // create moralis object
     const dataClass = Moralis.Object.extend("allNFT");
     const query = new Moralis.Query(dataClass);
     query.equalTo("NFTid", nft.NFTid);
     const result = await query.find();
-    console.log(result);
     if (result.length > 0) {
       var data = result[0];
 
@@ -128,27 +141,27 @@ export default function CreateList() {
   };
 
   const height = (value, nft) => {
-    nft.height = value * 10;
+    nft.height = parseInt(value, 10);
     dispatch({ type: UPDATE, payload: nft });
   };
 
   const scale = (value, nft) => {
-    nft.scale = value * 5;
+    nft.scale = parseInt(value, 10);
     dispatch({ type: UPDATE, payload: nft });
   };
 
   const heading = (value, nft) => {
-    nft.heading = value * 5;
+    nft.heading = parseInt(value, 10);
     dispatch({ type: UPDATE, payload: nft });
   };
 
   const pitch = (value, nft) => {
-    nft.pitch = value * 5;
+    nft.pitch = parseInt(value, 10);
     dispatch({ type: UPDATE, payload: nft });
   };
 
   const roll = (value, nft) => {
-    nft.roll = value * 5;
+    nft.roll = parseInt(value, 10);
     dispatch({ type: UPDATE, payload: nft });
   };
 
@@ -180,6 +193,9 @@ export default function CreateList() {
                     <label className="form-label">Height</label>
                     <input
                       type="range"
+                      min="1"
+                      max="5000"
+                      value={nft.height}
                       className="custom-range"
                       id="Height"
                       onChange={(e) => height(e.target.value, nft)}
@@ -187,6 +203,9 @@ export default function CreateList() {
                     <label className="form-label">Scale</label>
                     <input
                       type="range"
+                      min="1"
+                      max="500"
+                      value={nft.scale}
                       className="custom-range"
                       id="Scale"
                       onChange={(e) => scale(e.target.value, nft)}
@@ -194,6 +213,9 @@ export default function CreateList() {
                     <label className="form-label">Heading</label>
                     <input
                       type="range"
+                      min="0"
+                      max="360"
+                      value={nft.heading}
                       className="custom-range"
                       id="Heading"
                       onChange={(e) => heading(e.target.value, nft)}
@@ -201,6 +223,9 @@ export default function CreateList() {
                     <label className="form-label">Pitch</label>
                     <input
                       type="range"
+                      min="0"
+                      max="360"
+                      value={nft.pitch}
                       className="custom-range"
                       id="Pitch"
                       onChange={(e) => pitch(e.target.value, nft)}
@@ -208,6 +233,9 @@ export default function CreateList() {
                     <label className="form-label">Roll</label>
                     <input
                       type="range"
+                      min="0"
+                      max="360"
+                      value={nft.roll}
                       className="custom-range"
                       id="Roll"
                       onChange={(e) => roll(e.target.value, nft)}

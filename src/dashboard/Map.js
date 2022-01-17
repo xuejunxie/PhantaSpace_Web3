@@ -102,6 +102,8 @@ class Map extends Component {
             viewer.scene.screenSpaceCameraController.enableRotate = false; // lock the camera
           } else {
             viewer.scene.screenSpaceCameraController.enableRotate = true;
+            entity = null;
+            nft = null;
           }
 
           // if exist fly camera to entity
