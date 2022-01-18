@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, createRef } from "react";
 import "./CreateList.css";
 import { useDispatch, useSelector } from "react-redux";
 import Moralis from "moralis";
 import { useMoralis, useNewMoralisObject } from "react-moralis";
-import { LOAD_ALL, LOOK, SELECT } from "../redux/types";
+import { LOAD_ALL, LOOK } from "../redux/types";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
+var refs = {};
 
 Moralis.initialize(appId);
 Moralis.serverURL = serverUrl;
@@ -16,6 +17,9 @@ export default function ExploreList() {
   const { isSaving, error, save } = useNewMoralisObject("allNFT");
   const dispatch = useDispatch();
   const NFTs = useSelector((state) => state.map.all);
+  const click = useSelector((state) => state.map.click);
+
+  console.log(click);
 
   useEffect(() => {
     async function fetchData() {
@@ -29,6 +33,15 @@ export default function ExploreList() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (click) {
+      refs[click].current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [click]);
+
   const onSelect = (nft) => {
     dispatch({ type: LOOK, payload: nft });
   };
@@ -36,8 +49,9 @@ export default function ExploreList() {
   return (
     <div className="bg-dark text-light" id="accordionParent">
       {NFTs.map((nft) => {
+        refs[nft.NFTid] = createRef();
         return (
-          <div className="card  bg-dark" key={nft.NFTid}>
+          <div className="card  bg-dark" key={nft.NFTid} ref={refs[nft.NFTid]}>
             <div className="card-body text-center ">
               <a
                 className="btn rounded-pill"
@@ -53,7 +67,7 @@ export default function ExploreList() {
               <h5 className="text-center ">{nft.name}</h5>
             </div>
             <div className="collapse" id={"collapse" + nft.NFTid} data-parent="#accordionParent">
-              <a href={nft.metadata.permalink} className="text-light" target="_blank">
+              <a href={nft.metadata.permalink} className="text-light  justify-content-center" target="_blank">
                 {nft.metadata.description}
               </a>
             </div>

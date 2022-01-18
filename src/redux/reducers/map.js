@@ -1,8 +1,9 @@
-import { SELECT, PLACE, UPDATE, LOAD_OWNED, REMOVE, DONE, LOAD_ALL, LOOK } from "../types";
+import { SELECT, PLACE, UPDATE, LOAD_OWNED, REMOVE, DONE, LOAD_ALL, LOOK, CLICK } from "../types";
 
 const initialState = {
   owned: [],
   look: null,
+  click: null,
   all: [],
 };
 
@@ -29,6 +30,11 @@ export default function (state = initialState, action) {
       return {
         ...state,
         look: action.payload,
+      };
+    case CLICK:
+      return {
+        ...state,
+        click: action.payload,
       };
     case PLACE:
       return {

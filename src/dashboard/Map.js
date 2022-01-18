@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import * as Cesium from "cesium";
 import { connect } from "react-redux";
-import { place, update } from "../redux/actions/map";
+import { place, update, click } from "../redux/actions/map";
 
 Cesium.Ion.defaultAccessToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjNmY0NjhmOS1iZGRjLTQ5ODgtYTQyOS0zNGFhZTQ3M2RlYzYiLCJpZCI6NzE5OTUsImlhdCI6MTYzNzIzODcyM30.C_x5USgZL8Gk2tZ7D3hd__1irF9-cyatRD-9GDaRBGc";
@@ -71,7 +71,7 @@ class Map extends Component {
 
     DoubleClickToPlace(handler, this.props.place);
 
-    MoveEntity(this.props.update);
+    MoveEntity(this.props.update, this.props.click);
     // Load the NYC buildings tileset  // Not working
     // var tileset = new Cesium.Cesium3DTileset({
     //   url: Cesium.IonResource.fromAssetId(75343),
@@ -171,7 +171,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps, { place, update })(Map);
+export default connect(mapStateToProps, { place, update, click })(Map);
 
 function addModel(cartesian, heading, pitch, roll, scale, item) {
   // var cartesian = Cesium.Cartesian3.fromDegrees(latitude, longitude, height);
@@ -234,18 +234,19 @@ function DoubleClickToPlace(handler, place) {
   return handler;
 }
 
-function MoveEntity(update) {
+function MoveEntity(update, click) {
   var leftDownFlag = false;
   const moveHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
   // Select plane when mouse down
   moveHandler.setInputAction(function (movement) {
     leftDownFlag = true;
-    // var pickedObject = viewer.scene.pick(movement.position);
-    // if (Cesium.defined(pickedObject)) {
-    //   if (pickedObject.id) {
-    //     entity = pickedObject.id;
-    //     console.log(entity);
+    var pickedObject = viewer.scene.pick(movement.position);
+    if (Cesium.defined(pickedObject)) {
+      if (pickedObject.id) {
+        click(pickedObject.id.id);
+      }
+    }
     // } else {
     //   viewer.scene.screenSpaceCameraController.enableRotate = true; // lock the camera
     // }
