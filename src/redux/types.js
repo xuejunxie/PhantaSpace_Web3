@@ -16,6 +16,7 @@ export const GET_CHATS_SUCCESS = "GET_CHATS_SUCCESS";
 export const SELECT = "SELECT";
 export const PLACE = "PLACE";
 export const LOAD_OWNED = "LOAD_OWNED";
+export const EXPLORE = "EXPLORE";
 export const CREATE = "CREATE";
 export const UPDATE = "UPDATE";
 export const REMOVE = "REMOVE";

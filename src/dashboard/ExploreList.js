@@ -3,7 +3,7 @@ import "./CreateList.css";
 import { useDispatch, useSelector } from "react-redux";
 import Moralis from "moralis";
 import { useMoralis, useNewMoralisObject } from "react-moralis";
-import { LOAD_ALL, LOOK } from "../redux/types";
+import { LOAD_ALL, LOOK, EXPLORE } from "../redux/types";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
@@ -19,9 +19,8 @@ export default function ExploreList() {
   const NFTs = useSelector((state) => state.map.all);
   const click = useSelector((state) => state.map.click);
 
-  console.log(click);
-
   useEffect(() => {
+    dispatch({ type: EXPLORE });
     async function fetchData() {
       const dataClass = Moralis.Object.extend("allNFT");
       const query = new Moralis.Query(dataClass);

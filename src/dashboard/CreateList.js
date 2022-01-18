@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import Moralis from "moralis";
 import { useMoralis } from "react-moralis";
-import { LOAD_OWNED, REMOVE, SELECT, UPDATE, PLACE, DONE, LOAD_ALL } from "../redux/types";
+import { LOAD_OWNED, REMOVE, SELECT, UPDATE, PLACE, DONE, LOAD_ALL, CREATE } from "../redux/types";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
@@ -22,6 +22,10 @@ export default function CreateList() {
   var account = "";
 
   // var NFTs = [];
+  useEffect(() => {
+    dispatch({ type: CREATE });
+  }, []);
+
   useEffect(() => {
     async function fetchData() {
       if (allNFTs.length === 0) {

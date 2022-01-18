@@ -19,6 +19,7 @@ class Map extends Component {
     this.state = {
       owned: [],
       look: null,
+      explore: false,
       all: [],
     };
   }
@@ -80,7 +81,15 @@ class Map extends Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    // initialize the handler if clicked on another item
+    // initialize
+    if (props.explore) {
+      if (entity) {
+        entity = null;
+      }
+      if (nft) {
+        nft = null;
+      }
+    }
 
     if (viewer) {
       if (props.owned !== state.owned) {
@@ -145,8 +154,9 @@ class Map extends Component {
       }
       if (props.look !== state.look) {
         if (props.look) {
-          if (viewer.entities.getById(props.look.NFTid)) {
-            viewer.flyTo(viewer.entities.getById(props.look.NFTid));
+          const clickedEndity = viewer.entities.getById(props.look.NFTid);
+          if (clickedEndity) {
+            viewer.flyTo(clickedEndity);
           }
         }
       }
@@ -155,6 +165,7 @@ class Map extends Component {
       owned: props.owned,
       all: props.all,
       look: props.look,
+      explore: props.explore,
     };
   }
 
@@ -168,6 +179,7 @@ const mapStateToProps = (state) => {
     owned: state.map.owned,
     all: state.map.all,
     look: state.map.look,
+    explore: state.map.explore,
   };
 };
 
