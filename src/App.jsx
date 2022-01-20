@@ -24,7 +24,7 @@ const alertOptions = {
 
 var listWidth = "250px";
 const headerHeight = "50px";
-var viwerWidth = "calc(100vw - " + listWidth + ")";
+var viewerWidth = "calc(100vw - " + listWidth + ")";
 const height = "calc(100vh - " + headerHeight + ")";
 
 const App = () => {
@@ -84,7 +84,7 @@ function Dashboard() {
           <Route exact path="create" element={<CreateList />} />
         </Routes>
       </div>
-      <Map viwerWidth={viwerWidth} viewHeight={height} />
+      <Map viewerWidth={viewerWidth} viewerHeight={height} />
     </div>
   );
 }
