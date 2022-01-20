@@ -41,6 +41,17 @@ class Map extends Component {
       infoBox: false,
       vrButton: false,
     });
+
+    // use stamen map
+    viewer.imageryLayers.removeAll();
+    const imageryProvider = new Cesium.OpenStreetMapImageryProvider({
+      url: "https://stamen-tiles.a.ssl.fastly.net/watercolor/",
+      fileExtension: "jpg",
+      credit: "Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.",
+    });
+    viewer.imageryLayers.addImageryProvider(imageryProvider);
+
+    // Cesium.ImageryLayer(imageryProvider);
     viewer.scene.globe.depthTestAgainstTerrain = true;
     // disable single click green window pop up
     viewer.selectionIndicator.viewModel.selectionIndicatorElement.style.visibility = "hidden";
@@ -68,6 +79,7 @@ class Map extends Component {
     });
     viewer.scene.primitives.add(tileset);
 
+    // add mouse click event
     const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
     DoubleClickToPlace(handler, this.props.place);
@@ -249,7 +261,6 @@ function DoubleClickToPlace(handler, place) {
 function MoveEntity(update, click) {
   var leftDownFlag = false;
   const moveHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-
   // Select plane when mouse down
   moveHandler.setInputAction(function (movement) {
     leftDownFlag = true;
