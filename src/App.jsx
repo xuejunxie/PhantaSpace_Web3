@@ -1,4 +1,4 @@
-import { useEffect, Fragment } from "react";
+import { useEffect, useState, Fragment } from "react";
 import { useMoralis } from "react-moralis";
 import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import "./style.css";
@@ -22,12 +22,32 @@ const alertOptions = {
   position: "top center",
 };
 
-const listWidth = "250px";
+var listWidth = "250px";
 const headerHeight = "50px";
-const viwerWidth = "calc(100vw - " + listWidth + ")";
+var viwerWidth = "calc(100vw - " + listWidth + ")";
 const height = "calc(100vh - " + headerHeight + ")";
 
 const App = () => {
+  // // detect if mobile
+  // const [width, setWidth] = useState(window.innerWidth);
+
+  // function handleWindowSizeChange() {
+  //   setWidth(window.innerWidth);
+  //   const isMobile = width <= 768;
+  //   console.log(window.innerWidth);
+  //   if (isMobile) {
+  //     listWidth = "20vw";
+  //     viwerWidth = "calc(100vw - " + listWidth + ")";
+  //     console.log("mobile");
+  //   }
+  // }
+  // useEffect(() => {
+  //   window.addEventListener("resize", handleWindowSizeChange);
+  //   return () => {
+  //     window.removeEventListener("resize", handleWindowSizeChange);
+  //   };
+  // }, []);
+
   const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading } = useMoralis();
 
   useEffect(() => {

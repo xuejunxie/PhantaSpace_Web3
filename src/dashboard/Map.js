@@ -42,6 +42,9 @@ class Map extends Component {
       vrButton: false,
     });
 
+    // enable shadows
+    // viewer.shadowMap.enabled = true;
+
     // use stamen map
     viewer.imageryLayers.removeAll();
     const imageryProvider = new Cesium.OpenStreetMapImageryProvider({
@@ -50,6 +53,10 @@ class Map extends Component {
       credit: "Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.",
     });
     viewer.imageryLayers.addImageryProvider(imageryProvider);
+
+    // change saturation
+    // var layer = viewer.imageryLayers.get(0);
+    // layer.saturation = 0;
 
     // Cesium.ImageryLayer(imageryProvider);
     viewer.scene.globe.depthTestAgainstTerrain = true;
