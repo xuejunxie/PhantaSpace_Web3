@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import "./CreateList.css";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { createSelector } from "reselect";
 import Moralis from "moralis";
 import { useMoralis } from "react-moralis";
-import { LOAD_OWNED, REMOVE, SELECT, UPDATE, PLACE, DONE, LOAD_ALL, CREATE } from "../redux/types";
+import { LOAD_OWNED, REMOVE, SELECT, UPDATE, PLACE, DONE, CREATE } from "../redux/types";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
@@ -15,6 +14,8 @@ Moralis.serverURL = serverUrl;
 const dataClass = Moralis.Object.extend("allNFT");
 
 export default function CreateList() {
+  const urlRegex = /(\b(https?|ftp|file|ifps):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
+
   const { user } = useMoralis();
   const dispatch = useDispatch();
   const NFTs = useSelector((state) => state.map.owned);
@@ -28,77 +29,88 @@ export default function CreateList() {
 
   useEffect(() => {
     async function fetchData() {
-      if (allNFTs.length === 0) {
-        const query = new Moralis.Query(dataClass);
-        query.find().then((results) => {
-          const allNFT = results.map((item) => item.attributes);
-          dispatch({ type: LOAD_ALL, payload: allNFT });
-        });
-      }
-
       if (user) {
         account = user.attributes.accounts[0];
-        // account = "0x8f00dd4fa196d287f9e862dbb39d66d8c7ef7364";
-        var ownedNFTs = [];
-        axios
-          .get("https://api.opensea.io/api/v1/assets?owner=" + account)
-          .then((res) => {
-            ownedNFTs = res.data.assets;
-          })
-          .then((res) => {
-            if (ownedNFTs.length > 0) {
+        // account = "0x8b87e652922445bcac00887e637a07a31af47b02";
+
+        var offset = 0;
+        var reachEnd = false;
+        const limit = 20;
+
+        for (var i = 0; i < 10; i++) {
+          const baseURL = "https://api.opensea.io/api/v1/assets?owner=";
+          var getURL = baseURL + account + "&limit=" + limit + "&offset=" + offset;
+          offset = offset + limit;
+
+          var ownedNFTs = [];
+          axios
+            .get(getURL)
+            .then((res) => {
+              ownedNFTs = res.data.assets;
+              // console.log(ownedNFTs);
+              console.log(getURL);
+              if (ownedNFTs.length === 0) {
+                reachEnd = true;
+                console.log("reach end");
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+            })
+            .then((res) => {
               var gltfNFTs = [];
-              ownedNFTs.map((nft) => {
-                var url = null;
-                // find the glb gltf URL in description of the NFT
-                var urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
-                if (nft.description) {
-                  var urls = nft.description.match(urlRegex);
-                  if (urls) {
-                    urls.map((resUrl) => {
-                      if (resUrl.includes(".glb") || resUrl.includes(".gltf")) {
-                        url = resUrl;
-                      }
+
+              if (ownedNFTs.length > 0) {
+                ownedNFTs.map((nft) => {
+                  var url = null;
+                  // find the glb gltf URL in description of the NFT
+                  if (nft.description) {
+                    var urls = nft.description.match(urlRegex);
+                    if (urls) {
+                      urls.map((resUrl) => {
+                        if (resUrl.includes(".glb") || resUrl.includes(".gltf")) {
+                          url = resUrl;
+                        }
+                      });
+                    }
+                  }
+
+                  // find the glb gltf URL in animation_url of the NFT
+                  if (nft.animation_url) {
+                    if (nft.animation_url.includes(".glb") || nft.animation_url.includes(".gltf")) {
+                      url = nft.animation_url;
+                    }
+                  }
+                  if (url) {
+                    const id = nft.asset_contract.address + "-" + nft.token_id;
+                    const existingNFT = allNFTs.find((nft) => nft.NFTid === id);
+                    // console.log(id);
+                    gltfNFTs.push({
+                      metadata: nft,
+                      url: url,
+                      NFTid: id,
+                      selected: false,
+                      editing: false,
+                      placed: existingNFT ? true : false,
+                      longitude: existingNFT ? existingNFT.longitude : 0,
+                      latitude: existingNFT ? existingNFT.latitude : 0,
+                      height: existingNFT ? existingNFT.height : 0,
+                      scale: existingNFT ? existingNFT.scale : 100,
+                      heading: existingNFT ? existingNFT.heading : 0,
+                      pitch: existingNFT ? existingNFT.pitch : 0,
+                      roll: existingNFT ? existingNFT.roll : 0,
                     });
                   }
-                }
-
-                // find the glb gltf URL in animation_url of the NFT
-                if (nft.animation_url) {
-                  if (nft.animation_url.includes(".glb") || nft.animation_url.includes(".gltf")) {
-                    url = nft.animation_url;
-                  }
-                }
-                if (url) {
-                  const id = nft.asset_contract.address + "-" + nft.token_id;
-                  const existingNFT = allNFTs.find((nft) => nft.NFTid === id);
-                  gltfNFTs.push({
-                    metadata: nft,
-                    url: url,
-                    NFTid: id,
-                    selected: false,
-                    editing: false,
-                    placed: existingNFT ? true : false,
-                    longitude: existingNFT ? existingNFT.longitude : 0,
-                    latitude: existingNFT ? existingNFT.latitude : 0,
-                    height: existingNFT ? existingNFT.height : 0,
-                    scale: existingNFT ? existingNFT.scale : 100,
-                    heading: existingNFT ? existingNFT.heading : 0,
-                    pitch: existingNFT ? existingNFT.pitch : 0,
-                    roll: existingNFT ? existingNFT.roll : 0,
-                  });
-                }
-              });
-
+                });
+              }
               dispatch({ type: LOAD_OWNED, payload: gltfNFTs });
-            }
-          });
-
+            });
+        }
         // wash NFTs and add to redux
       }
     }
     fetchData();
-  }, [user, allNFTs]);
+  }, [user]);
 
   const onDone = async (nft) => {
     dispatch({ type: DONE, payload: nft });

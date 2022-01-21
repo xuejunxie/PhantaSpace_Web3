@@ -116,7 +116,7 @@ export default function (state = initialState, action) {
     case LOAD_OWNED:
       return {
         ...state,
-        owned: action.payload,
+        owned: [...state.owned, ...action.payload],
       };
     default:
       return state;

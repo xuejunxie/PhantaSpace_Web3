@@ -3,6 +3,8 @@ import ReactDOM from "react-dom";
 import App from "./App";
 import { MoralisProvider } from "react-moralis";
 import "./index.css";
+import store from "./redux/store";
+import { Provider } from "react-redux";
 
 /** Get your free Moralis Account https://moralis.io/ */
 
@@ -16,7 +18,9 @@ const Application = () => {
     throw new Error("Missing Moralis Application ID or Server URL. Make sure to set your .env file.");
   return (
     <MoralisProvider appId={APP_ID} serverUrl={SERVER_URL}>
-      <App isServerInfo={isServerInfo} />
+      <Provider store={store}>
+        <App isServerInfo={isServerInfo} />
+      </Provider>
     </MoralisProvider>
   );
 };

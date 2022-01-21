@@ -1,6 +1,6 @@
-import { useEffect, useState, Fragment } from "react";
+import { useEffect, Fragment } from "react";
 import { useMoralis } from "react-moralis";
-import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import "./style.css";
 
 import Header from "./layout/Header";
@@ -8,14 +8,21 @@ import { Provider as AlertProvider } from "react-alert";
 import AlertTemplate from "react-alert-template-basic";
 import Alerts from "./layout/Alerts";
 
-import PrivateRoute from "./common/PrivateRoute";
-
-import { Provider } from "react-redux";
-import store from "./redux/store";
+import { useDispatch } from "react-redux";
 
 import ExploreList from "./dashboard/ExploreList";
 import CreateList from "./dashboard/CreateList";
 import Map from "./dashboard/Map";
+import { LOAD_ALL } from "redux/types";
+import Moralis from "moralis";
+
+const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
+const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
+
+Moralis.initialize(appId);
+Moralis.serverURL = serverUrl;
+
+const dataClass = Moralis.Object.extend("allNFT");
 
 const alertOptions = {
   timeout: 3000,
@@ -49,6 +56,7 @@ const App = () => {
   // }, []);
 
   const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading } = useMoralis();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const connectorId = window.localStorage.getItem("connectorId");
@@ -56,21 +64,27 @@ const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, isWeb3Enabled]);
 
+  useEffect(() => {
+    const query = new Moralis.Query(dataClass);
+    query.find().then((results) => {
+      const allNFT = results.map((item) => item.attributes);
+      dispatch({ type: LOAD_ALL, payload: allNFT });
+    });
+  }, []);
+
   return (
     <Fragment>
-      <Provider store={store}>
-        <AlertProvider template={AlertTemplate} {...alertOptions}>
-          <Router>
-            <Header headerHeight={headerHeight} />
-            <Alerts />
-            <div className="container-fluid">
-              <Routes>
-                <Route path="/*" element={<Dashboard />} />
-              </Routes>
-            </div>
-          </Router>
-        </AlertProvider>
-      </Provider>
+      <AlertProvider template={AlertTemplate} {...alertOptions}>
+        <Router>
+          <Header headerHeight={headerHeight} />
+          <Alerts />
+          <div className="container-fluid">
+            <Routes>
+              <Route path="/*" element={<Dashboard />} />
+            </Routes>
+          </div>
+        </Router>
+      </AlertProvider>
     </Fragment>
   );
 };
