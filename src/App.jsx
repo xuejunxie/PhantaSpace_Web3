@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ExploreList from "./components/ExploreList";
 import CreateList from "./components/CreateList";
 import Map from "./components/Map";
-import { LOAD_ALL, LOAD_OWNED, LOADING } from "redux/types";
+import { LOAD_ALL, LOAD_OWNED, LOADING, UPDATE } from "redux/types";
 import Moralis from "moralis";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
@@ -58,6 +58,7 @@ const App = () => {
   const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading, user } = useMoralis();
   const dispatch = useDispatch();
   const allNFTs = useSelector((state) => state.map.all);
+  const ownedNFTs = useSelector((state) => state.map.owned);
 
   useEffect(() => {
     const connectorId = window.localStorage.getItem("connectorId");
@@ -65,6 +66,7 @@ const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, isWeb3Enabled]);
 
+  // get all NFTs
   useEffect(() => {
     const query = new Moralis.Query(dataClass);
     query.find().then((results) => {
@@ -82,7 +84,7 @@ const App = () => {
   useEffect(() => {
     if (user) {
       account = user.attributes.accounts[0];
-      // account = "0xcda72070e455bb31c7690a170224ce43623d0b6f";
+      // account = "0xe9956cf72cc8e49d903478142dc8dadb4ee328ff";
 
       var reachEnd = false;
       dispatch({ type: LOADING, payload: true });
@@ -103,6 +105,8 @@ const App = () => {
           })
           .catch((err) => {
             console.log(err);
+            reachEnd = true;
+            dispatch({ type: LOADING, payload: false });
           })
           .then((res) => {
             var gltfNFTs = [];
@@ -143,7 +147,6 @@ const App = () => {
 
                 if (url) {
                   const id = nft.asset_contract.address + "-" + nft.token_id;
-                  const existingNFT = allNFTs.find((nft) => nft.NFTid === id);
                   gltfNFTs.push({
                     metadata: nft,
                     url: url,
@@ -151,14 +154,14 @@ const App = () => {
                     NFTid: id,
                     selected: false,
                     editing: false,
-                    placed: existingNFT ? true : false,
-                    longitude: existingNFT ? existingNFT.longitude : 0,
-                    latitude: existingNFT ? existingNFT.latitude : 0,
-                    height: existingNFT ? existingNFT.height : 0,
-                    scale: existingNFT ? existingNFT.scale : 100,
-                    heading: existingNFT ? existingNFT.heading : 0,
-                    pitch: existingNFT ? existingNFT.pitch : 0,
-                    roll: existingNFT ? existingNFT.roll : 0,
+                    placed: false,
+                    longitude: 0,
+                    latitude: 0,
+                    height: 0,
+                    scale: 100,
+                    heading: 0,
+                    pitch: 0,
+                    roll: 0,
                   });
                 }
               });
@@ -174,6 +177,22 @@ const App = () => {
       fetchData();
     }
   }, [user]);
+
+  // mark existing NFTs as placed
+  useEffect(() => {
+    if (ownedNFTs.length > 0) {
+      ownedNFTs.map((owned) => {
+        const existingNFT = allNFTs.find((eixisting) => {
+          if (eixisting.NFTid === owned.NFTid) {
+            return eixisting;
+          }
+        });
+        if (existingNFT) {
+          dispatch({ type: UPDATE, payload: existingNFT });
+        }
+      });
+    }
+  }, [allNFTs]);
 
   return (
     <Fragment>
