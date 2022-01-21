@@ -21,6 +21,7 @@ export default function CreateList() {
   const NFTs = useSelector((state) => state.map.owned);
   const allNFTs = useSelector((state) => state.map.all);
   var account = "";
+  const baseURL = "https://api.opensea.io/api/v1/assets?owner=";
 
   // var NFTs = [];
   useEffect(() => {
@@ -28,88 +29,89 @@ export default function CreateList() {
   }, []);
 
   useEffect(() => {
-    async function fetchData() {
-      if (user) {
-        account = user.attributes.accounts[0];
-        // account = "0x8b87e652922445bcac00887e637a07a31af47b02";
+    if (user) {
+      account = user.attributes.accounts[0];
+      // account = "0x8b87e652922445bcac00887e637a07a31af47b02";
 
-        var offset = 0;
-        var reachEnd = false;
-        const limit = 20;
+      var offset = 0;
+      var reachEnd = false;
+      const limit = 20;
 
-        for (var i = 0; i < 10; i++) {
-          const baseURL = "https://api.opensea.io/api/v1/assets?owner=";
-          var getURL = baseURL + account + "&limit=" + limit + "&offset=" + offset;
-          offset = offset + limit;
+      const fetchData = async () => {
+        var getURL = baseURL + account + "&limit=" + limit + "&offset=" + offset;
+        offset = offset + limit;
 
-          var ownedNFTs = [];
-          axios
-            .get(getURL)
-            .then((res) => {
-              ownedNFTs = res.data.assets;
-              // console.log(ownedNFTs);
-              console.log(getURL);
-              if (ownedNFTs.length === 0) {
-                reachEnd = true;
-                console.log("reach end");
-              }
-            })
-            .catch((err) => {
-              console.log(err);
-            })
-            .then((res) => {
-              var gltfNFTs = [];
+        var ownedNFTs = [];
+        axios
+          .get(getURL)
+          .then((res) => {
+            ownedNFTs = res.data.assets;
+            // console.log(ownedNFTs);
+            console.log(getURL);
+            if (ownedNFTs.length === 0) {
+              reachEnd = true;
+              console.log("reach end");
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          })
+          .then((res) => {
+            var gltfNFTs = [];
 
-              if (ownedNFTs.length > 0) {
-                ownedNFTs.map((nft) => {
-                  var url = null;
-                  // find the glb gltf URL in description of the NFT
-                  if (nft.description) {
-                    var urls = nft.description.match(urlRegex);
-                    if (urls) {
-                      urls.map((resUrl) => {
-                        if (resUrl.includes(".glb") || resUrl.includes(".gltf")) {
-                          url = resUrl;
-                        }
-                      });
-                    }
-                  }
-
-                  // find the glb gltf URL in animation_url of the NFT
-                  if (nft.animation_url) {
-                    if (nft.animation_url.includes(".glb") || nft.animation_url.includes(".gltf")) {
-                      url = nft.animation_url;
-                    }
-                  }
-                  if (url) {
-                    const id = nft.asset_contract.address + "-" + nft.token_id;
-                    const existingNFT = allNFTs.find((nft) => nft.NFTid === id);
-                    // console.log(id);
-                    gltfNFTs.push({
-                      metadata: nft,
-                      url: url,
-                      NFTid: id,
-                      selected: false,
-                      editing: false,
-                      placed: existingNFT ? true : false,
-                      longitude: existingNFT ? existingNFT.longitude : 0,
-                      latitude: existingNFT ? existingNFT.latitude : 0,
-                      height: existingNFT ? existingNFT.height : 0,
-                      scale: existingNFT ? existingNFT.scale : 100,
-                      heading: existingNFT ? existingNFT.heading : 0,
-                      pitch: existingNFT ? existingNFT.pitch : 0,
-                      roll: existingNFT ? existingNFT.roll : 0,
+            if (ownedNFTs.length > 0) {
+              ownedNFTs.map((nft) => {
+                var url = null;
+                // find the glb gltf URL in description of the NFT
+                if (nft.description) {
+                  var urls = nft.description.match(urlRegex);
+                  if (urls) {
+                    urls.map((resUrl) => {
+                      if (resUrl.includes(".glb") || resUrl.includes(".gltf")) {
+                        url = resUrl;
+                      }
                     });
                   }
-                });
-              }
-              dispatch({ type: LOAD_OWNED, payload: gltfNFTs });
-            });
-        }
+                }
+
+                // find the glb gltf URL in animation_url of the NFT
+                if (nft.animation_url) {
+                  if (nft.animation_url.includes(".glb") || nft.animation_url.includes(".gltf")) {
+                    url = nft.animation_url;
+                  }
+                }
+                if (url) {
+                  const id = nft.asset_contract.address + "-" + nft.token_id;
+                  const existingNFT = allNFTs.find((nft) => nft.NFTid === id);
+                  // console.log(id);
+                  gltfNFTs.push({
+                    metadata: nft,
+                    url: url,
+                    NFTid: id,
+                    selected: false,
+                    editing: false,
+                    placed: existingNFT ? true : false,
+                    longitude: existingNFT ? existingNFT.longitude : 0,
+                    latitude: existingNFT ? existingNFT.latitude : 0,
+                    height: existingNFT ? existingNFT.height : 0,
+                    scale: existingNFT ? existingNFT.scale : 100,
+                    heading: existingNFT ? existingNFT.heading : 0,
+                    pitch: existingNFT ? existingNFT.pitch : 0,
+                    roll: existingNFT ? existingNFT.roll : 0,
+                  });
+                }
+              });
+            }
+            dispatch({ type: LOAD_OWNED, payload: gltfNFTs });
+
+            if (!reachEnd) {
+              return fetchData();
+            }
+          });
         // wash NFTs and add to redux
-      }
+      };
+      fetchData();
     }
-    fetchData();
   }, [user]);
 
   const onDone = async (nft) => {
