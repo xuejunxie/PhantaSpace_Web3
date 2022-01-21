@@ -41,6 +41,17 @@ export default function Map(props) {
     // enable shadows
     // viewer.shadowMap.enabled = true;
 
+    // set directional light
+    viewer.scene.light = new Cesium.DirectionalLight({
+      direction: viewer.scene.camera.directionWC,
+    });
+    viewer.scene.preRender.addEventListener(function (scene, time) {
+      viewer.scene.light.direction = Cesium.Cartesian3.clone(
+        viewer.scene.camera.directionWC,
+        viewer.scene.light.direction
+      );
+    });
+
     // use stamen map
     viewer.imageryLayers.removeAll();
     const imageryProvider = new Cesium.OpenStreetMapImageryProvider({
