@@ -1,28 +1,13 @@
-import { SELECT, PLACE, UPDATE, LOAD_OWNED, REMOVE, DONE, LOAD_ALL, LOOK, CLICK, EXPLORE, CREATE } from "../types";
+import { SELECT, PLACE, UPDATE, LOAD_OWNED, REMOVE, DONE, LOAD_ALL, CLICK } from "../types";
 
 const initialState = {
   owned: [],
-  look: null,
-  click: null,
-  explore: false,
-  create: false,
   all: [],
+  click: null,
 };
 
 export default function (state = initialState, action) {
   switch (action.type) {
-    case EXPLORE:
-      return {
-        ...state,
-        explore: true,
-        create: false,
-      };
-    case CREATE:
-      return {
-        ...state,
-        create: true,
-        explore: false,
-      };
     case SELECT:
       return {
         ...state,
@@ -39,11 +24,6 @@ export default function (state = initialState, action) {
             selected: false,
           };
         }),
-      };
-    case LOOK:
-      return {
-        ...state,
-        look: action.payload,
       };
     case CLICK:
       return {

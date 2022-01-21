@@ -25,3 +25,4 @@ export const DONE = "DONE";
 export const LOAD_ALL = "LOAD_ALL";
 export const LOOK = "LOOK";
 export const CLICK = "CLICK";
+export const LOADING = "LOADING";

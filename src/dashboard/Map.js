@@ -17,8 +17,8 @@ export default function Map(props) {
   const dispatch = useDispatch();
   const owned = useSelector((state) => state.map.owned);
   const all = useSelector((state) => state.map.all);
-  const look = useSelector((state) => state.map.look);
-  const explore = useSelector((state) => state.map.explore);
+  const look = useSelector((state) => state.sidebar.look);
+  const explore = useSelector((state) => state.sidebar.explore);
 
   useEffect(() => {
     viewer = new Cesium.Viewer("cesiumContainer", {

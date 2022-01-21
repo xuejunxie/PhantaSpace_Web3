@@ -1,4 +1,4 @@
-import React, { useEffect, createRef, useState } from "react";
+import React, { useEffect, createRef } from "react";
 import "./CreateList.css";
 import { useDispatch, useSelector } from "react-redux";
 import { LOOK, EXPLORE } from "../redux/types";
@@ -43,13 +43,13 @@ export default function ExploreList() {
                 aria-controls={"collapse" + nft.NFTid}
                 onClick={() => onSelect(nft)}
               >
-                <img className="img-thumbnail rounded-pill" src={nft.metadata.image_thumbnail_url} alt="nft" />
+                <img className="img-thumbnail rounded-pill" src={nft.thumbnail} alt="nft" />
               </a>
               <h5 className="text-center ">{nft.name}</h5>
             </div>
             <div className="collapse" id={"collapse" + nft.NFTid} data-parent="#accordionParent">
               <a href={nft.metadata.permalink} className="text-light  justify-content-center" target="_blank">
-                {nft.metadata.description}
+                {nft.metadata.description ? nft.metadata.description : "Check out the source for description"}
               </a>
             </div>
           </div>

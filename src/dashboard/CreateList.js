@@ -1,10 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, createRef } from "react";
 import "./CreateList.css";
-import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import Moralis from "moralis";
 import { useMoralis } from "react-moralis";
-import { LOAD_OWNED, REMOVE, SELECT, UPDATE, PLACE, DONE, CREATE } from "../redux/types";
+import { REMOVE, SELECT, UPDATE, PLACE, DONE, CREATE } from "../redux/types";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
@@ -12,16 +11,13 @@ const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
 Moralis.initialize(appId);
 Moralis.serverURL = serverUrl;
 const dataClass = Moralis.Object.extend("allNFT");
+var refs = {};
 
 export default function CreateList() {
-  const urlRegex = /(\b(https?|ftp|file|ifps):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
-
-  const { user } = useMoralis();
   const dispatch = useDispatch();
   const NFTs = useSelector((state) => state.map.owned);
-  const allNFTs = useSelector((state) => state.map.all);
-  var account = "";
-  const baseURL = "https://api.opensea.io/api/v1/assets?owner=";
+  const loading = useSelector((state) => state.sidebar.loading);
+  const click = useSelector((state) => state.map.click);
 
   // var NFTs = [];
   useEffect(() => {
@@ -29,90 +25,15 @@ export default function CreateList() {
   }, []);
 
   useEffect(() => {
-    if (user) {
-      account = user.attributes.accounts[0];
-      // account = "0x8b87e652922445bcac00887e637a07a31af47b02";
-
-      var offset = 0;
-      var reachEnd = false;
-      const limit = 20;
-
-      const fetchData = async () => {
-        var getURL = baseURL + account + "&limit=" + limit + "&offset=" + offset;
-        offset = offset + limit;
-
-        var ownedNFTs = [];
-        axios
-          .get(getURL)
-          .then((res) => {
-            ownedNFTs = res.data.assets;
-            // console.log(ownedNFTs);
-            console.log(getURL);
-            if (ownedNFTs.length === 0) {
-              reachEnd = true;
-              console.log("reach end");
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-          })
-          .then((res) => {
-            var gltfNFTs = [];
-
-            if (ownedNFTs.length > 0) {
-              ownedNFTs.map((nft) => {
-                var url = null;
-                // find the glb gltf URL in description of the NFT
-                if (nft.description) {
-                  var urls = nft.description.match(urlRegex);
-                  if (urls) {
-                    urls.map((resUrl) => {
-                      if (resUrl.includes(".glb") || resUrl.includes(".gltf")) {
-                        url = resUrl;
-                      }
-                    });
-                  }
-                }
-
-                // find the glb gltf URL in animation_url of the NFT
-                if (nft.animation_url) {
-                  if (nft.animation_url.includes(".glb") || nft.animation_url.includes(".gltf")) {
-                    url = nft.animation_url;
-                  }
-                }
-                if (url) {
-                  const id = nft.asset_contract.address + "-" + nft.token_id;
-                  const existingNFT = allNFTs.find((nft) => nft.NFTid === id);
-                  // console.log(id);
-                  gltfNFTs.push({
-                    metadata: nft,
-                    url: url,
-                    NFTid: id,
-                    selected: false,
-                    editing: false,
-                    placed: existingNFT ? true : false,
-                    longitude: existingNFT ? existingNFT.longitude : 0,
-                    latitude: existingNFT ? existingNFT.latitude : 0,
-                    height: existingNFT ? existingNFT.height : 0,
-                    scale: existingNFT ? existingNFT.scale : 100,
-                    heading: existingNFT ? existingNFT.heading : 0,
-                    pitch: existingNFT ? existingNFT.pitch : 0,
-                    roll: existingNFT ? existingNFT.roll : 0,
-                  });
-                }
-              });
-            }
-            dispatch({ type: LOAD_OWNED, payload: gltfNFTs });
-
-            if (!reachEnd) {
-              return fetchData();
-            }
-          });
-        // wash NFTs and add to redux
-      };
-      fetchData();
+    if (click) {
+      if (refs[click]) {
+        refs[click].current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
     }
-  }, [user]);
+  }, [click]);
 
   const onDone = async (nft) => {
     dispatch({ type: DONE, payload: nft });
@@ -131,6 +52,7 @@ export default function CreateList() {
     data.set({
       NFTid: nft.NFTid,
       url: nft.url,
+      thumbnail: nft.thumbnail,
       metadata: nft.metadata,
       longitude: nft.longitude,
       latitude: nft.latitude,
@@ -190,10 +112,12 @@ export default function CreateList() {
 
   return (
     <div className="bg-dark text-light" id="accordionParent">
-      {NFTs.length > 0 ? (
+      {NFTs.length > 0 || loading ? (
         NFTs.map((nft) => {
+          refs[nft.NFTid] = createRef();
+
           return (
-            <div className="card  bg-dark" key={nft.NFTid}>
+            <div className="card  bg-dark" key={nft.NFTid} ref={refs[nft.NFTid]}>
               <div className="card-body text-center ">
                 <a
                   className="btn rounded-pill"
@@ -204,7 +128,7 @@ export default function CreateList() {
                   aria-controls={"collapse" + nft.NFTid}
                   onClick={() => onSelect(nft)}
                 >
-                  <img className="img-thumbnail rounded-pill" src={nft.metadata.image_thumbnail_url} alt="nft" />
+                  <img className="img-thumbnail rounded-pill" src={nft.thumbnail} alt="nft" />
                 </a>
                 <h5 className="text-center ">{nft.name}</h5>
               </div>
@@ -299,6 +223,13 @@ export default function CreateList() {
           </div>
         </div>
       )}
+      {loading ? (
+        <div className="card card-body bg-dark">
+          <div className="row justify-content-center">
+            Checked {loading} NFTs from your account for gltf or glb files
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
