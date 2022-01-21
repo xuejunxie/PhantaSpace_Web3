@@ -4,16 +4,13 @@ import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import "./style.css";
 import axios from "axios";
 
-import Header from "./layout/Header";
-import { Provider as AlertProvider } from "react-alert";
-import AlertTemplate from "react-alert-template-basic";
-import Alerts from "./layout/Alerts";
+import Header from "./components/Header";
 
 import { useDispatch, useSelector } from "react-redux";
 
-import ExploreList from "./dashboard/ExploreList";
-import CreateList from "./dashboard/CreateList";
-import Map from "./dashboard/Map";
+import ExploreList from "./components/ExploreList";
+import CreateList from "./components/CreateList";
+import Map from "./components/Map";
 import { LOAD_ALL, LOAD_OWNED, LOADING } from "redux/types";
 import Moralis from "moralis";
 
@@ -180,17 +177,14 @@ const App = () => {
 
   return (
     <Fragment>
-      <AlertProvider template={AlertTemplate} {...alertOptions}>
-        <Router>
-          <Header headerHeight={headerHeight} />
-          <Alerts />
-          <div className="container-fluid">
-            <Routes>
-              <Route path="/*" element={<Dashboard />} />
-            </Routes>
-          </div>
-        </Router>
-      </AlertProvider>
+      <Router>
+        <Header headerHeight={headerHeight} />
+        <div className="container-fluid">
+          <Routes>
+            <Route path="/*" element={<Dashboard />} />
+          </Routes>
+        </div>
+      </Router>
     </Fragment>
   );
 };

@@ -1,6 +1,6 @@
 import { Card, Form, notification } from "antd";
 import { useMemo, useState } from "react";
-import Address from "components/Address/Address";
+import Address from "web3Parts/Address/Address";
 import { useMoralis, useMoralisQuery } from "react-moralis";
 import { getEllipsisTxt } from "helpers/formatters";
 import ContractMethods from "./ContractMethods";

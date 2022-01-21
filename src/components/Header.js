@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Account from "../components/Account/Account";
+import Account from "../web3Parts/Account/Account";
 
 export default function Header(props) {
   const tag = (name, link) => {
