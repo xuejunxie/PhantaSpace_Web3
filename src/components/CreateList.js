@@ -15,6 +15,7 @@ var refs = {};
 
 export default function CreateList() {
   const dispatch = useDispatch();
+  const { isAuthenticated } = useMoralis();
   const NFTs = useSelector((state) => state.map.owned);
   const loading = useSelector((state) => state.sidebar.loading);
   const click = useSelector((state) => state.map.click);
@@ -219,28 +220,28 @@ export default function CreateList() {
       ) : (
         <div className="card card-body bg-dark">
           <div className="row justify-content-center">
-            <h5>
-              Hmmmmm...looks like you don't have NFTs in gltf or glb format in your wallet. Maby the NFT you got is just
-              a video.
-            </h5>
+            {isAuthenticated ? (
+              <h5>
+                Hmmmmm...looks like you don't have NFTs in gltf or glb format in your wallet. Maby the NFT you got is
+                just a video.
+              </h5>
+            ) : (
+              <h5>You need to be connect your wallet to see your NFTs</h5>
+            )}
           </div>
         </div>
       )}
-      {loading ? (
-        loading === "error" ? (
-          <div className="card card-body bg-dark">
-            <div className="row justify-content-center">
+      <div className="card card-body bg-dark">
+        <div className="row justify-content-center">
+          {loading ? (
+            loading === "error" ? (
               <h5>Some error on server side. Refresh later.</h5>
-            </div>
-          </div>
-        ) : (
-          <div className="card card-body bg-dark">
-            <div className="row justify-content-center">
+            ) : (
               <h5> Checked {loading} NFTs from your account for gltf or glb files</h5>
-            </div>
-          </div>
-        )
-      ) : null}
+            )
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 }
