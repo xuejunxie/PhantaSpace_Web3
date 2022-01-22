@@ -26,7 +26,7 @@ export default function Header(props) {
             Phanta.Space
           </a>
         </div>
-        <ul className="navbar-nav ">
+        <ul className="navbar-nav mr-3">
           <li className="nav-item">
             <a href="https://discord.gg/m5gF63cX" target="_blank">
               <svg

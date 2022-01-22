@@ -22,7 +22,10 @@ export default function Map(props) {
 
   useEffect(() => {
     viewer = new Cesium.Viewer("cesiumContainer", {
-      terrainProvider: Cesium.createWorldTerrain(),
+      terrainProvider: Cesium.createWorldTerrain({
+        // requestWaterMask: true,
+        // requestVertexNormals: true,
+      }),
       shouldAnimate: true,
       animation: false,
       homeButton: false, // disable the default home button

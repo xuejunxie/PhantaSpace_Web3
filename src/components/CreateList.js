@@ -219,16 +219,27 @@ export default function CreateList() {
       ) : (
         <div className="card card-body bg-dark">
           <div className="row justify-content-center">
-            <h5>Looks like you don't have NFTs in gltf or glb format in your wallet</h5>
+            <h5>
+              Hmmmmm...looks like you don't have NFTs in gltf or glb format in your wallet. Maby the NFT you got is just
+              a video.
+            </h5>
           </div>
         </div>
       )}
       {loading ? (
-        <div className="card card-body bg-dark">
-          <div className="row justify-content-center">
-            Checked {loading} NFTs from your account for gltf or glb files
+        loading === "error" ? (
+          <div className="card card-body bg-dark">
+            <div className="row justify-content-center">
+              <h5>Some error on server side. Refresh later.</h5>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="card card-body bg-dark">
+            <div className="row justify-content-center">
+              <h5> Checked {loading} NFTs from your account for gltf or glb files</h5>
+            </div>
+          </div>
+        )
       ) : null}
     </div>
   );
