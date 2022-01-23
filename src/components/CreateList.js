@@ -3,7 +3,7 @@ import "./CreateList.css";
 import { useDispatch, useSelector } from "react-redux";
 import Moralis from "moralis";
 import { useMoralis } from "react-moralis";
-import { REMOVE, SELECT, UPDATE, PLACE, DONE, CREATE } from "../redux/types";
+import { REMOVE, SELECT, UPDATE, PLACE, DONE, CREATE, LOOK } from "../redux/types";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
@@ -62,7 +62,7 @@ export default function CreateList() {
       heading: nft.heading,
       pitch: nft.pitch,
       roll: nft.roll,
-      placed: nft.placed,
+      placed: true,
     });
 
     data.save();
@@ -74,12 +74,15 @@ export default function CreateList() {
     query.equalTo("NFTid", nft.NFTid);
     query.find().then((results) => {
       const data = results[0];
-      data.destroy();
+      if (data) {
+        data.destroy();
+      }
     });
   };
 
   const onSelect = (nft) => {
     dispatch({ type: SELECT, payload: nft });
+    dispatch({ type: LOOK, payload: nft });
   };
 
   const onEdit = (nft) => {
@@ -226,7 +229,10 @@ export default function CreateList() {
                 just a video.
               </h5>
             ) : (
-              <h5>You need to be connect your wallet to see your NFTs</h5>
+              <h5>
+                If you connect your wallet, your 3D NFTs will beautifully show up here. Then you can place NFT on the
+                map.
+              </h5>
             )}
           </div>
         </div>
@@ -235,9 +241,9 @@ export default function CreateList() {
         <div className="row justify-content-center">
           {loading ? (
             loading === "error" ? (
-              <h5>Some error on server side. Refresh later.</h5>
+              <h5>Oops. We got some error on the server side. You may have too many NFTs. Refresh later.</h5>
             ) : (
-              <h5> Checked {loading} NFTs from your account for gltf or glb files</h5>
+              <h5> Checking {loading} NFTs from your account for gltf or glb files</h5>
             )
           ) : null}
         </div>

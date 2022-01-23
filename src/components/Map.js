@@ -13,13 +13,20 @@ var entity = null;
 
 var nft = null;
 
+var createHandler = null;
+var landHandler = null;
+var exploreHandler = null;
+
 export default function Map(props) {
   const dispatch = useDispatch();
   const owned = useSelector((state) => state.map.owned);
   const all = useSelector((state) => state.map.all);
   const look = useSelector((state) => state.sidebar.look);
   const explore = useSelector((state) => state.sidebar.explore);
+  const land = useSelector((state) => state.sidebar.land);
+  const create = useSelector((state) => state.sidebar.create);
 
+  // initialize the viewer
   useEffect(() => {
     viewer = new Cesium.Viewer("cesiumContainer", {
       terrainProvider: Cesium.createWorldTerrain({
@@ -95,42 +102,57 @@ export default function Map(props) {
       url: Cesium.IonResource.fromAssetId(96188),
     });
     viewer.scene.primitives.add(tileset);
-
-    // add mouse click event
-    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-
-    const place = (nft) => {
-      dispatch({
-        type: PLACE,
-        payload: nft,
-      });
-    };
-
-    const update = (nft) => {
-      dispatch({
-        type: UPDATE,
-        payload: nft,
-      });
-    };
-
-    const click = (NFTid) => {
-      dispatch({
-        type: CLICK,
-        payload: NFTid,
-      });
-    };
-
-    DoubleClickToPlace(handler, place);
-
-    MoveEntity(update, click);
-    // Load the NYC buildings tileset  // Not working
-    // var tileset = new Cesium.Cesium3DTileset({
-    //   url: Cesium.IonResource.fromAssetId(75343),
-    // });
-    // viewer.scene.primitives.add(tileset);
   }, []);
 
-  // initialize
+  // handle mouse events for explore page
+  useEffect(() => {
+    const dispatchClick = (NFTid) => {
+      dispatch({ type: CLICK, payload: NFTid });
+    };
+    if (explore) {
+      exploreHandler = handleExplore(dispatchClick);
+    } else {
+      if (exploreHandler) {
+        exploreHandler.destroy();
+      }
+    }
+  }, [explore]);
+
+  const dispatchPlace = (nft) => {
+    dispatch({ type: PLACE, payload: nft });
+  };
+
+  const dispatchUpdate = (nft) => {
+    dispatch({ type: UPDATE, payload: nft });
+  };
+
+  const dispatchClick = (NFTid) => {
+    dispatch({ type: CLICK, payload: NFTid });
+  };
+
+  // handle mouse events for create page
+  useEffect(() => {
+    if (create) {
+      createHandler = handleCreate(dispatchPlace, dispatchUpdate, dispatchClick);
+    } else {
+      if (createHandler) {
+        createHandler.destroy();
+      }
+    }
+  }, [create]);
+
+  // handle mouse events for lande page
+  useEffect(() => {
+    if (land) {
+      landHandler = handleLand();
+    } else {
+      if (landHandler) {
+        landHandler.destroy();
+      }
+    }
+  }, [land]);
+
+  // clean up on explore page
   useEffect(() => {
     if (entity) {
       entity = null;
@@ -140,6 +162,7 @@ export default function Map(props) {
     }
   }, [explore]);
 
+  // update the viewer when user edit the owned NFTs
   useEffect(() => {
     if (viewer) {
       nft = owned.find((nft) => nft.selected === true);
@@ -147,9 +170,6 @@ export default function Map(props) {
       if (nft) {
         // find if the item exist in the viewer
         entity = viewer.entities.getById(nft.NFTid);
-        if (entity && !nft.editing) {
-          viewer.flyTo(entity);
-        }
 
         // handle the delete of the entity
         if (!nft.placed) {
@@ -163,7 +183,7 @@ export default function Map(props) {
           entity = null;
         }
 
-        // if exist fly camera to entity
+        // handle the update of the entity
         if (entity) {
           // update endity position and orientation based on its current position and orientation
           var cartographic = Cesium.Cartographic.fromCartesian(entity.position._value);
@@ -190,6 +210,7 @@ export default function Map(props) {
     }
   }, [owned]);
 
+  // look at the entity when clicked on the list
   useEffect(() => {
     if (viewer) {
       if (look) {
@@ -201,6 +222,7 @@ export default function Map(props) {
     }
   }, [look]);
 
+  // put entity on the map when all is loaded
   useEffect(() => {
     if (viewer) {
       all.map((item) => {
@@ -238,7 +260,26 @@ function addModel(cartesian, heading, pitch, roll, scale, item) {
   return newEntity;
 }
 
-function DoubleClickToPlace(handler, place) {
+function handleExplore(dispatchClick) {
+  const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+  handler.setInputAction(function (movement) {
+    var pickedObject = viewer.scene.pick(movement.position);
+    if (Cesium.defined(pickedObject)) {
+      if (pickedObject.id) {
+        dispatchClick(pickedObject.id.id);
+      }
+    }
+    // } else {
+    //   viewer.scene.screenSpaceCameraController.enableRotate = true; // lock the camera
+    // }
+    // }
+  }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+  return handler;
+}
+
+function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick) {
+  const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
   handler.setInputAction((click) => {
     if (click.position) {
       var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(click.position), viewer.scene);
@@ -273,24 +314,20 @@ function DoubleClickToPlace(handler, place) {
           }
           nft.longitude = newPosition.longitude;
           nft.latitude = newPosition.latitude;
-          place(nft);
+          dispatchPlace(nft);
         }
       }
     }
   }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
-  return handler;
-}
 
-function MoveEntity(update, click) {
   var leftDownFlag = false;
-  const moveHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
   // Select plane when mouse down
-  moveHandler.setInputAction(function (movement) {
+  handler.setInputAction(function (movement) {
     leftDownFlag = true;
     var pickedObject = viewer.scene.pick(movement.position);
     if (Cesium.defined(pickedObject)) {
       if (pickedObject.id) {
-        click(pickedObject.id.id);
+        dispatchClick(pickedObject.id.id);
       }
     }
     // } else {
@@ -299,18 +336,8 @@ function MoveEntity(update, click) {
     // }
   }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
 
-  // Release plane on mouse up
-  moveHandler.setInputAction(function () {
-    leftDownFlag = false;
-    if (nft) {
-      if (nft.editing) {
-        update(nft);
-      }
-    }
-    // viewer.scene.screenSpaceCameraController.enableRotate = true;
-  }, Cesium.ScreenSpaceEventType.LEFT_UP);
   // Update plane on mouse move
-  moveHandler.setInputAction(function (movement) {
+  handler.setInputAction(function (movement) {
     if (leftDownFlag === true && entity != null) {
       var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.endPosition), viewer.scene);
 
@@ -328,5 +355,48 @@ function MoveEntity(update, click) {
       entity.position = newCartesian;
     }
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-  return moveHandler;
+
+  // Release plane on mouse up
+  handler.setInputAction(function () {
+    leftDownFlag = false;
+    if (nft) {
+      if (nft.editing) {
+        dispatchUpdate(nft);
+      }
+    }
+    // viewer.scene.screenSpaceCameraController.enableRotate = true;
+  }, Cesium.ScreenSpaceEventType.LEFT_UP);
+
+  return handler;
+}
+
+// const boxEntity = (cartesian,scale, item) => {
+//   const newEntity = viewer.entities.add({
+//     id: item.NFTid,
+//     name: item.url,
+//     position: cartesian,
+//     orientation: Cesium.Transforms.headingPitchRollQuaternion(cartesian, new Cesium.HeadingPitchRoll(0,0,0)),
+//     box: {
+//       dimensions: new Cesium.Cartesian3(scale, scale, scale),
+//       material: Cesium.Color.RED.withAlpha(0.5),
+//       outline: true,
+//       outlineColor: Cesium.Color.BLACK,
+//     },
+//   });
+//   return newEntity;
+// };
+
+// show squre on the map when the user move the mouse
+function handleLand() {
+  const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+  handler.setInputAction((movement) => {
+    if (movement.endPosition) {
+      const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.endPosition), viewer.scene);
+      if (cartesian) {
+        console.log(cartesian);
+      }
+    }
+  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+  return handler;
 }

@@ -11,8 +11,9 @@ import { useDispatch, useSelector } from "react-redux";
 import ExploreList from "./components/ExploreList";
 import CreateList from "./components/CreateList";
 import Map from "./components/Map";
-import { LOAD_ALL, LOAD_OWNED, LOADING, UPDATE } from "redux/types";
+import { LOAD_ALL, LOADING_ALL, LOAD_OWNED, LOADING, UPDATE } from "redux/types";
 import Moralis from "moralis";
+import Land from "components/Land";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
@@ -24,17 +25,12 @@ const dataClass = Moralis.Object.extend("allNFT");
 
 const urlRegex = /(\b(https?|ftp|file|ifps):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
 
-const alertOptions = {
-  timeout: 3000,
-  position: "top center",
-};
-
 var listWidth = "250px";
 const headerHeight = "50px";
-var viewerWidth = "calc(100vw - " + listWidth + ")";
+var viewerWidth = "calc(100% - " + listWidth + ")";
 const height = "calc(100vh - " + headerHeight + ")";
 
-const App = () => {
+export default function App() {
   // // detect if mobile
   // const [width, setWidth] = useState(window.innerWidth);
 
@@ -59,6 +55,8 @@ const App = () => {
   const dispatch = useDispatch();
   const allNFTs = useSelector((state) => state.map.all);
   const ownedNFTs = useSelector((state) => state.map.owned);
+  const loadingOwn = useSelector((state) => state.sidebar.loading);
+  const loadingAll = useSelector((state) => state.sidebar.loadingAll);
 
   useEffect(() => {
     const connectorId = window.localStorage.getItem("connectorId");
@@ -71,6 +69,7 @@ const App = () => {
     const query = new Moralis.Query(dataClass);
     query.find().then((results) => {
       dispatch({ type: LOAD_ALL, payload: results.map((item) => item.attributes) });
+      dispatch({ type: LOADING_ALL, payload: false });
     });
   }, []);
 
@@ -106,7 +105,7 @@ const App = () => {
           .catch((err) => {
             console.log(err);
             reachEnd = true;
-            dispatch({ type: LOADING, payload: false });
+            dispatch({ type: LOADING, payload: "error" });
           })
           .then((res) => {
             var gltfNFTs = [];
@@ -179,6 +178,7 @@ const App = () => {
   }, [user]);
 
   // mark existing NFTs as placed
+  // save user NFT list on server and add a refresh button to remove this step
   useEffect(() => {
     if (ownedNFTs.length > 0) {
       ownedNFTs.map((owned) => {
@@ -192,7 +192,7 @@ const App = () => {
         }
       });
     }
-  }, [allNFTs]);
+  }, [loadingOwn, loadingAll]);
 
   return (
     <Fragment>
@@ -206,7 +206,7 @@ const App = () => {
       </Router>
     </Fragment>
   );
-};
+}
 
 function Dashboard() {
   return (
@@ -215,11 +215,10 @@ function Dashboard() {
         <Routes>
           <Route exact path="" element={<ExploreList />} />
           <Route exact path="create" element={<CreateList />} />
+          <Route exact path="land" element={<Land />} />
         </Routes>
       </div>
       <Map viewerWidth={viewerWidth} viewerHeight={height} />
     </div>
   );
 }
-
-export default App;

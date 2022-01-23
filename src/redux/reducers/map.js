@@ -13,16 +13,7 @@ export default function (state = initialState, action) {
         ...state,
         // set flag to selected
         owned: state.owned.map((nft) => {
-          if (nft.NFTid === action.payload.NFTid) {
-            return {
-              ...nft,
-              selected: true,
-            };
-          }
-          return {
-            ...nft,
-            selected: false,
-          };
+          return nft.NFTid === action.payload.NFTid ? { ...nft, selected: true } : { ...nft, selected: false };
         }),
       };
     case CLICK:
@@ -35,42 +26,28 @@ export default function (state = initialState, action) {
         ...state,
         // set flag to placed
         owned: state.owned.map((nft) => {
-          if (nft.NFTid === action.payload.NFTid) {
-            return {
-              ...nft,
-              editing: true,
-              placed: true,
-            };
-          }
-          return nft;
+          return nft.NFTid === action.payload.NFTid ? { ...nft, placed: true, editing: true } : nft;
         }),
       };
+
     case UPDATE:
       return {
         ...state,
         owned: state.owned.map((nft) => {
-          if (nft.NFTid === action.payload.NFTid) {
-            return {
-              ...nft,
-              ...action.payload,
-            };
-          }
-          return nft;
+          return nft.NFTid === action.payload.NFTid ? action.payload : nft;
         }),
       };
 
     case DONE:
       return {
         ...state,
+        // add to all
+        all: state.all.map((nft) => {
+          return nft.NFTid === action.payload.NFTid ? action.payload : nft;
+        }),
         //  set flag to editing false
         owned: state.owned.map((nft) => {
-          if (nft.NFTid === action.payload.NFTid) {
-            return {
-              ...nft,
-              editing: false,
-            };
-          }
-          return nft;
+          return nft.NFTid === action.payload.NFTid ? { ...nft, editing: false, placed: true } : nft;
         }),
       };
     case REMOVE:
@@ -78,14 +55,7 @@ export default function (state = initialState, action) {
         ...state,
         //  set flag to placed false
         owned: state.owned.map((nft) => {
-          if (nft.NFTid === action.payload.NFTid) {
-            return {
-              ...nft,
-              editing: false,
-              placed: false,
-            };
-          }
-          return nft;
+          return nft.NFTid === action.payload.NFTid ? { ...nft, editing: false, placed: false } : nft;
         }),
       };
     case LOAD_ALL:

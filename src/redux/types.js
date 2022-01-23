@@ -11,3 +11,5 @@ export const LOAD_ALL = "LOAD_ALL";
 export const LOOK = "LOOK";
 export const CLICK = "CLICK";
 export const LOADING = "LOADING";
+export const LAND = "LAND";
+export const LOADING_ALL = "LOADING_ALL";
