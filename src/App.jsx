@@ -82,8 +82,8 @@ export default function App() {
 
   useEffect(() => {
     if (user) {
-      account = user.attributes.accounts[0];
-      // account = "0xe9956cf72cc8e49d903478142dc8dadb4ee328ff";
+      // account = user.attributes.accounts[0];
+      account = "0xe9956cf72cc8e49d903478142dc8dadb4ee328ff";
 
       var reachEnd = false;
       dispatch({ type: LOADING, payload: true });

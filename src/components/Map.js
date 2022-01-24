@@ -141,7 +141,7 @@ export default function Map(props) {
     }
   }, [create]);
 
-  // handle mouse events for lande page
+  // handle mouse events for land page
   useEffect(() => {
     if (land) {
       landHandler = handleLand();
@@ -370,33 +370,72 @@ function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick) {
   return handler;
 }
 
-// const boxEntity = (cartesian,scale, item) => {
-//   const newEntity = viewer.entities.add({
-//     id: item.NFTid,
-//     name: item.url,
-//     position: cartesian,
-//     orientation: Cesium.Transforms.headingPitchRollQuaternion(cartesian, new Cesium.HeadingPitchRoll(0,0,0)),
-//     box: {
-//       dimensions: new Cesium.Cartesian3(scale, scale, scale),
-//       material: Cesium.Color.RED.withAlpha(0.5),
-//       outline: true,
-//       outlineColor: Cesium.Color.BLACK,
-//     },
-//   });
-//   return newEntity;
-// };
-
 // show squre on the map when the user move the mouse
 function handleLand() {
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
-  handler.setInputAction((movement) => {
-    if (movement.endPosition) {
-      const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.endPosition), viewer.scene);
-      if (cartesian) {
-        console.log(cartesian);
-      }
+  // const cartesian = new Cesium.Cartesian3(0, 0, 0);
+  // var hpr = new Cesium.HeadingPitchRoll(0, 0, 0);
+  // var orientation = Cesium.Transforms.headingPitchRollQuaternion(cartesian, hpr);
+  // const newEntity = viewer.entities.add({
+  //   id: "test",
+  //   name: "https://storage.opensea.io/files/38f06a0dd647a8e4556b5d983e41ce39.glb",
+  //   position: cartesian,
+  //   orientation: orientation,
+  //   model: {
+  //     uri: "https://storage.opensea.io/files/38f06a0dd647a8e4556b5d983e41ce39.glb",
+  //     minimumPixelSize: 0,
+  //     scale: 100,
+  //   },
+  // });
+
+  var landEntity = viewer.entities.add({
+    id: "land",
+    name: "test",
+    wall: {
+      positions: Cesium.Cartesian3.fromDegreesArrayHeights([
+        -90.0, 43.0, 0, -87.5, 45.0, 0, -85.0, 43.0, 0, -87.5, 41.0, 0, -90.0, 43.0, 0,
+      ]),
+      material: Cesium.Color.fromBytes(8, 182, 190, 100),
+    },
+  });
+
+  handler.setInputAction(function (movement) {
+    const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.endPosition), viewer.scene);
+    if (cartesian) {
+      // newEntity.position = cartesian;
+      // console.log(cartesian);
+      const size = 0.001;
+      const sizeX = size;
+      const sizeY = size * 0.8; // normalized by the ratio of longgitude/latitude distance per degree to get a square
+      var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
+      const longitude = Cesium.Math.toDegrees(newPosition.longitude);
+      const latitude = Cesium.Math.toDegrees(newPosition.latitude);
+      const height = 100000 * size + newPosition.height;
+      const longitudeEdge = Math.round(longitude / sizeX / 2) * sizeX * 2;
+      const latitudeEdge = Math.round(latitude / sizeY / 2) * sizeY * 2;
+      console.log(longitudeEdge, latitudeEdge);
+      landEntity.wall.positions = new Cesium.CallbackProperty(function () {
+        return Cesium.Cartesian3.fromDegreesArrayHeights([
+          longitudeEdge - sizeX,
+          latitudeEdge - sizeY,
+          height,
+          longitudeEdge + sizeX,
+          latitudeEdge - sizeY,
+          height,
+          longitudeEdge + sizeX,
+          latitudeEdge + sizeY,
+          height,
+          longitudeEdge - sizeX,
+          latitudeEdge + sizeY,
+          height,
+          longitudeEdge - sizeX,
+          latitudeEdge - sizeY,
+          height,
+        ]);
+      }, false); // prevent flashing
     }
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
   return handler;
 }
