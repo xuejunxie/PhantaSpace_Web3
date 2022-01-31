@@ -14,6 +14,7 @@ import Map from "./components/Map";
 import { LOAD_ALL, LOADING_ALL, LOAD_OWNED, LOADING, UPDATE } from "redux/types";
 import Moralis from "moralis";
 import Land from "components/Land";
+import Contract from "web3Parts/Contract/Contract";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
@@ -82,8 +83,8 @@ export default function App() {
 
   useEffect(() => {
     if (user) {
-      // account = user.attributes.accounts[0];
-      account = "0xe9956cf72cc8e49d903478142dc8dadb4ee328ff";
+      account = user.attributes.accounts[0];
+      // account = "0xe9956cf72cc8e49d903478142dc8dadb4ee328ff";
 
       var reachEnd = false;
       dispatch({ type: LOADING, payload: true });
@@ -201,6 +202,7 @@ export default function App() {
         <div className="container-fluid">
           <Routes>
             <Route path="/*" element={<Dashboard />} />
+            <Route path="/contract" element={<Contract />} />
           </Routes>
         </div>
       </Router>
@@ -215,7 +217,7 @@ function Dashboard() {
         <Routes>
           <Route exact path="" element={<ExploreList />} />
           <Route exact path="create" element={<CreateList />} />
-          <Route exact path="land" element={<Land />} />
+          <Route exact path="land/:longitude/:latitude" element={<Land />} />
         </Routes>
       </div>
       <Map viewerWidth={viewerWidth} viewerHeight={height} />

@@ -39,7 +39,7 @@ export default function Map(props) {
       geocoder: true, // disable the default search button
       baseLayerPicker: false, // disable the default base layer button
       fullscreenButton: false, // disable the default full screen button
-      timeline: false,
+      timeline: true,
       sceneModePicker: false,
       navigationHelpButton: false,
       navigationInstructionsInitiallyVisible: false,
@@ -102,6 +102,11 @@ export default function Map(props) {
       url: Cesium.IonResource.fromAssetId(96188),
     });
     viewer.scene.primitives.add(tileset);
+
+    // automatic play the animation after time adjustment
+    viewer.timeline.container.onmouseup = (e) => {
+      viewer.clockViewModel.shouldAnimate = true;
+    };
   }, []);
 
   // handle mouse events for explore page
@@ -269,11 +274,13 @@ function handleExplore(dispatchClick) {
         dispatchClick(pickedObject.id.id);
       }
     }
+
     // } else {
     //   viewer.scene.screenSpaceCameraController.enableRotate = true; // lock the camera
     // }
     // }
   }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+
   return handler;
 }
 
@@ -330,6 +337,7 @@ function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick) {
         dispatchClick(pickedObject.id.id);
       }
     }
+
     // } else {
     //   viewer.scene.screenSpaceCameraController.enableRotate = true; // lock the camera
     // }
@@ -390,7 +398,6 @@ function handleLand() {
   // });
 
   var landEntity = viewer.entities.add({
-    id: "land",
     name: "test",
     wall: {
       positions: Cesium.Cartesian3.fromDegreesArrayHeights([
@@ -405,7 +412,7 @@ function handleLand() {
     if (cartesian) {
       // newEntity.position = cartesian;
       // console.log(cartesian);
-      const size = 0.001;
+      const size = 0.002;
       const sizeX = size;
       const sizeY = size * 0.8; // normalized by the ratio of longgitude/latitude distance per degree to get a square
       var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
@@ -415,6 +422,7 @@ function handleLand() {
       const longitudeEdge = Math.round(longitude / sizeX / 2) * sizeX * 2;
       const latitudeEdge = Math.round(latitude / sizeY / 2) * sizeY * 2;
       console.log(longitudeEdge, latitudeEdge);
+
       landEntity.wall.positions = new Cesium.CallbackProperty(function () {
         return Cesium.Cartesian3.fromDegreesArrayHeights([
           longitudeEdge - sizeX,

@@ -8,6 +8,8 @@ import { getExplorer } from "helpers/networks";
 import { connectors } from "./config";
 import { customEnable } from "./walletlink";
 import coinbaseIcon from "./WalletIcons/coinbase.svg";
+import { useDispatch } from "react-redux";
+import { DISCONNECT } from "redux/types";
 
 const styles = {
   account: {
@@ -47,6 +49,7 @@ const styles = {
 const signingMessage = "Welcome to PhantaSpace!";
 
 function Account() {
+  const dispatch = useDispatch();
   const { authenticate, isAuthenticated, chainId, logout, Moralis, user } = useMoralis();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isAuthModalVisible, setIsAuthModalVisible] = useState(false);
@@ -153,6 +156,7 @@ function Account() {
 
               window.localStorage.removeItem("connectorId");
               setIsModalVisible(false);
+              dispatch({ type: DISCONNECT });
             }}
           >
             Disconnect Wallet

@@ -13,3 +13,4 @@ export const CLICK = "CLICK";
 export const LOADING = "LOADING";
 export const LAND = "LAND";
 export const LOADING_ALL = "LOADING_ALL";
+export const DISCONNECT = "DISCONNECT";
