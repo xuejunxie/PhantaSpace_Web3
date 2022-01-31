@@ -256,6 +256,12 @@ function addModel(cartesian, heading, pitch, roll, scale, item) {
     name: item.url,
     position: cartesian,
     orientation: orientation,
+    availability: new Cesium.TimeIntervalCollection([
+      new Cesium.TimeInterval({
+        start: Cesium.JulianDate.fromIso8601(item.created),
+        stop: Cesium.JulianDate.fromIso8601(item.removed),
+      }),
+    ]),
     model: {
       uri: item.url,
       minimumPixelSize: 0,

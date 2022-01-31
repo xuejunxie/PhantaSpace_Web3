@@ -49,7 +49,16 @@ export default function CreateList() {
     } else {
       var data = new dataClass();
     }
+    var date = new Date().toISOString();
 
+    var created = null;
+    var updated = null;
+    var removed = "9999-08-02T00:00:00Z";
+    if (nft.created) {
+      updated = date;
+    } else {
+      created = date;
+    }
     data.set({
       NFTid: nft.NFTid,
       url: nft.url,
@@ -63,6 +72,9 @@ export default function CreateList() {
       pitch: nft.pitch,
       roll: nft.roll,
       placed: true,
+      created: created,
+      updated: updated,
+      removed: removed,
     });
 
     data.save();

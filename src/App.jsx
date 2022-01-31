@@ -83,8 +83,8 @@ export default function App() {
 
   useEffect(() => {
     if (user) {
-      account = user.attributes.accounts[0];
-      // account = "0xe9956cf72cc8e49d903478142dc8dadb4ee328ff";
+      // account = user.attributes.accounts[0];
+      account = "0x8b87e652922445bcac00887e637a07a31af47b02";
 
       var reachEnd = false;
       dispatch({ type: LOADING, payload: true });
@@ -162,6 +162,9 @@ export default function App() {
                     heading: 0,
                     pitch: 0,
                     roll: 0,
+                    created: null,
+                    updated: null,
+                    removed: null,
                   });
                 }
               });
