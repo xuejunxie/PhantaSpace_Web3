@@ -91,10 +91,10 @@ export default function App() {
 
   useEffect(() => {
     if (user) {
-      // account = user.attributes.accounts[0];
+      account = user.attributes.accounts[0];
       // account = "0xe9956cf72cc8e49d903478142dc8dadb4ee328ff";
       // big account
-      account = "0xcda72070e455bb31c7690a170224ce43623d0b6f";
+      // account = "0xcda72070e455bb31c7690a170224ce43623d0b6f";
 
       var reachEnd = false;
       dispatch({ type: LOADING, payload: true });
