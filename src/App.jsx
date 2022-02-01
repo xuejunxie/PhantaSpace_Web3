@@ -76,28 +76,42 @@ export default function App() {
 
   // load user owned NFTs
   var offset = 0;
-  const limit = 20;
+  const limit = 500;
 
   var account = "";
-  const baseURL = "https://api.opensea.io/api/v1/assets?owner=";
+  const baseURL = "https://deep-index.moralis.io/api/v2/";
+
+  const header = {
+    headers: {
+      accept: "application/json",
+      "X-API-Key": "0HQr57lvjMsyaSsds6abbmU3SgxURkBs1ho4ulXFoifXYQi4RwNUsZXvNLs1SDTE",
+    },
+  };
+  const ipfs_url = "https://ipfs.io/ipfs/";
 
   useEffect(() => {
     if (user) {
-      account = user.attributes.accounts[0];
-      // account = "0x8b87e652922445bcac00887e637a07a31af47b02";
+      // account = user.attributes.accounts[0];
+      // account = "0xe9956cf72cc8e49d903478142dc8dadb4ee328ff";
+      // big account
+      account = "0xcda72070e455bb31c7690a170224ce43623d0b6f";
 
       var reachEnd = false;
       dispatch({ type: LOADING, payload: true });
 
       const fetchData = async () => {
-        var getURL = baseURL + account + "&limit=" + limit + "&offset=" + offset;
+        var getURL = baseURL + account + "/nft?chain=eth&format=decimal" + "&offset=" + offset + "&limit=" + limit;
+
         offset = offset + limit;
+
         dispatch({ type: LOADING, payload: offset });
+
         var ownedNFTs = [];
         axios
-          .get(getURL)
+          .get(getURL, header)
           .then((res) => {
-            ownedNFTs = res.data.assets;
+            console.log(res);
+            ownedNFTs = res.data.result;
             if (ownedNFTs.length === 0) {
               reachEnd = true;
               dispatch({ type: LOADING, payload: false });
@@ -115,40 +129,58 @@ export default function App() {
               ownedNFTs.map((nft) => {
                 var url = null;
                 var thumbnail = null;
-                // find the glb gltf URL in description of the NFT
-                if (nft.description) {
-                  var urls = nft.description.match(urlRegex);
-                  if (urls) {
-                    urls.map((resUrl) => {
-                      if (resUrl.includes(".glb") || resUrl.includes(".gltf")) {
-                        url = resUrl;
+
+                var metadata = JSON.parse(nft.metadata);
+                if (metadata) {
+                  // find the glb gltf URL in description of the NFT
+                  if (metadata.description) {
+                    var urls = metadata.description.match(urlRegex);
+                    if (urls) {
+                      urls.map((resUrl) => {
+                        if (resUrl.includes(".glb") || resUrl.includes(".gltf")) {
+                          url = resUrl;
+                        }
+                      });
+                    }
+                  }
+
+                  // find the glb gltf URL in animation_url of the NFT
+                  if (metadata.animation_url) {
+                    if (metadata.animation_url.includes(".glb") || metadata.animation_url.includes(".gltf")) {
+                      url = metadata.animation_url;
+                      if (metadata.image) {
+                        thumbnail = metadata.image;
                       }
-                    });
+                    }
                   }
-                }
 
-                // find the glb gltf URL in animation_url of the NFT
-                if (nft.animation_url) {
-                  if (nft.animation_url.includes(".glb") || nft.animation_url.includes(".gltf")) {
-                    url = nft.animation_url;
+                  // find the glb gltf URL in image of the NFT
+                  if (metadata.image) {
+                    if (metadata.image.includes(".glb") || metadata.image.includes(".gltf")) {
+                      url = metadata.image;
+                    }
                   }
-                }
 
-                if (nft.asset_contract.image_url) {
-                  thumbnail = nft.asset_contract.image_url;
-                }
+                  // if (nft.asset_contract.image_url) {
+                  //   thumbnail = nft.asset_contract.image_url;
+                  // }
 
-                if (nft.image_thumbnail_url) {
-                  thumbnail = nft.image_thumbnail_url;
+                  // if (nft.image_thumbnail_url) {
+                  //   thumbnail = nft.image_thumbnail_url;
+                  // }
+                  // if (nft.image_url) {
+                  //   thumbnail = nft.image_url;
+                  // }
                 }
-                if (nft.image_url) {
-                  thumbnail = nft.image_url;
-                }
-
                 if (url) {
-                  const id = nft.asset_contract.address + "-" + nft.token_id;
+                  if (url.includes(".ipfs")) {
+                    url = url.replace("ipfs://", ipfs_url);
+                  }
+
+                  const id = nft.token_address + "-" + nft.token_id;
+
                   gltfNFTs.push({
-                    metadata: nft,
+                    metadata: metadata,
                     url: url,
                     thumbnail: thumbnail,
                     NFTid: id,
@@ -162,7 +194,7 @@ export default function App() {
                     heading: 0,
                     pitch: 0,
                     roll: 0,
-                    created: null,
+                    created: new Date().toISOString(),
                     updated: null,
                     removed: null,
                   });

@@ -259,7 +259,9 @@ function addModel(cartesian, heading, pitch, roll, scale, item) {
     availability: new Cesium.TimeIntervalCollection([
       new Cesium.TimeInterval({
         start: Cesium.JulianDate.fromIso8601(item.created),
-        stop: Cesium.JulianDate.fromIso8601(item.removed),
+        stop: item.removed
+          ? Cesium.JulianDate.fromIso8601(item.removed)
+          : Cesium.JulianDate.fromIso8601("9999-12-02T00:00:00Z"),
       }),
     ]),
     model: {
@@ -268,6 +270,7 @@ function addModel(cartesian, heading, pitch, roll, scale, item) {
       scale: scale,
     },
   });
+
   return newEntity;
 }
 
