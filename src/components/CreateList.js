@@ -1,9 +1,10 @@
-import React, { useEffect, createRef } from "react";
+import React, { useEffect, createRef, Suspense } from "react";
 import "./CreateList.css";
 import { useDispatch, useSelector } from "react-redux";
 import Moralis from "moralis";
 import { useMoralis } from "react-moralis";
 import { REMOVE, SELECT, UPDATE, PLACE, DONE, CREATE, LOOK } from "../redux/types";
+import GltfThumbnail from "./gltfThumbnail";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
@@ -144,9 +145,15 @@ export default function CreateList() {
                   aria-controls={"collapse" + nft.NFTid}
                   onClick={() => onSelect(nft)}
                 >
-                  <img className="img-thumbnail rounded-pill" src={nft.thumbnail} alt="nft" />
+                  {nft.thumbnail ? (
+                    <div>
+                      <img className="img-thumbnail rounded-pill" src={nft.thumbnail} alt="nft" />
+                      <h5 className="text-light">{nft.metadata.name}</h5>
+                    </div>
+                  ) : (
+                    <h5 className="text-light">{nft.metadata.name}</h5>
+                  )}
                 </a>
-                <h5 className="text-center ">{nft.name}</h5>
               </div>
               <div className="collapse" id={"collapse" + nft.NFTid} data-parent="#accordionParent">
                 {nft.placed ? (
