@@ -16,10 +16,12 @@ export default function ExploreList() {
 
   useEffect(() => {
     if (click) {
-      refs[click].current.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+      if (refs[click]) {
+        refs[click].current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
     }
   }, [click]);
 
@@ -43,7 +45,14 @@ export default function ExploreList() {
                 aria-controls={"collapse" + nft.NFTid}
                 onClick={() => onSelect(nft)}
               >
-                <img className="img-thumbnail rounded-pill" src={nft.thumbnail} alt="nft" />
+                {nft.thumbnail ? (
+                  <div>
+                    <img className="img-thumbnail rounded-pill" src={nft.thumbnail} alt="nft" />
+                    <h5 className="text-light">{nft.metadata.name}</h5>
+                  </div>
+                ) : (
+                  <h5 className="text-light">{nft.metadata.name}</h5>
+                )}
               </a>
               <h5 className="text-center ">{nft.name}</h5>
             </div>

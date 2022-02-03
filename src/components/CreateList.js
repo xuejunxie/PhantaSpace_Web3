@@ -1,10 +1,9 @@
-import React, { useEffect, createRef, Suspense } from "react";
+import React, { useEffect, createRef } from "react";
 import "./CreateList.css";
 import { useDispatch, useSelector } from "react-redux";
 import Moralis from "moralis";
 import { useMoralis } from "react-moralis";
 import { REMOVE, SELECT, UPDATE, PLACE, DONE, CREATE, LOOK } from "../redux/types";
-import GltfThumbnail from "./gltfThumbnail";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
@@ -57,6 +56,7 @@ export default function CreateList() {
     var removed = "9999-08-02T00:00:00Z";
     if (nft.created) {
       updated = date;
+      created = nft.created;
     } else {
       created = date;
     }

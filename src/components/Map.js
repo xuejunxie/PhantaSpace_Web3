@@ -9,19 +9,20 @@ const dummyCredit = document.createElement("div");
 
 var viewer = null;
 
-var entity = null;
-
-var nft = null;
-
 var createHandler = null;
 var landHandler = null;
 var exploreHandler = null;
+
+// this global variable is used to pass entity between useEffect on create and mouse event handler
+var entity = null;
 
 export default function Map(props) {
   const dispatch = useDispatch();
   const owned = useSelector((state) => state.map.owned);
   const all = useSelector((state) => state.map.all);
   const look = useSelector((state) => state.sidebar.look);
+  const selectedNFT = useSelector((state) => state.map.selected);
+
   const explore = useSelector((state) => state.sidebar.explore);
   const land = useSelector((state) => state.sidebar.land);
   const create = useSelector((state) => state.sidebar.create);
@@ -135,17 +136,6 @@ export default function Map(props) {
     dispatch({ type: CLICK, payload: NFTid });
   };
 
-  // handle mouse events for create page
-  useEffect(() => {
-    if (create) {
-      createHandler = handleCreate(dispatchPlace, dispatchUpdate, dispatchClick);
-    } else {
-      if (createHandler) {
-        createHandler.destroy();
-      }
-    }
-  }, [create]);
-
   // handle mouse events for land page
   useEffect(() => {
     if (land) {
@@ -162,15 +152,22 @@ export default function Map(props) {
     if (entity) {
       entity = null;
     }
-    if (nft) {
-      nft = null;
-    }
   }, [explore]);
 
   // update the viewer when user edit the owned NFTs
   useEffect(() => {
     if (viewer) {
-      nft = owned.find((nft) => nft.selected === true);
+      const nft = owned.find((nft) => nft.selected === true);
+
+      // handle mouse events for create page
+      if (createHandler) {
+        if (!createHandler.isDestroyed()) {
+          createHandler.destroy();
+        }
+      }
+      if (create) {
+        createHandler = handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft);
+      }
 
       if (nft) {
         // find if the item exist in the viewer
@@ -213,7 +210,7 @@ export default function Map(props) {
         }
       }
     }
-  }, [owned]);
+  }, [owned, create]);
 
   // look at the entity when clicked on the list
   useEffect(() => {
@@ -293,7 +290,7 @@ function handleExplore(dispatchClick) {
   return handler;
 }
 
-function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick) {
+function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft) {
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
   handler.setInputAction((click) => {
@@ -430,7 +427,6 @@ function handleLand() {
       const height = 100000 * size + newPosition.height;
       const longitudeEdge = Math.round(longitude / sizeX / 2) * sizeX * 2;
       const latitudeEdge = Math.round(latitude / sizeY / 2) * sizeY * 2;
-      console.log(longitudeEdge, latitudeEdge);
 
       landEntity.wall.positions = new Cesium.CallbackProperty(function () {
         return Cesium.Cartesian3.fromDegreesArrayHeights([

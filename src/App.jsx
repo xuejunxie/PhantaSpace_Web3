@@ -2,7 +2,6 @@ import { useEffect, Fragment } from "react";
 import { useMoralis } from "react-moralis";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import "./style.css";
-import axios from "axios";
 
 import Header from "./components/Header";
 
@@ -11,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ExploreList from "./components/ExploreList";
 import CreateList from "./components/CreateList";
 import Map from "./components/Map";
-import { LOAD_ALL, LOADING_ALL, LOAD_OWNED, LOADING, UPDATE } from "redux/types";
+import { LOAD_ALL, LOADING_ALL, UPDATE } from "redux/types";
 import Moralis from "moralis";
 import Land from "components/Land";
 import Contract from "web3Parts/Contract/Contract";
@@ -129,6 +128,7 @@ function Dashboard() {
         <Routes>
           <Route exact path="" element={<ExploreList />} />
           <Route exact path="create" element={<CreateList />} />
+          <Route exact path="land" element={<Land />} />
           <Route exact path="land/:longitude/:latitude" element={<Land />} />
         </Routes>
       </div>
