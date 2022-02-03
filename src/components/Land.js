@@ -22,7 +22,7 @@ export default function Land() {
 
   useEffect(() => {
     if (selected_land) {
-      window.history.pushState("", "", `/land/${selected_land.longitude}/${selected_land.latitude}`);
+      window.history.pushState("", "", `#/land/${selected_land.longitude}/${selected_land.latitude}`);
     }
   }, [selected_land]);
 
