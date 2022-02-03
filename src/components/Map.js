@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import * as Cesium from "cesium";
 import { useDispatch, useSelector } from "react-redux";
-import { PLACE, UPDATE, CLICK } from "../redux/types";
+import { PLACE, UPDATE, CLICK, SELECT_LAND } from "../redux/types";
 
 Cesium.Ion.defaultAccessToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjNmY0NjhmOS1iZGRjLTQ5ODgtYTQyOS0zNGFhZTQ3M2RlYzYiLCJpZCI6NzE5OTUsImlhdCI6MTYzNzIzODcyM30.C_x5USgZL8Gk2tZ7D3hd__1irF9-cyatRD-9GDaRBGc";
@@ -21,11 +21,68 @@ export default function Map(props) {
   const owned = useSelector((state) => state.map.owned);
   const all = useSelector((state) => state.map.all);
   const look = useSelector((state) => state.sidebar.look);
-  const selectedNFT = useSelector((state) => state.map.selected);
 
   const explore = useSelector((state) => state.sidebar.explore);
   const land = useSelector((state) => state.sidebar.land);
   const create = useSelector((state) => state.sidebar.create);
+
+  const show_land = useSelector((state) => state.land.show_land);
+
+  // show land
+  useEffect(() => {
+    if (show_land && show_land.longitude) {
+      var longitudeEdge = show_land.longitude;
+      var latitudeEdge = show_land.latitude;
+      // get height of the land from map
+
+      // Get a reference to the ellipsoid, with terrain on it.  (This API may change soon)
+      var ellipsoid = viewer.scene.globe.ellipsoid;
+
+      // Specify our point of interest.
+      var pointOfInterest = Cesium.Cartographic.fromDegrees(
+        longitudeEdge,
+        latitudeEdge,
+        5000,
+        new Cesium.Cartographic()
+      );
+
+      // [OPTIONAL] Fly the camera there, to see if we got the right point.
+      viewer.camera.flyTo({
+        destination: ellipsoid.cartographicToCartesian(pointOfInterest, new Cesium.Cartesian3()),
+      });
+
+      // Sample the terrain (async) and write the answer to the console.
+      Cesium.sampleTerrain(viewer.terrainProvider, 9, [pointOfInterest]).then(function (samples) {
+        var size = 0.002;
+        const sizeX = size;
+        const sizeY = size * 0.8;
+        var height = samples[0].height + 100000 * size;
+        var landEntity = viewer.entities.add({
+          name: "test",
+          wall: {
+            positions: Cesium.Cartesian3.fromDegreesArrayHeights([
+              longitudeEdge - sizeX,
+              latitudeEdge - sizeY,
+              height,
+              longitudeEdge + sizeX,
+              latitudeEdge - sizeY,
+              height,
+              longitudeEdge + sizeX,
+              latitudeEdge + sizeY,
+              height,
+              longitudeEdge - sizeX,
+              latitudeEdge + sizeY,
+              height,
+              longitudeEdge - sizeX,
+              latitudeEdge - sizeY,
+              height,
+            ]),
+            material: Cesium.Color.fromBytes(8, 182, 190, 100),
+          },
+        });
+      });
+    }
+  }, [show_land]);
 
   // initialize the viewer
   useEffect(() => {
@@ -139,7 +196,7 @@ export default function Map(props) {
   // handle mouse events for land page
   useEffect(() => {
     if (land) {
-      landHandler = handleLand();
+      landHandler = handleLand(dispatch);
     } else {
       if (landHandler) {
         landHandler.destroy();
@@ -385,23 +442,8 @@ function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft) {
 }
 
 // show squre on the map when the user move the mouse
-function handleLand() {
+function handleLand(dispatch) {
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-
-  // const cartesian = new Cesium.Cartesian3(0, 0, 0);
-  // var hpr = new Cesium.HeadingPitchRoll(0, 0, 0);
-  // var orientation = Cesium.Transforms.headingPitchRollQuaternion(cartesian, hpr);
-  // const newEntity = viewer.entities.add({
-  //   id: "test",
-  //   name: "https://storage.opensea.io/files/38f06a0dd647a8e4556b5d983e41ce39.glb",
-  //   position: cartesian,
-  //   orientation: orientation,
-  //   model: {
-  //     uri: "https://storage.opensea.io/files/38f06a0dd647a8e4556b5d983e41ce39.glb",
-  //     minimumPixelSize: 0,
-  //     scale: 100,
-  //   },
-  // });
 
   var landEntity = viewer.entities.add({
     name: "test",
@@ -413,7 +455,10 @@ function handleLand() {
     },
   });
 
+  // show a square on the floor when the mouse move
+
   handler.setInputAction(function (movement) {
+    console.log(movement.endPosition);
     const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.endPosition), viewer.scene);
     if (cartesian) {
       // newEntity.position = cartesian;
@@ -449,6 +494,48 @@ function handleLand() {
       }, false); // prevent flashing
     }
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+  // select the land when the mouse click
+  handler.setInputAction(function (movement) {
+    const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.position), viewer.scene);
+    if (cartesian) {
+      const size = 0.002;
+      const sizeX = size;
+      const sizeY = size * 0.8; // normalized by the ratio of longgitude/latitude distance per degree to get a square
+      var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
+      const longitude = Cesium.Math.toDegrees(newPosition.longitude);
+      const latitude = Cesium.Math.toDegrees(newPosition.latitude);
+      const height = 100000 * size + newPosition.height;
+      const longitudeEdge = Math.round(longitude / sizeX / 2) * sizeX * 2;
+      const latitudeEdge = Math.round(latitude / sizeY / 2) * sizeY * 2;
+      dispatch({
+        type: SELECT_LAND,
+        payload: {
+          longitude: longitudeEdge,
+          latitude: latitudeEdge,
+        },
+      });
+      landEntity.wall.positions = new Cesium.CallbackProperty(function () {
+        return Cesium.Cartesian3.fromDegreesArrayHeights([
+          longitudeEdge - sizeX,
+          latitudeEdge - sizeY,
+          height,
+          longitudeEdge + sizeX,
+          latitudeEdge - sizeY,
+          height,
+          longitudeEdge + sizeX,
+          latitudeEdge + sizeY,
+          height,
+          longitudeEdge - sizeX,
+          latitudeEdge + sizeY,
+          height,
+          longitudeEdge - sizeX,
+          latitudeEdge - sizeY,
+          height,
+        ]);
+      }, false); // prevent flashing
+    }
+  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
   return handler;
 }

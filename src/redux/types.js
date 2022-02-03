@@ -19,4 +19,5 @@ export const LAND = "LAND";
 export const LOADING_ALL = "LOADING_ALL";
 
 // types for land operations
-export const CLICK_LAND = "CLICK_LAND";
+export const SELECT_LAND = "SELECT_LAND";
+export const SHOW_LAND = "SHOW_LAND";
