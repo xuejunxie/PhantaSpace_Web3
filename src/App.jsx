@@ -83,6 +83,7 @@ export default function App() {
       // account = "0xcda72070e455bb31c7690a170224ce43623d0b6f";
       // account = "0x8b87e652922445bcac00887e637a07a31af47b02";
       // account = "0xce90a7949bb78892f159f428d0dc23a8e3584d75";
+      // account = "0x5a501b42cfab342571f8ddf18e5e952a8a9bf60f";
       // get user owned NFTs
       getAssetsByOpensea(account, dispatch);
       // getAssetsByMoralis(account, dispatch);

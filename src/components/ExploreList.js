@@ -31,7 +31,7 @@ export default function ExploreList() {
 
   return (
     <div className="bg-dark text-light" id="accordionParent">
-      {NFTs.map((nft) => {
+      {NFTs.reverse().map((nft) => {
         refs[nft.NFTid] = createRef();
         return (
           <div className="card  bg-dark" key={nft.NFTid} ref={refs[nft.NFTid]}>
