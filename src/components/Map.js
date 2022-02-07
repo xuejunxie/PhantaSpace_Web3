@@ -458,7 +458,6 @@ function handleLand(dispatch) {
   // show a square on the floor when the mouse move
 
   handler.setInputAction(function (movement) {
-    console.log(movement.endPosition);
     const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.endPosition), viewer.scene);
     if (cartesian) {
       // newEntity.position = cartesian;
@@ -511,8 +510,8 @@ function handleLand(dispatch) {
       dispatch({
         type: SELECT_LAND,
         payload: {
-          longitude: longitudeEdge,
-          latitude: latitudeEdge,
+          longitude: parseFloat(longitudeEdge.toFixed(4)),
+          latitude: parseFloat(latitudeEdge.toFixed(4)),
         },
       });
       landEntity.wall.positions = new Cesium.CallbackProperty(function () {
