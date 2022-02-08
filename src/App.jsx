@@ -128,7 +128,7 @@ function Dashboard() {
         <Routes>
           <Route exact path="" element={<ExploreList />} />
           <Route exact path="explore" element={<ExploreList />} />
-          <Route exact path="explore/:NFTid" element={<Dashboard />} />
+          <Route exact path="explore/:NFTid" element={<ExploreList />} />
           <Route exact path="create" element={<CreateList />} />
           <Route exact path="land" element={<Land />} />
           <Route exact path="land/:longitude/:latitude" element={<Land />} />

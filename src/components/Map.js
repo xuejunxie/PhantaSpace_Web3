@@ -178,7 +178,7 @@ export default function Map(props) {
     if (explore) {
       exploreHandler = handleExplore(dispatchClick);
     } else {
-      if (exploreHandler) {
+      if (exploreHandler && !exploreHandler.isDestroyed()) {
         exploreHandler.destroy();
       }
     }
@@ -201,7 +201,7 @@ export default function Map(props) {
     if (land) {
       landHandler = handleLand(dispatch);
     } else {
-      if (landHandler) {
+      if (landHandler && !landHandler.isDestroyed()) {
         landHandler.destroy();
       }
     }

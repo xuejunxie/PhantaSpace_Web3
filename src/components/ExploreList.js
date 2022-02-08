@@ -11,16 +11,17 @@ export default function ExploreList() {
   const NFTid = useParams().NFTid;
   const NFTs = useSelector((state) => state.map.all);
   const click = useSelector((state) => state.map.click);
+  const loadingAll = useSelector((state) => state.sidebar.loadingAll);
 
   useEffect(() => {
     dispatch({ type: EXPLORE });
   }, []);
 
   useEffect(() => {
-    if (NFTid) {
+    if (NFTid && !loadingAll) {
       dispatch({ type: LOOK, payload: { NFTid: NFTid } });
     }
-  }, [NFTid, NFTs]);
+  }, [NFTid, loadingAll]);
 
   useEffect(() => {
     if (click) {
