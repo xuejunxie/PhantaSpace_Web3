@@ -114,7 +114,6 @@ export default function App() {
         <div className="container-fluid">
           <Routes>
             <Route path="/*" element={<Dashboard />} />
-            <Route path="/contract" element={<Contract />} />
           </Routes>
         </div>
       </Router>
@@ -128,6 +127,8 @@ function Dashboard() {
       <div style={{ width: listWidth, maxHeight: height }} className="overflow-auto">
         <Routes>
           <Route exact path="" element={<ExploreList />} />
+          <Route exact path="explore" element={<ExploreList />} />
+          <Route exact path="explore/:NFTid" element={<Dashboard />} />
           <Route exact path="create" element={<CreateList />} />
           <Route exact path="land" element={<Land />} />
           <Route exact path="land/:longitude/:latitude" element={<Land />} />

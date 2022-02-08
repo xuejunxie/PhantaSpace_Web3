@@ -15,7 +15,7 @@ export default function Header(props) {
     );
   };
 
-  const Explore = tag("Explore", "/");
+  const Explore = tag("Explore", "/explore");
   const Create = tag("Create", "/create");
   const Land = tag("Land", "/land");
 

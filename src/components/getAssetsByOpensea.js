@@ -75,7 +75,7 @@ export default async function getAssetsByOpensea(account, dispatch) {
             }
 
             if (url) {
-              const id = nft.asset_contract.address + "-" + nft.token_id;
+              const id = nft.token_id + "-" + nft.asset_contract.address;
               gltfNFTs.push({
                 metadata: nft,
                 url: url,

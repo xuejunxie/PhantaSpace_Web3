@@ -120,6 +120,9 @@ export default function Map(props) {
       );
     });
 
+    // // enable anti-aliasing
+    // viewer.scene.fxaa = true;
+
     // use stamen map
     viewer.imageryLayers.removeAll();
     const imageryProvider = new Cesium.OpenStreetMapImageryProvider({
