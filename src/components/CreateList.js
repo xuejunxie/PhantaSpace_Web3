@@ -165,7 +165,7 @@ export default function CreateList() {
                       <input
                         type="range"
                         min="1"
-                        max="5000"
+                        max="10000"
                         value={nft.height}
                         className="custom-range"
                         id="Height"
@@ -175,7 +175,7 @@ export default function CreateList() {
                       <input
                         type="range"
                         min="1"
-                        max="500"
+                        max="1000"
                         value={nft.scale}
                         className="custom-range"
                         id="Scale"
@@ -243,10 +243,7 @@ export default function CreateList() {
         <div className="card card-body bg-dark">
           <div className="row justify-content-center">
             {isAuthenticated ? (
-              <h5>
-                Hmmmmm...looks like you don't have NFTs in gltf or glb format in your wallet. Maby the NFT you got is
-                just a video.
-              </h5>
+              <h5>Hmmmmm...looks like you don't have NFTs in gltf or glb format in your wallet.</h5>
             ) : (
               <h5>
                 If you connect your wallet, your 3D NFTs will beautifully show up here. Then you can place NFT on the

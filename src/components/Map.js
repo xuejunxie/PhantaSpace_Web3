@@ -365,11 +365,10 @@ function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft) {
           var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
 
           if (entity) {
-            // keep the height
             var newCartesian = Cesium.Cartesian3.fromRadians(
               newPosition.longitude,
               newPosition.latitude,
-              Cesium.Cartographic.fromCartesian(entity.position._value).height
+              newPosition.height
             );
 
             entity.position = newCartesian;
@@ -387,6 +386,7 @@ function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft) {
           }
           nft.longitude = newPosition.longitude;
           nft.latitude = newPosition.latitude;
+          nft.height = newPosition.height;
           dispatchPlace(nft);
         }
       }
@@ -420,11 +420,14 @@ function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft) {
       var newCartesian = Cesium.Cartesian3.fromRadians(
         newPosition.longitude,
         newPosition.latitude,
-        Cesium.Cartographic.fromCartesian(entity.position._value).height
+        // newPosition.height,
+        Math.max(Cesium.Cartographic.fromCartesian(entity.position._value).height, newPosition.height)
       );
       if (nft) {
         nft.longitude = newPosition.longitude;
         nft.latitude = newPosition.latitude;
+        // nft.height = newPosition.height;
+        nft.height = Math.max(Cesium.Cartographic.fromCartesian(entity.position._value).height, newPosition.height);
       }
       entity.position = newCartesian;
     }
