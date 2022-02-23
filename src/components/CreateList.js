@@ -103,27 +103,27 @@ export default function CreateList() {
   };
 
   const height = (value, nft) => {
-    nft.height = parseInt(value, 10);
+    nft.height = parseFloat(value, 10);
     dispatch({ type: UPDATE, payload: nft });
   };
 
   const scale = (value, nft) => {
-    nft.scale = parseInt(value, 10);
+    nft.scale = Math.exp(parseFloat(value, 10));
     dispatch({ type: UPDATE, payload: nft });
   };
 
   const heading = (value, nft) => {
-    nft.heading = parseInt(value, 10);
+    nft.heading = parseFloat(value, 10);
     dispatch({ type: UPDATE, payload: nft });
   };
 
   const pitch = (value, nft) => {
-    nft.pitch = parseInt(value, 10);
+    nft.pitch = parseFloat(value, 10);
     dispatch({ type: UPDATE, payload: nft });
   };
 
   const roll = (value, nft) => {
-    nft.roll = parseInt(value, 10);
+    nft.roll = parseFloat(value, 10);
     dispatch({ type: UPDATE, payload: nft });
   };
 
@@ -164,8 +164,9 @@ export default function CreateList() {
                       <label className="form-label">Height</label>
                       <input
                         type="range"
-                        min="1"
-                        max="10000"
+                        min="0"
+                        max="1000"
+                        step="0.1"
                         value={nft.height}
                         className="custom-range"
                         id="Height"
@@ -174,9 +175,10 @@ export default function CreateList() {
                       <label className="form-label">Scale</label>
                       <input
                         type="range"
-                        min="1"
-                        max="1000"
-                        value={nft.scale}
+                        min="-5"
+                        max="5"
+                        step="0.01"
+                        value={Math.log(nft.scale)}
                         className="custom-range"
                         id="Scale"
                         onChange={(e) => scale(e.target.value, nft)}
