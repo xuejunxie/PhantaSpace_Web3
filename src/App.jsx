@@ -16,6 +16,7 @@ import Land from "components/Land";
 import Contract from "web3Parts/Contract/Contract";
 import getAssetsByOpensea from "components/getAssetsByOpensea";
 import getAssetsByMoralis from "components/getAssetsByMoralis";
+import getAssetsByOpenseaMatic from "components/getAssetsByOpenseaMatic";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
@@ -86,6 +87,7 @@ export default function App() {
       // account = "0x5a501b42cfab342571f8ddf18e5e952a8a9bf60f";
       // get user owned NFTs
       getAssetsByOpensea(account, dispatch);
+      getAssetsByOpenseaMatic(account, dispatch);
       // getAssetsByMoralis(account, dispatch);
     }
   }, [user]);

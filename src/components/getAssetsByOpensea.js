@@ -1,9 +1,6 @@
 import axios from "axios";
 import { LOAD_OWNED, LOADING } from "redux/types";
 
-var offset = 0;
-const limit = 50;
-
 const baseURL = "https://api.opensea.io/api/v1/assets?owner=";
 
 const header = {
@@ -14,8 +11,11 @@ const header = {
 };
 const urlRegex = /(\b(https?|ftp|file|ifps):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
 
+var offset = 0;
+const limit = 50;
+var reachEnd = false;
+
 export default async function getAssetsByOpensea(account, dispatch) {
-  var reachEnd = false;
   dispatch({ type: LOADING, payload: true });
 
   const fetchData = async () => {
@@ -27,7 +27,7 @@ export default async function getAssetsByOpensea(account, dispatch) {
       .get(getURL, header)
       .then((res) => {
         ownedNFTs = res.data.assets;
-        if (ownedNFTs.length === 0) {
+        if (ownedNFTs.length === 0 || ownedNFTs.length < limit) {
           reachEnd = true;
           dispatch({ type: LOADING, payload: false });
         }
