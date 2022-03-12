@@ -10,10 +10,9 @@ export default function Land() {
 
   useEffect(() => {
     dispatch({ type: LAND });
-    if (landPosition.longitude) {
+    if (landPosition.geocode) {
       const land = {
-        longitude: parseFloat(landPosition.longitude),
-        latitude: parseFloat(landPosition.latitude),
+        geocode: landPosition.geocode,
       };
       dispatch({ type: SHOW_LAND, payload: land });
       dispatch({ type: SELECT_LAND, payload: land });
@@ -22,7 +21,7 @@ export default function Land() {
 
   useEffect(() => {
     if (selected_land) {
-      window.history.pushState("", "", `#/land/${selected_land.longitude}/${selected_land.latitude}`);
+      window.history.pushState("", "", `#/land/${selected_land.geocode}`);
     }
   }, [selected_land]);
 
@@ -41,12 +40,8 @@ export default function Land() {
         {selected_land ? (
           <div className="col">
             <div className="row">
-              <label className="col">Longitude: </label>
-              <div className="col">{selected_land.longitude}</div>
-            </div>
-            <div className="row">
-              <label className="col">Latidue: </label>
-              <div className="col">{selected_land.latitude}</div>
+              <label className="col">Geocode: </label>
+              <div className="col">{selected_land.geocode}</div>
             </div>
           </div>
         ) : null}

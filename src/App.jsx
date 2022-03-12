@@ -133,7 +133,7 @@ function Dashboard() {
           <Route exact path="explore/:NFTid" element={<ExploreList />} />
           <Route exact path="create" element={<CreateList />} />
           <Route exact path="land" element={<Land />} />
-          <Route exact path="land/:longitude/:latitude" element={<Land />} />
+          <Route exact path="land/:geocode" element={<Land />} />
         </Routes>
       </div>
       <Map viewerWidth={viewerWidth} viewerHeight={height} />

@@ -4,14 +4,21 @@ Tasks:
 
 core functions for land NFT:
 
-- human scale navigation
-- support imange, video, and music
+location -> tokenID ->
+
 - automatic 24 hour auction for unclaimed land
 - seller_fee_basis_points: 10%
 - auto list on opensea
 - on chain tokenURI and contractURI
+- support on chain NFT placement
 
 future features:
+
+- mint NFT on site
+
+- human scale navigation
+
+- support image, video, and music
 
 - land rental contract
 

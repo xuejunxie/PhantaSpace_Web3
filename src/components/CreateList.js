@@ -166,7 +166,7 @@ export default function CreateList() {
                         type="range"
                         min="0"
                         max="1000"
-                        step="0.1"
+                        step="0.01"
                         value={nft.height}
                         className="custom-range"
                         id="Height"

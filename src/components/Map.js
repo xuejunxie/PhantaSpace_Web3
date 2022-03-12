@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import * as Cesium from "cesium";
 import { useDispatch, useSelector } from "react-redux";
-import { PLACE, UPDATE, CLICK, SELECT_LAND } from "../redux/types";
+import { PLACE, UPDATE, CLICK, SELECT_LAND, SHOW_LAND } from "../redux/types";
 
 Cesium.Ion.defaultAccessToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjNmY0NjhmOS1iZGRjLTQ5ODgtYTQyOS0zNGFhZTQ3M2RlYzYiLCJpZCI6NzE5OTUsImlhdCI6MTYzNzIzODcyM30.C_x5USgZL8Gk2tZ7D3hd__1irF9-cyatRD-9GDaRBGc";
@@ -27,59 +27,41 @@ export default function Map(props) {
   const create = useSelector((state) => state.sidebar.create);
 
   const show_land = useSelector((state) => state.land.show_land);
+  const selected_land = useSelector((state) => state.land.selected_land);
 
-  // show land
+  // select land
   useEffect(() => {
-    if (show_land && show_land.longitude) {
-      var longitudeEdge = show_land.longitude;
-      var latitudeEdge = show_land.latitude;
-      // get height of the land from map
+    if (selected_land && selected_land.geocode) {
+      const [precision, longitude, latitude, level, size, sizeX, sizeY, bottom, top] = parseGeocode(
+        selected_land.geocode
+      );
+
+      viewer.entities.add({
+        name: "test",
+        wall: {
+          positions: Cesium.Cartesian3.fromDegreesArrayHeights(rectangleArray(longitude, latitude, sizeX, sizeY, top)),
+          minimumHeights: [bottom, bottom, bottom, bottom, bottom],
+          material: Cesium.Color.fromBytes(8, 182, 190, 100),
+        },
+      });
+    }
+  }, [selected_land]);
+
+  useEffect(() => {
+    if (show_land && show_land.geocode) {
+      const [precision, longitude, latitude, level, size, sizeX, sizeY, bottom, top] = parseGeocode(
+        selected_land.geocode
+      );
 
       // Get a reference to the ellipsoid, with terrain on it.  (This API may change soon)
       var ellipsoid = viewer.scene.globe.ellipsoid;
 
       // Specify our point of interest.
-      var pointOfInterest = Cesium.Cartographic.fromDegrees(
-        longitudeEdge,
-        latitudeEdge,
-        5000,
-        new Cesium.Cartographic()
-      );
 
-      // [OPTIONAL] Fly the camera there, to see if we got the right point.
+      var pointOfInterest = Cesium.Cartographic.fromDegrees(longitude, latitude, top, new Cesium.Cartographic());
+
       viewer.camera.flyTo({
         destination: ellipsoid.cartographicToCartesian(pointOfInterest, new Cesium.Cartesian3()),
-      });
-
-      // Sample the terrain (async) and write the answer to the console.
-      Cesium.sampleTerrain(viewer.terrainProvider, 9, [pointOfInterest]).then(function (samples) {
-        var size = 0.002;
-        const sizeX = size;
-        const sizeY = size * 0.8;
-        var height = samples[0].height + 100000 * size;
-        var landEntity = viewer.entities.add({
-          name: "test",
-          wall: {
-            positions: Cesium.Cartesian3.fromDegreesArrayHeights([
-              longitudeEdge - sizeX,
-              latitudeEdge - sizeY,
-              height,
-              longitudeEdge + sizeX,
-              latitudeEdge - sizeY,
-              height,
-              longitudeEdge + sizeX,
-              latitudeEdge + sizeY,
-              height,
-              longitudeEdge - sizeX,
-              latitudeEdge + sizeY,
-              height,
-              longitudeEdge - sizeX,
-              latitudeEdge - sizeY,
-              height,
-            ]),
-            material: Cesium.Color.fromBytes(8, 182, 190, 100),
-          },
-        });
       });
     }
   }, [show_land]);
@@ -404,10 +386,7 @@ function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft) {
       }
     }
 
-    // } else {
     //   viewer.scene.screenSpaceCameraController.enableRotate = true; // lock the camera
-    // }
-    // }
   }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
 
   // Update plane on mouse move
@@ -451,6 +430,7 @@ function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft) {
 function handleLand(dispatch) {
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
+  // initialize the rectangle
   var landEntity = viewer.entities.add({
     name: "test",
     wall: {
@@ -465,38 +445,9 @@ function handleLand(dispatch) {
 
   handler.setInputAction(function (movement) {
     const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.endPosition), viewer.scene);
-    if (cartesian) {
-      // newEntity.position = cartesian;
-      // console.log(cartesian);
-      const size = 0.002;
-      const sizeX = size;
-      const sizeY = size * 0.8; // normalized by the ratio of longgitude/latitude distance per degree to get a square
-      var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
-      const longitude = Cesium.Math.toDegrees(newPosition.longitude);
-      const latitude = Cesium.Math.toDegrees(newPosition.latitude);
-      const height = 100000 * size + newPosition.height;
-      const longitudeEdge = Math.round(longitude / sizeX / 2) * sizeX * 2;
-      const latitudeEdge = Math.round(latitude / sizeY / 2) * sizeY * 2;
 
-      landEntity.wall.positions = new Cesium.CallbackProperty(function () {
-        return Cesium.Cartesian3.fromDegreesArrayHeights([
-          longitudeEdge - sizeX,
-          latitudeEdge - sizeY,
-          height,
-          longitudeEdge + sizeX,
-          latitudeEdge - sizeY,
-          height,
-          longitudeEdge + sizeX,
-          latitudeEdge + sizeY,
-          height,
-          longitudeEdge - sizeX,
-          latitudeEdge + sizeY,
-          height,
-          longitudeEdge - sizeX,
-          latitudeEdge - sizeY,
-          height,
-        ]);
-      }, false); // prevent flashing
+    if (cartesian) {
+      drawLand(cartesian, landEntity);
     }
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
@@ -504,43 +455,97 @@ function handleLand(dispatch) {
   handler.setInputAction(function (movement) {
     const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.position), viewer.scene);
     if (cartesian) {
-      const size = 0.002;
-      const sizeX = size;
-      const sizeY = size * 0.8; // normalized by the ratio of longgitude/latitude distance per degree to get a square
-      var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
-      const longitude = Cesium.Math.toDegrees(newPosition.longitude);
-      const latitude = Cesium.Math.toDegrees(newPosition.latitude);
-      const height = 100000 * size + newPosition.height;
-      const longitudeEdge = Math.round(longitude / sizeX / 2) * sizeX * 2;
-      const latitudeEdge = Math.round(latitude / sizeY / 2) * sizeY * 2;
+      const geocode = drawLand(cartesian, landEntity);
       dispatch({
         type: SELECT_LAND,
         payload: {
-          longitude: parseFloat(longitudeEdge.toFixed(4)),
-          latitude: parseFloat(latitudeEdge.toFixed(4)),
+          geocode: geocode,
         },
       });
-      landEntity.wall.positions = new Cesium.CallbackProperty(function () {
-        return Cesium.Cartesian3.fromDegreesArrayHeights([
-          longitudeEdge - sizeX,
-          latitudeEdge - sizeY,
-          height,
-          longitudeEdge + sizeX,
-          latitudeEdge - sizeY,
-          height,
-          longitudeEdge + sizeX,
-          latitudeEdge + sizeY,
-          height,
-          longitudeEdge - sizeX,
-          latitudeEdge + sizeY,
-          height,
-          longitudeEdge - sizeX,
-          latitudeEdge - sizeY,
-          height,
-        ]);
-      }, false); // prevent flashing
     }
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
   return handler;
+}
+
+// function to draw land
+function drawLand(cartesian, landEntity) {
+  var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
+  const longitude = Cesium.Math.toDegrees(newPosition.longitude);
+  const latitude = Cesium.Math.toDegrees(newPosition.latitude);
+  const precision = 4;
+  const size = 0.1 ** precision;
+  const sizeX = size;
+  const sizeY = size;
+  // const sizeY = size * Math.cos((latitude / 180) * Math.PI).toPrecision(precision);
+  const earth_radius = 6378137;
+  const heightUnit = ((earth_radius * sizeY) / 180) * Math.PI;
+
+  const longitudeRounded = Math.round(longitude / sizeX) * sizeX;
+  const latitudeRounded = Math.round(latitude / sizeY) * sizeY;
+
+  const longitudePositive = (longitudeRounded + 180) * 10 ** precision;
+  const longitudeCode = longitudePositive
+    .toFixed(0)
+    .toString()
+    .padStart(3 + precision, "0");
+
+  const latitudePositive = (latitudeRounded + 90) * 10 ** precision;
+  const latitudeCode = latitudePositive
+    .toFixed(0)
+    .toString()
+    .padStart(3 + precision, "0");
+  const level = newPosition.height > 0 ? Math.round(newPosition.height / heightUnit) : 0;
+  const bottom = level ? level * heightUnit : -50;
+  const top = (level + 1) * heightUnit;
+
+  const levelCode = level.toString().padStart(3 + precision, "0");
+
+  landEntity.wall.minimumHeights = [bottom, bottom, bottom, bottom, bottom];
+  landEntity.wall.positions = new Cesium.CallbackProperty(function () {
+    return Cesium.Cartesian3.fromDegreesArrayHeights(
+      rectangleArray(longitudeRounded, latitudeRounded, sizeX, sizeY, top)
+    );
+  }, false); // prevent flashing
+
+  return precision.toString() + longitudeCode + latitudeCode + levelCode;
+}
+
+// function to get the rectangle array
+function rectangleArray(longitude, latitude, sizeX, sizeY, height) {
+  return [
+    longitude - sizeX / 2,
+    latitude - sizeY / 2,
+    height,
+    longitude + sizeX / 2,
+    latitude - sizeY / 2,
+    height,
+    longitude + sizeX / 2,
+    latitude + sizeY / 2,
+    height,
+    longitude - sizeX / 2,
+    latitude + sizeY / 2,
+    height,
+    longitude - sizeX / 2,
+    latitude - sizeY / 2,
+    height,
+  ];
+}
+
+// function to parse the geocode
+function parseGeocode(geocode) {
+  const precision = parseInt(geocode[0]);
+  const longitude = parseFloat(geocode.substring(1, 4 + precision)) * 0.1 ** precision - 180;
+  const latitude = parseFloat(geocode.substring(4 + precision, 7 + 2 * precision)) * 0.1 ** precision - 90;
+  const level = parseInt(geocode.substring(7 + 2 * precision, 7 + 2 * precision + 3 + precision));
+  const size = 0.1 ** precision;
+  const sizeX = size;
+  const sizeY = size;
+  const earth_radius = 6378137;
+  const heightUnit = ((earth_radius * sizeY) / 180) * Math.PI;
+
+  const bottom = level ? level * heightUnit : -50;
+  const top = (level + 1) * heightUnit;
+
+  return [precision, longitude, latitude, level, size, sizeX, sizeY, bottom, top];
 }
