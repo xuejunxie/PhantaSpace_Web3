@@ -32,14 +32,12 @@ export default function Map(props) {
   // select land
   useEffect(() => {
     if (selected_land && selected_land.geocode) {
-      const [precision, longitude, latitude, level, size, sizeX, sizeY, bottom, top] = parseGeocode(
-        selected_land.geocode
-      );
+      const [precision, longitude, latitude, level, size, bottom, top] = parseGeocode(selected_land.geocode);
 
       viewer.entities.add({
         name: "test",
         wall: {
-          positions: Cesium.Cartesian3.fromDegreesArrayHeights(rectangleArray(longitude, latitude, sizeX, sizeY, top)),
+          positions: Cesium.Cartesian3.fromDegreesArrayHeights(rectangleArray(longitude, latitude, size, top)),
           minimumHeights: [bottom, bottom, bottom, bottom, bottom],
           material: Cesium.Color.fromBytes(8, 182, 190, 100),
         },
@@ -49,9 +47,7 @@ export default function Map(props) {
 
   useEffect(() => {
     if (show_land && show_land.geocode) {
-      const [precision, longitude, latitude, level, size, sizeX, sizeY, bottom, top] = parseGeocode(
-        selected_land.geocode
-      );
+      const [precision, longitude, latitude, level, size, bottom, top] = parseGeocode(selected_land.geocode);
 
       // Get a reference to the ellipsoid, with terrain on it.  (This API may change soon)
       var ellipsoid = viewer.scene.globe.ellipsoid;
@@ -475,14 +471,13 @@ function drawLand(cartesian, landEntity) {
   const latitude = Cesium.Math.toDegrees(newPosition.latitude);
   const precision = 4;
   const size = 0.1 ** precision;
-  const sizeX = size;
-  const sizeY = size;
-  // const sizeY = size * Math.cos((latitude / 180) * Math.PI).toPrecision(precision);
-  const earth_radius = 6378137;
-  const heightUnit = ((earth_radius * sizeY) / 180) * Math.PI;
 
-  const longitudeRounded = Math.round(longitude / sizeX) * sizeX;
-  const latitudeRounded = Math.round(latitude / sizeY) * sizeY;
+  // const size = size * Math.cos((latitude / 180) * Math.PI).toPrecision(precision);
+  const earth_radius = 6378137;
+  const heightUnit = ((earth_radius * size) / 180) * Math.PI;
+
+  const longitudeRounded = Math.round(longitude / size) * size;
+  const latitudeRounded = Math.round(latitude / size) * size;
 
   const longitudePositive = (longitudeRounded + 180) * 10 ** precision;
   const longitudeCode = longitudePositive
@@ -503,31 +498,29 @@ function drawLand(cartesian, landEntity) {
 
   landEntity.wall.minimumHeights = [bottom, bottom, bottom, bottom, bottom];
   landEntity.wall.positions = new Cesium.CallbackProperty(function () {
-    return Cesium.Cartesian3.fromDegreesArrayHeights(
-      rectangleArray(longitudeRounded, latitudeRounded, sizeX, sizeY, top)
-    );
+    return Cesium.Cartesian3.fromDegreesArrayHeights(rectangleArray(longitudeRounded, latitudeRounded, size, top));
   }, false); // prevent flashing
 
   return precision.toString() + longitudeCode + latitudeCode + levelCode;
 }
 
 // function to get the rectangle array
-function rectangleArray(longitude, latitude, sizeX, sizeY, height) {
+function rectangleArray(longitude, latitude, size, height) {
   return [
-    longitude - sizeX / 2,
-    latitude - sizeY / 2,
+    longitude - size / 2,
+    latitude - size / 2,
     height,
-    longitude + sizeX / 2,
-    latitude - sizeY / 2,
+    longitude + size / 2,
+    latitude - size / 2,
     height,
-    longitude + sizeX / 2,
-    latitude + sizeY / 2,
+    longitude + size / 2,
+    latitude + size / 2,
     height,
-    longitude - sizeX / 2,
-    latitude + sizeY / 2,
+    longitude - size / 2,
+    latitude + size / 2,
     height,
-    longitude - sizeX / 2,
-    latitude - sizeY / 2,
+    longitude - size / 2,
+    latitude - size / 2,
     height,
   ];
 }
@@ -539,13 +532,12 @@ function parseGeocode(geocode) {
   const latitude = parseFloat(geocode.substring(4 + precision, 7 + 2 * precision)) * 0.1 ** precision - 90;
   const level = parseInt(geocode.substring(7 + 2 * precision, 7 + 2 * precision + 3 + precision));
   const size = 0.1 ** precision;
-  const sizeX = size;
-  const sizeY = size;
+
   const earth_radius = 6378137;
-  const heightUnit = ((earth_radius * sizeY) / 180) * Math.PI;
+  const heightUnit = ((earth_radius * size) / 180) * Math.PI;
 
   const bottom = level ? level * heightUnit : -50;
   const top = (level + 1) * heightUnit;
 
-  return [precision, longitude, latitude, level, size, sizeX, sizeY, bottom, top];
+  return [precision, longitude, latitude, level, size, bottom, top];
 }
