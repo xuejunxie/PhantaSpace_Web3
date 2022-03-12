@@ -33,7 +33,6 @@ export default function Map(props) {
   useEffect(() => {
     if (selected_land && selected_land.geocode) {
       const [precision, longitude, latitude, level, size, bottom, top] = parseGeocode(selected_land.geocode);
-
       viewer.entities.add({
         name: "test",
         wall: {
@@ -54,10 +53,15 @@ export default function Map(props) {
 
       // Specify our point of interest.
 
-      var pointOfInterest = Cesium.Cartographic.fromDegrees(longitude, latitude, top, new Cesium.Cartographic());
+      var pointOfInterest = Cesium.Cartographic.fromDegrees(longitude + size / 2, latitude - size / 2, top * 2);
 
       viewer.camera.flyTo({
-        destination: ellipsoid.cartographicToCartesian(pointOfInterest, new Cesium.Cartesian3()),
+        destination: ellipsoid.cartographicToCartesian(pointOfInterest),
+        orientation: {
+          heading: Cesium.Math.toRadians(0),
+          pitch: Cesium.Math.toRadians(-60),
+          roll: 0.0,
+        },
       });
     }
   }, [show_land]);
@@ -469,15 +473,15 @@ function drawLand(cartesian, landEntity) {
   var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
   const longitude = Cesium.Math.toDegrees(newPosition.longitude);
   const latitude = Cesium.Math.toDegrees(newPosition.latitude);
-  const precision = 4;
+  const precision = 1;
   const size = 0.1 ** precision;
 
   // const size = size * Math.cos((latitude / 180) * Math.PI).toPrecision(precision);
   const earth_radius = 6378137;
   const heightUnit = ((earth_radius * size) / 180) * Math.PI;
 
-  const longitudeRounded = Math.round(longitude / size) * size;
-  const latitudeRounded = Math.round(latitude / size) * size;
+  const longitudeRounded = Math.floor(longitude / size) * size;
+  const latitudeRounded = Math.floor(latitude / size) * size;
 
   const longitudePositive = (longitudeRounded + 180) * 10 ** precision;
   const longitudeCode = longitudePositive
@@ -490,7 +494,7 @@ function drawLand(cartesian, landEntity) {
     .toFixed(0)
     .toString()
     .padStart(3 + precision, "0");
-  const level = newPosition.height > 0 ? Math.round(newPosition.height / heightUnit) : 0;
+  const level = newPosition.height > 0 ? Math.floor(newPosition.height / heightUnit) : 0;
   const bottom = level ? level * heightUnit : -50;
   const top = (level + 1) * heightUnit;
 
@@ -501,26 +505,27 @@ function drawLand(cartesian, landEntity) {
     return Cesium.Cartesian3.fromDegreesArrayHeights(rectangleArray(longitudeRounded, latitudeRounded, size, top));
   }, false); // prevent flashing
 
-  return precision.toString() + longitudeCode + latitudeCode + levelCode;
+  const geocode = precision.toString() + longitudeCode + latitudeCode + levelCode;
+  return geocode;
 }
 
 // function to get the rectangle array
 function rectangleArray(longitude, latitude, size, height) {
   return [
-    longitude - size / 2,
-    latitude - size / 2,
+    longitude,
+    latitude,
     height,
-    longitude + size / 2,
-    latitude - size / 2,
+    longitude + size,
+    latitude,
     height,
-    longitude + size / 2,
-    latitude + size / 2,
+    longitude + size,
+    latitude + size,
     height,
-    longitude - size / 2,
-    latitude + size / 2,
+    longitude,
+    latitude + size,
     height,
-    longitude - size / 2,
-    latitude - size / 2,
+    longitude,
+    latitude,
     height,
   ];
 }
