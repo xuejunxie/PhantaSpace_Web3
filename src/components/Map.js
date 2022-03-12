@@ -32,7 +32,9 @@ export default function Map(props) {
   // select land
   useEffect(() => {
     if (selected_land && selected_land.geocode) {
-      const [precision, longitude, latitude, level, size, bottom, top] = parseGeocode(selected_land.geocode);
+      const { precision, longitude, latitude, level, size, bottom, top, heightUnit } = parseGeocode(
+        selected_land.geocode
+      );
       viewer.entities.add({
         name: "test",
         wall: {
@@ -46,22 +48,23 @@ export default function Map(props) {
 
   useEffect(() => {
     if (show_land && show_land.geocode) {
-      const [precision, longitude, latitude, level, size, bottom, top] = parseGeocode(selected_land.geocode);
+      const { precision, longitude, latitude, level, size, bottom, top, heightUnit } = parseGeocode(
+        selected_land.geocode
+      );
 
       // Get a reference to the ellipsoid, with terrain on it.  (This API may change soon)
       var ellipsoid = viewer.scene.globe.ellipsoid;
 
       // Specify our point of interest.
 
-      var pointOfInterest = Cesium.Cartographic.fromDegrees(longitude + size / 2, latitude - size / 2, top * 2);
+      var pointOfInterest = Cesium.Cartographic.fromDegrees(
+        longitude + size / 2,
+        latitude + size / 2,
+        top + heightUnit * 2
+      );
 
       viewer.camera.flyTo({
         destination: ellipsoid.cartographicToCartesian(pointOfInterest),
-        orientation: {
-          heading: Cesium.Math.toRadians(0),
-          pitch: Cesium.Math.toRadians(-60),
-          roll: 0.0,
-        },
       });
     }
   }, [show_land]);
@@ -544,5 +547,14 @@ function parseGeocode(geocode) {
   const bottom = level ? level * heightUnit : -50;
   const top = (level + 1) * heightUnit;
 
-  return [precision, longitude, latitude, level, size, bottom, top];
+  return {
+    precision: precision,
+    longitude: longitude,
+    latitude: latitude,
+    level: level,
+    size: size,
+    bottom: bottom,
+    top: top,
+    heightUnit: heightUnit,
+  };
 }

@@ -26,13 +26,10 @@ export default function Land() {
   }, [selected_land]);
 
   const onShow = () => {
-    console.log(selected_land);
     dispatch({ type: SHOW_LAND, payload: selected_land });
   };
 
-  const onBuy = () => {
-    console.log(selected_land);
-  };
+  const onBuy = () => {};
 
   return (
     <div className="card  bg-dark">
