@@ -12,7 +12,7 @@ import CreateList from "./components/CreateList";
 import Map from "./components/Map";
 import { LOAD_ALL, LOADING_ALL, UPDATE } from "redux/types";
 import Moralis from "moralis";
-import Land from "components/Land";
+import Space from "components/Space";
 import Contract from "web3Parts/Contract/Contract";
 import getAssetsByOpensea from "components/getAssetsByOpensea";
 import getAssetsByMoralis from "components/getAssetsByMoralis";
@@ -132,8 +132,8 @@ function Dashboard() {
           <Route exact path="explore" element={<ExploreList />} />
           <Route exact path="explore/:NFTid" element={<ExploreList />} />
           <Route exact path="create" element={<CreateList />} />
-          <Route exact path="land" element={<Land />} />
-          <Route exact path="land/:geocode" element={<Land />} />
+          <Route exact path="space" element={<Space />} />
+          <Route exact path="space/:geocode" element={<Space />} />
         </Routes>
       </div>
       <Map viewerWidth={viewerWidth} viewerHeight={height} />

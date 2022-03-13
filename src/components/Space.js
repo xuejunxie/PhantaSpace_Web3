@@ -1,32 +1,32 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { LAND, SELECT_LAND, SHOW_LAND } from "redux/types";
+import { SPACE, SELECT_SPACE, SHOW_SPACE } from "redux/types";
 
-export default function Land() {
+export default function Space() {
   const dispatch = useDispatch();
-  var landPosition = useParams();
-  const selected_land = useSelector((state) => state.land.selected_land);
+  var spacePosition = useParams();
+  const selected_space = useSelector((state) => state.space.selected_space);
 
   useEffect(() => {
-    dispatch({ type: LAND });
-    if (landPosition.geocode) {
-      const land = {
-        geocode: landPosition.geocode,
+    dispatch({ type: SPACE });
+    if (spacePosition.geocode) {
+      const space = {
+        geocode: spacePosition.geocode,
       };
-      dispatch({ type: SHOW_LAND, payload: land });
-      dispatch({ type: SELECT_LAND, payload: land });
+      dispatch({ type: SHOW_SPACE, payload: space });
+      dispatch({ type: SELECT_SPACE, payload: space });
     }
   }, []);
 
   useEffect(() => {
-    if (selected_land) {
-      window.history.pushState("", "", `#/land/${selected_land.geocode}`);
+    if (selected_space) {
+      window.history.pushState("", "", `#/space/${selected_space.geocode}`);
     }
-  }, [selected_land]);
+  }, [selected_space]);
 
   const onShow = () => {
-    dispatch({ type: SHOW_LAND, payload: selected_land });
+    dispatch({ type: SHOW_SPACE, payload: selected_space });
   };
 
   const onBuy = () => {};
@@ -34,11 +34,11 @@ export default function Land() {
   return (
     <div className="card  bg-dark">
       <div className="card-body text-center text-light">
-        {selected_land ? (
+        {selected_space ? (
           <div className="col">
             <div className="row">
               <label className="col">Geocode: </label>
-              <div className="col">{selected_land.geocode}</div>
+              <div className="col">{selected_space.geocode}</div>
             </div>
           </div>
         ) : null}

@@ -1,11 +1,11 @@
-import { LOOK, EXPLORE, CREATE, LOADING, LAND, LOADING_ALL } from "../types";
+import { LOOK, EXPLORE, CREATE, LOADING, SPACE, LOADING_ALL } from "../types";
 
 const initialState = {
   look: null,
   explore: false,
   create: false,
   loading: false,
-  land: true,
+  space: true,
   loadingAll: true,
 };
 
@@ -16,14 +16,14 @@ export default function (state = initialState, action) {
         ...state,
         explore: true,
         create: false,
-        land: false,
+        space: false,
       };
     case CREATE:
       return {
         ...state,
         create: true,
         explore: false,
-        land: false,
+        space: false,
       };
     case LOADING_ALL:
       return {
@@ -31,10 +31,10 @@ export default function (state = initialState, action) {
         loadingAll: action.payload,
       };
 
-    case LAND:
+    case SPACE:
       return {
         ...state,
-        land: true,
+        space: true,
         explore: false,
         create: false,
       };

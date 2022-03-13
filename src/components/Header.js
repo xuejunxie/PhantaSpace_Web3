@@ -17,7 +17,7 @@ export default function Header(props) {
 
   const Explore = tag("Explore", "/explore");
   const Create = tag("Create", "/create");
-  const Land = tag("Land", "/land");
+  const Space = tag("Space", "/space");
 
   return (
     <nav className="navbar navbar-expand-sm navbar-dark bg-dark" style={{ height: props.headerHeight }}>
@@ -45,7 +45,7 @@ export default function Header(props) {
         </ul>
         {Explore}
         {Create}
-        {Land}
+        {Space}
         <div className="mr-3" />
         <Account />
       </div>

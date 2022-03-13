@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import * as Cesium from "cesium";
 import { useDispatch, useSelector } from "react-redux";
-import { PLACE, UPDATE, CLICK, SELECT_LAND } from "../redux/types";
+import { PLACE, UPDATE, CLICK, SELECT_SPACE } from "../redux/types";
 
 Cesium.Ion.defaultAccessToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjNmY0NjhmOS1iZGRjLTQ5ODgtYTQyOS0zNGFhZTQ3M2RlYzYiLCJpZCI6NzE5OTUsImlhdCI6MTYzNzIzODcyM30.C_x5USgZL8Gk2tZ7D3hd__1irF9-cyatRD-9GDaRBGc";
@@ -10,14 +10,14 @@ const dummyCredit = document.createElement("div");
 var viewer = null;
 
 var createHandler = null;
-var landHandler = null;
+var spaceHandler = null;
 var exploreHandler = null;
 
 // this global variable is used to pass entity between useEffect on create and mouse event handler
 var entity = null;
 
-// this global variable is used to pass selected_land between selected_land and land_level
-var current_land = null;
+// this global variable is used to pass selected_space between selected_space and space_level
+var current_space = null;
 
 export default function Map(props) {
   const dispatch = useDispatch();
@@ -26,20 +26,20 @@ export default function Map(props) {
   const look = useSelector((state) => state.sidebar.look);
 
   const explore = useSelector((state) => state.sidebar.explore);
-  const land = useSelector((state) => state.sidebar.land);
+  const space = useSelector((state) => state.sidebar.space);
   const create = useSelector((state) => state.sidebar.create);
 
-  const show_land = useSelector((state) => state.land.show_land);
-  const selected_land = useSelector((state) => state.land.selected_land);
+  const show_space = useSelector((state) => state.space.show_space);
+  const selected_space = useSelector((state) => state.space.selected_space);
 
-  // select land
+  // select space
   useEffect(() => {
-    if (selected_land && selected_land.geocode) {
+    if (selected_space && selected_space.geocode) {
       const { precision, longitude, latitude, level, size, bottom, top, heightUnit } = parseGeocode(
-        selected_land.geocode
+        selected_space.geocode
       );
-      current_land = viewer.entities.add({
-        name: "selected_land",
+      current_space = viewer.entities.add({
+        name: "selected_space",
         wall: {
           positions: Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitude, latitude, size)),
           minimumHeights: [bottom, bottom, bottom, bottom, bottom],
@@ -48,12 +48,12 @@ export default function Map(props) {
         },
       });
     }
-  }, [selected_land]);
+  }, [selected_space]);
 
   useEffect(() => {
-    if (show_land && show_land.geocode) {
+    if (show_space && show_space.geocode) {
       const { precision, longitude, latitude, level, size, bottom, top, heightUnit } = parseGeocode(
-        selected_land.geocode
+        selected_space.geocode
       );
 
       // Get a reference to the ellipsoid, with terrain on it.  (This API may change soon)
@@ -71,7 +71,7 @@ export default function Map(props) {
         destination: ellipsoid.cartographicToCartesian(pointOfInterest),
       });
     }
-  }, [show_land]);
+  }, [show_space]);
 
   // initialize the viewer
   useEffect(() => {
@@ -193,16 +193,16 @@ export default function Map(props) {
     dispatch({ type: CLICK, payload: NFTid });
   };
 
-  // handle mouse events for land page
+  // handle mouse events for space page
   useEffect(() => {
-    if (land) {
-      landHandler = handleLand(dispatch);
+    if (space) {
+      spaceHandler = handleSpace(dispatch);
     } else {
-      if (landHandler && !landHandler.isDestroyed()) {
-        landHandler.destroy();
+      if (spaceHandler && !spaceHandler.isDestroyed()) {
+        spaceHandler.destroy();
       }
     }
-  }, [land]);
+  }, [space]);
 
   // clean up on explore page
   useEffect(() => {
@@ -442,11 +442,11 @@ function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft) {
 }
 
 // show squre on the map when the user move the mouse
-function handleLand(dispatch) {
+function handleSpace(dispatch) {
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
   // initialize the rectangle
-  var landEntity = viewer.entities.add({
+  var spaceEntity = viewer.entities.add({
     name: "test",
     wall: {
       positions: Cesium.Cartesian3.fromDegreesArray([-90.0, 43.0, -87.5, 45.0, -85.0, 43.0, -87.5, 41.0, -90.0, 43.0]),
@@ -462,17 +462,17 @@ function handleLand(dispatch) {
     const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.endPosition), viewer.scene);
 
     if (cartesian) {
-      drawLand(cartesian, landEntity);
+      drawSpace(cartesian, spaceEntity);
     }
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-  // select the land when the mouse click
+  // select the space when the mouse click
   handler.setInputAction(function (movement) {
     const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.position), viewer.scene);
     if (cartesian) {
-      const geocode = drawLand(cartesian, landEntity);
+      const geocode = drawSpace(cartesian, spaceEntity);
       dispatch({
-        type: SELECT_LAND,
+        type: SELECT_SPACE,
         payload: {
           geocode: geocode,
         },
@@ -483,8 +483,8 @@ function handleLand(dispatch) {
   return handler;
 }
 
-// function to draw land
-function drawLand(cartesian, landEntity) {
+// function to draw space
+function drawSpace(cartesian, spaceEntity) {
   var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
   const longitude = Cesium.Math.toDegrees(newPosition.longitude);
   const latitude = Cesium.Math.toDegrees(newPosition.latitude);
@@ -517,9 +517,9 @@ function drawLand(cartesian, landEntity) {
 
   const levelCode = Math.abs(level).toString();
 
-  landEntity.wall.minimumHeights = [bottom, bottom, bottom, bottom, bottom];
-  landEntity.wall.maximumHeights = [top, top, top, top, top];
-  landEntity.wall.positions = new Cesium.CallbackProperty(function () {
+  spaceEntity.wall.minimumHeights = [bottom, bottom, bottom, bottom, bottom];
+  spaceEntity.wall.maximumHeights = [top, top, top, top, top];
+  spaceEntity.wall.positions = new Cesium.CallbackProperty(function () {
     return Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitudeRounded, latitudeRounded, size));
   }, false); // prevent flashing
 

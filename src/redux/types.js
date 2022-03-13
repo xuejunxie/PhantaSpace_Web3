@@ -15,9 +15,9 @@ export const DISCONNECT = "DISCONNECT";
 export const EXPLORE = "EXPLORE";
 export const CREATE = "CREATE";
 export const LOADING = "LOADING";
-export const LAND = "LAND";
+export const SPACE = "SPACE";
 export const LOADING_ALL = "LOADING_ALL";
 
-// types for land operations
-export const SELECT_LAND = "SELECT_LAND";
-export const SHOW_LAND = "SHOW_LAND";
+// types for space operations
+export const SELECT_SPACE = "SELECT_SPACE";
+export const SHOW_SPACE = "SHOW_SPACE";

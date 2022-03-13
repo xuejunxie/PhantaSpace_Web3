@@ -1,21 +1,21 @@
-import { SELECT_LAND } from "../types";
+import { SELECT_SPACE } from "../types";
 
 const initialState = {
-  selected_land: null,
-  show_land: null,
+  selected_space: null,
+  show_space: null,
 };
 
 export default function (state = initialState, action) {
   switch (action.type) {
-    case SELECT_LAND:
+    case SELECT_SPACE:
       return {
         ...state,
-        selected_land: action.payload,
+        selected_space: action.payload,
       };
-    case "SHOW_LAND":
+    case "SHOW_SPACE":
       return {
         ...state,
-        show_land: action.payload,
+        show_space: action.payload,
       };
 
     default:
