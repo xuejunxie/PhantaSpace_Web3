@@ -44,7 +44,7 @@ export default function Map(props) {
           positions: Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitude, latitude, size)),
           minimumHeights: [bottom, bottom, bottom, bottom, bottom],
           maximumHeights: [top, top, top, top, top],
-          material: Cesium.Color.fromBytes(8, 182, 190, 100),
+          material: Cesium.Color.fromBytes(8, 182, 190, 50),
         },
       });
     }
@@ -148,10 +148,18 @@ export default function Map(props) {
     });
 
     // Load the OSM buildings tileset
-    var tileset = new Cesium.Cesium3DTileset({
-      url: Cesium.IonResource.fromAssetId(96188),
-    });
-    viewer.scene.primitives.add(tileset);
+
+    viewer.scene.primitives.add(
+      new Cesium.Cesium3DTileset({
+        url: Cesium.IonResource.fromAssetId(96188),
+      })
+    );
+
+    // viewer.scene.primitives.add(
+    //   new Cesium.Cesium3DTileset({
+    //     url: Cesium.IonResource.fromAssetId(354759),
+    //   })
+    // );
 
     // automatic play the animation after time adjustment
     viewer.timeline.container.onmouseup = (e) => {
