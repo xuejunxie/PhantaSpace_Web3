@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import * as Cesium from "cesium";
 import { useDispatch, useSelector } from "react-redux";
-import { PLACE, UPDATE, CLICK, SELECT_LAND, SHOW_LAND } from "../redux/types";
+import { PLACE, UPDATE, CLICK, SELECT_LAND } from "../redux/types";
 
 Cesium.Ion.defaultAccessToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjNmY0NjhmOS1iZGRjLTQ5ODgtYTQyOS0zNGFhZTQ3M2RlYzYiLCJpZCI6NzE5OTUsImlhdCI6MTYzNzIzODcyM30.C_x5USgZL8Gk2tZ7D3hd__1irF9-cyatRD-9GDaRBGc";
@@ -15,6 +15,9 @@ var exploreHandler = null;
 
 // this global variable is used to pass entity between useEffect on create and mouse event handler
 var entity = null;
+
+// this global variable is used to pass selected_land between selected_land and land_level
+var current_land = null;
 
 export default function Map(props) {
   const dispatch = useDispatch();
@@ -35,11 +38,12 @@ export default function Map(props) {
       const { precision, longitude, latitude, level, size, bottom, top, heightUnit } = parseGeocode(
         selected_land.geocode
       );
-      viewer.entities.add({
-        name: "test",
+      current_land = viewer.entities.add({
+        name: "selected_land",
         wall: {
-          positions: Cesium.Cartesian3.fromDegreesArrayHeights(rectangleArray(longitude, latitude, size, top)),
+          positions: Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitude, latitude, size)),
           minimumHeights: [bottom, bottom, bottom, bottom, bottom],
+          maximumHeights: [top, top, top, top, top],
           material: Cesium.Color.fromBytes(8, 182, 190, 100),
         },
       });
@@ -437,9 +441,9 @@ function handleLand(dispatch) {
   var landEntity = viewer.entities.add({
     name: "test",
     wall: {
-      positions: Cesium.Cartesian3.fromDegreesArrayHeights([
-        -90.0, 43.0, 0, -87.5, 45.0, 0, -85.0, 43.0, 0, -87.5, 41.0, 0, -90.0, 43.0, 0,
-      ]),
+      positions: Cesium.Cartesian3.fromDegreesArray([-90.0, 43.0, -87.5, 45.0, -85.0, 43.0, -87.5, 41.0, -90.0, 43.0]),
+      maximumHeights: [1, 1, 1, 1, 1],
+      minimumHeights: [0, 0, 0, 0, 0],
       material: Cesium.Color.fromBytes(8, 182, 190, 100),
     },
   });
@@ -476,6 +480,7 @@ function drawLand(cartesian, landEntity) {
   var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
   const longitude = Cesium.Math.toDegrees(newPosition.longitude);
   const latitude = Cesium.Math.toDegrees(newPosition.latitude);
+  const ground = newPosition.height;
   const precision = 1;
   const size = 0.1 ** precision;
 
@@ -497,39 +502,36 @@ function drawLand(cartesian, landEntity) {
     .toFixed(0)
     .toString()
     .padStart(3 + precision, "0");
-  const level = newPosition.height > 0 ? Math.floor(newPosition.height / heightUnit) : 0;
-  const bottom = level ? level * heightUnit : -50;
+  const levelSign = ground + heightUnit > 0 ? "3" : "1";
+  const level = Math.round(ground / heightUnit);
+  const bottom = level > 0 ? level * heightUnit : -50;
   const top = (level + 1) * heightUnit;
 
-  const levelCode = level.toString().padStart(3 + precision, "0");
+  const levelCode = Math.abs(level).toString();
 
   landEntity.wall.minimumHeights = [bottom, bottom, bottom, bottom, bottom];
+  landEntity.wall.maximumHeights = [top, top, top, top, top];
   landEntity.wall.positions = new Cesium.CallbackProperty(function () {
-    return Cesium.Cartesian3.fromDegreesArrayHeights(rectangleArray(longitudeRounded, latitudeRounded, size, top));
+    return Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitudeRounded, latitudeRounded, size));
   }, false); // prevent flashing
 
-  const geocode = precision.toString() + longitudeCode + latitudeCode + levelCode;
+  const geocode = precision.toString() + longitudeCode + latitudeCode + levelSign + levelCode;
   return geocode;
 }
 
 // function to get the rectangle array
-function rectangleArray(longitude, latitude, size, height) {
+function rectangleArray(longitude, latitude, size) {
   return [
     longitude,
     latitude,
-    height,
     longitude + size,
     latitude,
-    height,
     longitude + size,
     latitude + size,
-    height,
     longitude,
     latitude + size,
-    height,
     longitude,
     latitude,
-    height,
   ];
 }
 
@@ -538,19 +540,21 @@ function parseGeocode(geocode) {
   const precision = parseInt(geocode[0]);
   const longitude = parseFloat(geocode.substring(1, 4 + precision)) * 0.1 ** precision - 180;
   const latitude = parseFloat(geocode.substring(4 + precision, 7 + 2 * precision)) * 0.1 ** precision - 90;
-  const level = parseInt(geocode.substring(7 + 2 * precision, 7 + 2 * precision + 3 + precision));
+  const levelSign = parseInt(geocode[7 + 2 * precision]);
+  const level = parseInt(geocode.substring(8 + 2 * precision)) * (levelSign - 2);
   const size = 0.1 ** precision;
 
   const earth_radius = 6378137;
   const heightUnit = ((earth_radius * size) / 180) * Math.PI;
 
-  const bottom = level ? level * heightUnit : -50;
+  const bottom = -50;
   const top = (level + 1) * heightUnit;
 
   return {
     precision: precision,
     longitude: longitude,
     latitude: latitude,
+    levelSign: levelSign,
     level: level,
     size: size,
     bottom: bottom,
