@@ -5,6 +5,8 @@ import { MoralisProvider } from "react-moralis";
 import "./index.css";
 import store from "./redux/store";
 import { Provider } from "react-redux";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import SpaceNFT from "components/SpaceNFT";
 
 /** Get your free Moralis Account https://moralis.io/ */
 
@@ -19,7 +21,12 @@ const Application = () => {
   return (
     <MoralisProvider appId={APP_ID} serverUrl={SERVER_URL}>
       <Provider store={store}>
-        <App isServerInfo={isServerInfo} />
+        <Router>
+          <Routes>
+            <Route path="/*" element={<App isServerInfo={isServerInfo} />} />
+            <Route exact path="/NFT/space/:geocode" element={<SpaceNFT />} />
+          </Routes>
+        </Router>
       </Provider>
     </MoralisProvider>
   );

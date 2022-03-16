@@ -5,7 +5,7 @@ const initialState = {
   explore: false,
   create: false,
   loading: false,
-  space: true,
+  space: false,
   loadingAll: true,
 };
 

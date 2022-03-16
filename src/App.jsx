@@ -60,7 +60,8 @@ export default function App() {
   const loadingAll = useSelector((state) => state.sidebar.loadingAll);
 
   useEffect(() => {
-    const connectorId = window.localStorage.getItem("connectorId");
+    // const connectorId = window.localStorage.getItem("connectorId");
+    const connectorId = "injected";
     if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) enableWeb3({ provider: connectorId });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, isWeb3Enabled]);
@@ -111,32 +112,22 @@ export default function App() {
 
   return (
     <Fragment>
-      <Router>
-        <Header headerHeight={headerHeight} />
-        <div className="container-fluid">
-          <Routes>
-            <Route path="/*" element={<Dashboard />} />
-          </Routes>
+      <Header headerHeight={headerHeight} />
+      <div className="container-fluid">
+        <div className="row bg-dark">
+          <div style={{ width: listWidth, maxHeight: height }} className="overflow-auto">
+            <Routes>
+              <Route exact path="" element={<ExploreList />} />
+              <Route exact path="explore" element={<ExploreList />} />
+              <Route exact path="explore/:NFTid" element={<ExploreList />} />
+              <Route exact path="create" element={<CreateList />} />
+              <Route exact path="space" element={<Space />} />
+              <Route exact path="space/:geocode" element={<Space />} />
+            </Routes>
+          </div>
+          <Map viewerWidth={viewerWidth} viewerHeight={height} />
         </div>
-      </Router>
-    </Fragment>
-  );
-}
-
-function Dashboard() {
-  return (
-    <div className="row bg-dark">
-      <div style={{ width: listWidth, maxHeight: height }} className="overflow-auto">
-        <Routes>
-          <Route exact path="" element={<ExploreList />} />
-          <Route exact path="explore" element={<ExploreList />} />
-          <Route exact path="explore/:NFTid" element={<ExploreList />} />
-          <Route exact path="create" element={<CreateList />} />
-          <Route exact path="space" element={<Space />} />
-          <Route exact path="space/:geocode" element={<Space />} />
-        </Routes>
       </div>
-      <Map viewerWidth={viewerWidth} viewerHeight={height} />
-    </div>
+    </Fragment>
   );
 }

@@ -77,7 +77,7 @@ function Account() {
                   try {
                     await authenticate({ provider: connectorId, signingMessage: signingMessage });
 
-                    window.localStorage.setItem("connectorId", connectorId);
+                    // window.localStorage.setItem("connectorId", connectorId);
                     setIsAuthModalVisible(false);
                   } catch (e) {
                     console.error(e);
@@ -96,7 +96,7 @@ function Account() {
                 try {
                   Moralis.setEnableWeb3(customEnable);
                   await authenticate({ signingMessage: signingMessage });
-                  window.localStorage.setItem("connectorId", "injected");
+                  // window.localStorage.setItem("connectorId", "injected");
                   setIsAuthModalVisible(false);
                 } catch (e) {
                   console.error(e);
@@ -154,7 +154,7 @@ function Account() {
             onClick={async () => {
               await logout();
 
-              window.localStorage.removeItem("connectorId");
+              // window.localStorage.removeItem("connectorId");
               setIsModalVisible(false);
               dispatch({ type: DISCONNECT });
             }}

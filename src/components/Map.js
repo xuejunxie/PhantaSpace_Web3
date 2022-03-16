@@ -44,7 +44,8 @@ export default function Map(props) {
           positions: Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitude, latitude, size)),
           minimumHeights: [bottom, bottom, bottom, bottom, bottom],
           maximumHeights: [top, top, top, top, top],
-          material: Cesium.Color.fromBytes(8, 182, 190, 50),
+          material: Cesium.Color.fromBytes(8, 182, 190, 100),
+          outline: true,
         },
       });
     }
@@ -52,9 +53,7 @@ export default function Map(props) {
 
   useEffect(() => {
     if (show_space && show_space.geocode) {
-      const { precision, longitude, latitude, level, size, bottom, top, heightUnit } = parseGeocode(
-        selected_space.geocode
-      );
+      const { precision, longitude, latitude, level, size, bottom, top, heightUnit } = parseGeocode(show_space.geocode);
 
       // Get a reference to the ellipsoid, with terrain on it.  (This API may change soon)
       var ellipsoid = viewer.scene.globe.ellipsoid;
@@ -83,10 +82,10 @@ export default function Map(props) {
       shouldAnimate: true,
       animation: false,
       homeButton: false, // disable the default home button
-      geocoder: true, // disable the default search button
+      geocoder: false, // disable the default search button
       baseLayerPicker: false, // disable the default base layer button
       fullscreenButton: false, // disable the default full screen button
-      timeline: true,
+      timeline: false,
       sceneModePicker: false,
       navigationHelpButton: false,
       navigationInstructionsInitiallyVisible: false,
@@ -162,9 +161,9 @@ export default function Map(props) {
     // );
 
     // automatic play the animation after time adjustment
-    viewer.timeline.container.onmouseup = (e) => {
-      viewer.clockViewModel.shouldAnimate = true;
-    };
+    // viewer.timeline.container.onmouseup = (e) => {
+    //   viewer.clockViewModel.shouldAnimate = true;
+    // };
   }, []);
 
   // handle mouse events for explore page
@@ -515,7 +514,7 @@ function drawSpace(cartesian, spaceEntity) {
   const bottom = level > 0 ? level * heightUnit : -50;
   const top = (level + 1) * heightUnit;
 
-  const levelCode = Math.abs(level).toString();
+  const levelCode = level ? Math.abs(level).toString() : "";
 
   spaceEntity.wall.minimumHeights = [bottom, bottom, bottom, bottom, bottom];
   spaceEntity.wall.maximumHeights = [top, top, top, top, top];
@@ -523,7 +522,7 @@ function drawSpace(cartesian, spaceEntity) {
     return Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitudeRounded, latitudeRounded, size));
   }, false); // prevent flashing
 
-  const geocode = precision.toString() + longitudeCode + latitudeCode + levelSign + levelCode;
+  const geocode = levelCode + levelSign + latitudeCode + longitudeCode + precision.toString();
   return geocode;
 }
 
@@ -545,12 +544,16 @@ function rectangleArray(longitude, latitude, size) {
 
 // function to parse the geocode
 function parseGeocode(geocode) {
-  const precision = parseInt(geocode[0]);
-  const longitude = parseFloat(geocode.substring(1, 4 + precision)) * 0.1 ** precision - 180;
-  const latitude = parseFloat(geocode.substring(4 + precision, 7 + 2 * precision)) * 0.1 ** precision - 90;
-  const levelSign = parseInt(geocode[7 + 2 * precision]);
-  const level = parseInt(geocode.substring(8 + 2 * precision)) * (levelSign - 2);
+  const l = geocode.length;
+  const precision = parseInt(geocode[l - 1]);
+  const longitude = parseFloat(geocode.substring(l - precision - 4, l - 1)) * 0.1 ** precision - 180;
+  const latitude = parseFloat(geocode.substring(l - 7 - 2 * precision, l - precision - 4)) * 0.1 ** precision - 90;
+  const levelSign = parseInt(geocode[l - 8 - 2 * precision]);
+  const levelRaw = parseInt(geocode.substring(0, l - 8 - 2 * precision)) * (levelSign - 2);
+  const level = levelRaw ? levelRaw : 0;
   const size = 0.1 ** precision;
+
+  console.log(longitude, latitude, levelSign, level);
 
   const earth_radius = 6378137;
   const heightUnit = ((earth_radius * size) / 180) * Math.PI;
