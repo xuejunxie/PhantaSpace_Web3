@@ -21,3 +21,7 @@ export const LOADING_ALL = "LOADING_ALL";
 // types for space operations
 export const SELECT_SPACE = "SELECT_SPACE";
 export const SHOW_SPACE = "SHOW_SPACE";
+
+// types for account operations
+export const SET_CONNECTOR_ID = "SET_CONNECTOR_ID";
+export const REMOVE_CONNECTOR_ID = "REMOVE_CONNECTOR_ID";

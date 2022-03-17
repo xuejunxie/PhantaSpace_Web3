@@ -58,11 +58,10 @@ export default function App() {
   const ownedNFTs = useSelector((state) => state.map.owned);
   const loadingOwn = useSelector((state) => state.sidebar.loading);
   const loadingAll = useSelector((state) => state.sidebar.loadingAll);
+  const connectorIdInStore = useSelector((state) => state.account.connectorId);
 
   useEffect(() => {
-    // const connectorId = window.localStorage.getItem("connectorId");
-    const connectorId = "injected";
-    if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) enableWeb3({ provider: connectorId });
+    if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) enableWeb3({ provider: connectorIdInStore });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, isWeb3Enabled]);
 

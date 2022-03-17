@@ -558,7 +558,7 @@ function parseGeocode(geocode) {
   const earth_radius = 6378137;
   const heightUnit = ((earth_radius * size) / 180) * Math.PI;
 
-  const bottom = -50;
+  const bottom = level ? level * heightUnit : -50;
   const top = (level + 1) * heightUnit;
 
   return {

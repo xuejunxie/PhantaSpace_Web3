@@ -8,8 +8,8 @@ import { getExplorer } from "helpers/networks";
 import { connectors } from "./config";
 import { customEnable } from "./walletlink";
 import coinbaseIcon from "./WalletIcons/coinbase.svg";
-import { useDispatch } from "react-redux";
-import { DISCONNECT } from "redux/types";
+import { useDispatch, useSelector } from "react-redux";
+import { DISCONNECT, REMOVE_CONNECTOR_ID, SET_CONNECTOR_ID } from "redux/types";
 
 const styles = {
   account: {
@@ -53,6 +53,8 @@ function Account() {
   const { authenticate, isAuthenticated, chainId, logout, Moralis, user } = useMoralis();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isAuthModalVisible, setIsAuthModalVisible] = useState(false);
+  const connectorIdInStore = useSelector((state) => state.account.connectorId);
+
   var account = "";
   if (user) {
     account = user.attributes.accounts[0];
@@ -76,8 +78,7 @@ function Account() {
                 onClick={async () => {
                   try {
                     await authenticate({ provider: connectorId, signingMessage: signingMessage });
-
-                    // window.localStorage.setItem("connectorId", connectorId);
+                    dispatch({ type: SET_CONNECTOR_ID, payload: connectorId });
                     setIsAuthModalVisible(false);
                   } catch (e) {
                     console.error(e);
@@ -96,7 +97,7 @@ function Account() {
                 try {
                   Moralis.setEnableWeb3(customEnable);
                   await authenticate({ signingMessage: signingMessage });
-                  // window.localStorage.setItem("connectorId", "injected");
+                  dispatch({ type: SET_CONNECTOR_ID, payload: "injected" });
                   setIsAuthModalVisible(false);
                 } catch (e) {
                   console.error(e);
@@ -153,8 +154,7 @@ function Account() {
           <Button
             onClick={async () => {
               await logout();
-
-              // window.localStorage.removeItem("connectorId");
+              dispatch({ type: REMOVE_CONNECTOR_ID });
               setIsModalVisible(false);
               dispatch({ type: DISCONNECT });
             }}

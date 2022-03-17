@@ -45,7 +45,7 @@ export default function Header(props) {
         </ul>
         {Explore}
         {Create}
-        {/* {Space} */}
+        {Space}
         <div className="mr-3" />
         <Account />
       </div>
