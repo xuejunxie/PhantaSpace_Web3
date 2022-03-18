@@ -32,6 +32,26 @@ export default function Map(props) {
   const show_space = useSelector((state) => state.space.show_space);
   const selected_space = useSelector((state) => state.space.selected_space);
 
+  var loaded = false;
+  var numTiles = 0;
+  var newNumTiles = 0;
+
+  // check if the map is loaded
+  function checkLoad() {
+    if (!loaded) {
+      newNumTiles = viewer.scene.globe._surface._tileLoadQueueMedium.length;
+      console.log(newNumTiles);
+      if (newNumTiles === 0 && numTiles > newNumTiles) {
+        loaded = true;
+        console.log("loaded");
+        // Hide the loading overlay.
+      } else {
+        numTiles = newNumTiles;
+        setTimeout(checkLoad, 100);
+      }
+    }
+  }
+
   // select space
   useEffect(() => {
     if (selected_space && selected_space.geocode) {
@@ -93,6 +113,9 @@ export default function Map(props) {
       infoBox: false,
       vrButton: false,
     });
+
+    // check if the map is loaded
+    checkLoad();
 
     // enable shadows
     // viewer.shadowMap.enabled = true;
