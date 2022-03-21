@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import * as Cesium from "cesium";
 import { useDispatch, useSelector } from "react-redux";
-import { PLACE, UPDATE, CLICK, SELECT_SPACE } from "../redux/types";
+import { PLACE, UPDATE, CLICK, SELECT_SPACE, MAP_LOADED } from "../redux/types";
 
 Cesium.Ion.defaultAccessToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjNmY0NjhmOS1iZGRjLTQ5ODgtYTQyOS0zNGFhZTQ3M2RlYzYiLCJpZCI6NzE5OTUsImlhdCI6MTYzNzIzODcyM30.C_x5USgZL8Gk2tZ7D3hd__1irF9-cyatRD-9GDaRBGc";
@@ -32,18 +32,18 @@ export default function Map(props) {
   const show_space = useSelector((state) => state.space.show_space);
   const selected_space = useSelector((state) => state.space.selected_space);
 
+  // check if the map is loaded
   var loaded = false;
   var numTiles = 0;
   var newNumTiles = 0;
 
-  // check if the map is loaded
   function checkLoad() {
     if (!loaded) {
       newNumTiles = viewer.scene.globe._surface._tileLoadQueueMedium.length;
-      console.log(newNumTiles);
       if (newNumTiles === 0 && numTiles > newNumTiles) {
         loaded = true;
-        console.log("loaded");
+        dispatch({ type: MAP_LOADED });
+        console.log("map loaded");
         // Hide the loading overlay.
       } else {
         numTiles = newNumTiles;
@@ -534,8 +534,8 @@ function drawSpace(cartesian, spaceEntity) {
     .padStart(3 + precision, "0");
   const levelSign = ground + heightUnit > 0 ? "3" : "1";
   const level = Math.round(ground / heightUnit);
-  const bottom = level > 0 ? level * heightUnit : -50;
-  const top = (level + 1) * heightUnit;
+  const bottom = level * heightUnit - 50;
+  const top = (level + 1) * heightUnit - 50;
 
   const levelCode = level ? Math.abs(level).toString() : "";
 
@@ -581,8 +581,8 @@ function parseGeocode(geocode) {
   const earth_radius = 6378137;
   const heightUnit = ((earth_radius * size) / 180) * Math.PI;
 
-  const bottom = level ? level * heightUnit : -50;
-  const top = (level + 1) * heightUnit;
+  const bottom = level * heightUnit - 50;
+  const top = (level + 1) * heightUnit - 50;
 
   return {
     precision: precision,

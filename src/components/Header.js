@@ -27,7 +27,7 @@ export default function Header(props) {
             Phanta.Space
           </a>
         </div>
-        <ul className="navbar-nav mr-3">
+        {/* <ul className="navbar-nav mr-3">
           <li className="nav-item">
             <a href="https://discord.gg/8msWTCH5x8" target="_blank">
               <svg
@@ -42,7 +42,7 @@ export default function Header(props) {
               </svg>
             </a>
           </li>
-        </ul>
+        </ul> */}
         {Explore}
         {Create}
         {Space}

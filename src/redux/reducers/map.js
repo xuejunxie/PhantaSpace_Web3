@@ -1,9 +1,10 @@
-import { SELECT, PLACE, UPDATE, LOAD_OWNED, REMOVE, DONE, LOAD_ALL, CLICK, DISCONNECT } from "../types";
+import { SELECT, PLACE, UPDATE, LOAD_OWNED, REMOVE, DONE, LOAD_ALL, CLICK, DISCONNECT, MAP_LOADED } from "../types";
 
 const initialState = {
   owned: [],
   all: [],
   click: null,
+  map_loading: true,
 };
 
 export default function (state = initialState, action) {
@@ -73,6 +74,13 @@ export default function (state = initialState, action) {
         ...state,
         owned: [],
       };
+
+    case MAP_LOADED:
+      return {
+        ...state,
+        map_loading: false,
+      };
+
     default:
       return state;
   }

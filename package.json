@@ -2,6 +2,7 @@
   "name": "PhantaSpace",
   "version": "0.1.0",
   "dependencies": {
+    "@0x/subproviders": "^6.6.5",
     "@ant-design/icons": "^4.7.0",
     "@react-three/fiber": "^7.0.26",
     "@testing-library/jest-dom": "^5.11.4",

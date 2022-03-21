@@ -6,7 +6,7 @@ const baseURL = "https://api.opensea.io/api/v2/assets/matic?owner_address=";
 const header = {
   headers: {
     accept: "application/json",
-    "X-API-KEY": "eb30a10d5e5545c482656b3028c19800",
+    "X-API-KEY": process.env.REACT_APP_OPENSEA_X_API_KEY,
   },
 };
 const urlRegex = /(\b(https?|ftp|file|ifps):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;

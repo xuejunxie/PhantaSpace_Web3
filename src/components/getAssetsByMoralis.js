@@ -9,7 +9,7 @@ const baseURL = "https://deep-index.moralis.io/api/v2/";
 const header = {
   headers: {
     accept: "application/json",
-    "X-API-Key": "0HQr57lvjMsyaSsds6abbmU3SgxURkBs1ho4ulXFoifXYQi4RwNUsZXvNLs1SDTE",
+    "X-API-Key": process.env.REACT_APP_MORALIS_X_API_KEY,
   },
 };
 const ipfs_url = "https://ipfs.io/ipfs/";

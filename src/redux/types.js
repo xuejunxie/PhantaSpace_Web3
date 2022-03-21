@@ -10,6 +10,7 @@ export const LOAD_ALL = "LOAD_ALL";
 export const LOOK = "LOOK";
 export const CLICK = "CLICK";
 export const DISCONNECT = "DISCONNECT";
+export const MAP_LOADED = "MAP_LOADED";
 
 // types for sidebar operations
 export const EXPLORE = "EXPLORE";

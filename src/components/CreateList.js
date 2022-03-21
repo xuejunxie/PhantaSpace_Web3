@@ -215,7 +215,7 @@ export default function CreateList() {
                       />
                       <hr />
                       <div className="row justify-content-center">
-                        <button type="button" className="  btn btn-primary rounded mr-5" onClick={() => onDone(nft)}>
+                        <button type="button" className="  btn btn-light rounded mr-5" onClick={() => onDone(nft)}>
                           Done
                         </button>
                         <button type="button" className="  btn btn-danger rounded" onClick={() => onRemove(nft)}>
@@ -226,7 +226,7 @@ export default function CreateList() {
                   ) : (
                     <div className="card card-body bg-dark">
                       <div className="row justify-content-center">
-                        <button type="button" className="  btn btn-primary rounded" onClick={() => onEdit(nft)}>
+                        <button type="button" className="  btn btn-light rounded" onClick={() => onEdit(nft)}>
                           Edit
                         </button>
                       </div>
