@@ -1,4 +1,4 @@
-import { useEffect, Fragment } from "react";
+import { useEffect, Fragment, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import "./style.css";
@@ -30,27 +30,21 @@ var listWidth = "250px";
 const headerHeight = "50px";
 var viewerWidth = "calc(100% - " + listWidth + ")";
 const height = "calc(100vh - " + headerHeight + ")";
+const mobileWidth = 768;
 
 export default function App() {
-  // // detect if mobile
-  // const [width, setWidth] = useState(window.innerWidth);
+  // detect if mobile
+  const [width, setWidth] = useState(window.innerWidth);
 
-  // function handleWindowSizeChange() {
-  //   setWidth(window.innerWidth);
-  //   const isMobile = width <= 768;
-  //   console.log(window.innerWidth);
-  //   if (isMobile) {
-  //     listWidth = "20vw";
-  //     viwerWidth = "calc(100vw - " + listWidth + ")";
-  //     console.log("mobile");
-  //   }
-  // }
-  // useEffect(() => {
-  //   window.addEventListener("resize", handleWindowSizeChange);
-  //   return () => {
-  //     window.removeEventListener("resize", handleWindowSizeChange);
-  //   };
-  // }, []);
+  function handleWindowSizeChange() {
+    setWidth(window.innerWidth);
+  }
+  useEffect(() => {
+    window.addEventListener("resize", handleWindowSizeChange);
+    return () => {
+      window.removeEventListener("resize", handleWindowSizeChange);
+    };
+  }, []);
 
   const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading, user } = useMoralis();
   const dispatch = useDispatch();
@@ -111,20 +105,25 @@ export default function App() {
 
   return (
     <Fragment>
-      <Header headerHeight={headerHeight} />
+      {width > mobileWidth ? <Header headerHeight={headerHeight} /> : null}
       <div className="container-fluid">
         <div className="row bg-dark">
-          <div style={{ width: listWidth, maxHeight: height }} className="overflow-auto">
-            <Routes>
-              <Route exact path="" element={<ExploreList />} />
-              <Route exact path="explore" element={<ExploreList />} />
-              <Route exact path="explore/:NFTid" element={<ExploreList />} />
-              <Route exact path="create" element={<CreateList />} />
-              <Route exact path="space" element={<Space />} />
-              <Route exact path="space/:geocode" element={<Space />} />
-            </Routes>
-          </div>
-          <Map viewerWidth={viewerWidth} viewerHeight={height} />
+          {width > mobileWidth ? (
+            <div style={{ width: listWidth, maxHeight: height }} className="overflow-auto">
+              <Routes>
+                <Route exact path="" element={<ExploreList />} />
+                <Route exact path="explore" element={<ExploreList />} />
+                <Route exact path="explore/:NFTid" element={<ExploreList />} />
+                <Route exact path="create" element={<CreateList />} />
+                <Route exact path="space" element={<Space />} />
+                <Route exact path="space/:geocode" element={<Space />} />
+              </Routes>
+            </div>
+          ) : null}
+          <Map
+            viewerWidth={width > mobileWidth ? viewerWidth : "100vw"}
+            viewerHeight={width > mobileWidth ? height : "100vh"}
+          />
         </div>
       </div>
     </Fragment>

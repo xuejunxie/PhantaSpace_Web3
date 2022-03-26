@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment, useState } from "react";
 import { Link } from "react-router-dom";
 import Account from "../web3Parts/Account/Account";
 
@@ -45,7 +45,7 @@ export default function Header(props) {
         </ul> */}
         {Explore}
         {Create}
-        {Space}
+        {/* {Space} */}
         <div className="mr-3" />
         <Account />
       </div>

@@ -112,6 +112,7 @@ export default function Map(props) {
       creditContainer: dummyCredit,
       infoBox: false,
       vrButton: false,
+      showRenderLoopErrors: false,
     });
 
     // check if the map is loaded
@@ -576,7 +577,7 @@ function parseGeocode(geocode) {
   const level = levelRaw ? levelRaw : 0;
   const size = 0.1 ** precision;
 
-  console.log(longitude, latitude, levelSign, level);
+  // console.log(longitude, latitude, levelSign, level);
 
   const earth_radius = 6378137;
   const heightUnit = ((earth_radius * size) / 180) * Math.PI;

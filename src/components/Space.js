@@ -34,7 +34,7 @@ export default function Space() {
       dispatch({ type: SHOW_SPACE, payload: space });
       dispatch({ type: SELECT_SPACE, payload: space });
     }
-  }, []);
+  }, [spacePosition]);
 
   useEffect(() => {
     if (selected_space) {
@@ -71,7 +71,7 @@ export default function Space() {
   return (
     <div className="bg-dark">
       <Tabs id="controlled-tab-example" activeKey={key} onSelect={(k) => setKey(k)}>
-        <Tab eventKey="mint" title="Mint" tabClassName="text-light">
+        <Tab eventKey="mint" title="Mint" tabClassName="text-light ml-3">
           <div className="card-body text-center text-light">
             <div className="row justify-content-center">
               <button type="button" className="btn btn-light rounded" onClick={() => onShow()}>
