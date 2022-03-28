@@ -22,7 +22,7 @@ export default function Space() {
   const { runContractFunction, data, error, isRunning, isLoading } = useWeb3Contract({
     chain: "rinkeby",
     abi: abi.abi,
-    contractAddress: "0x943b891c56f950d36126114eb37b954ea8ffa9d2",
+    contractAddress: "0x68fA24fd81e2f4e72437d56B15C46601459Cae0e",
     functionName: "mint",
     params: { geocode: 33130710591 },
   });
@@ -78,11 +78,11 @@ export default function Space() {
   return (
     <div className="bg-dark">
       <Tabs id="controlled-tab-example" activeKey={key} onSelect={(k) => setKey(k)}>
-        <Tab eventKey="mint" title="Mint" tabClassName="text-light ml-3">
+        <Tab eventKey="mint" title="Mint" tabClassName="text-light ml-1">
           <div className="card-body text-center text-light mt-3">
             <div className="row justify-content-center">
               <button type="button" className="btn btn-light rounded" onClick={() => onBuy()}>
-                You can buy random space
+                Mint random spaces
               </button>
             </div>
 
@@ -106,20 +106,28 @@ export default function Space() {
               >
                 +
               </span>
+              <hr className="bg-dark " />
+
+              <div type="number" className="count bg-dark" name="qty">
+                = {(count * 0.1).toFixed(2)} ETH
+              </div>
             </div>
 
             <hr className="bg-light " />
+            <div type="number" className=" count bg-dark" name="qty">
+              OR
+            </div>
 
-            <div className="row justify-content-center mt-5">
+            <div className="row justify-content-center mt-3">
               <button type="button" className="btn btn-light rounded" onClick={() => onPick()}>
-                {space_picked ? "Pick a different Space" : "Or auction for a desired space"}
+                {space_picked ? "Pick a different Space" : "Pick a unclaimed Space"}
               </button>
             </div>
 
             {space_picked ? (
               <div className="row justify-content-center mt-5">
                 <button type="button" className="btn btn-light rounded" onClick={() => onAuction()}>
-                  Start the auction for this Space
+                  Auction for this Space
                 </button>
               </div>
             ) : null}
@@ -127,6 +135,7 @@ export default function Space() {
         </Tab>
 
         {isAuthenticated ? <Tab eventKey="owned" title="Owned" tabClassName="text-light"></Tab> : null}
+        <Tab eventKey="auction" title="Auction" tabClassName="text-light"></Tab>
       </Tabs>
     </div>
   );
