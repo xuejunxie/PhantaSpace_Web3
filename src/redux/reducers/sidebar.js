@@ -1,11 +1,13 @@
-import { LOOK, EXPLORE, CREATE, LOADING, SPACE, LOADING_ALL } from "../types";
+import { LOOK, EXPLORE, CREATE, LOADING, PICK_A_SPACE, SPACE_PICKED, LOADING_ALL, SPACE } from "../types";
 
 const initialState = {
   look: null,
   explore: false,
   create: false,
-  loading: false,
   space: false,
+  loading: false,
+  pick_a_space: false,
+  space_picked: false,
   loadingAll: true,
 };
 
@@ -16,27 +18,40 @@ export default function (state = initialState, action) {
         ...state,
         explore: true,
         create: false,
-        space: false,
       };
     case CREATE:
       return {
         ...state,
         create: true,
         explore: false,
-        space: false,
-      };
-    case LOADING_ALL:
-      return {
-        ...state,
-        loadingAll: action.payload,
       };
 
     case SPACE:
       return {
         ...state,
         space: true,
-        explore: false,
         create: false,
+        explore: false,
+      };
+
+    case LOADING_ALL:
+      return {
+        ...state,
+        loadingAll: action.payload,
+      };
+
+    case PICK_A_SPACE:
+      return {
+        ...state,
+        pick_a_space: true,
+        space_picked: false,
+      };
+
+    case SPACE_PICKED:
+      return {
+        ...state,
+        pick_a_space: false,
+        space_picked: true,
       };
 
     case LOOK:

@@ -16,7 +16,7 @@ export default function SpaceNFT() {
       dispatch({ type: SHOW_SPACE, payload: space });
       dispatch({ type: SELECT_SPACE, payload: space });
     }
-  }, []);
+  }, [spacePosition]);
 
   return <Map viewerWidth={"100vw"} viewerHeight={"100vh"} />;
 }

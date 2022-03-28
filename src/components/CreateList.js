@@ -245,7 +245,10 @@ export default function CreateList() {
         <div className="card card-body bg-dark">
           <div className="row justify-content-center">
             {isAuthenticated ? (
-              <h5>Hmmmmm...looks like you don't have NFTs in gltf or glb format in your wallet.</h5>
+              <h5>
+                Hmmmmm...looks like you don't have NFTs in gltf or glb format in your wallet. We are working on a good
+                user experience for 2D arts.
+              </h5>
             ) : (
               <h5>
                 If you connect your wallet, your 3D NFTs will beautifully show up here. Then you can place NFT on the

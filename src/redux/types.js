@@ -15,8 +15,10 @@ export const MAP_LOADED = "MAP_LOADED";
 // types for sidebar operations
 export const EXPLORE = "EXPLORE";
 export const CREATE = "CREATE";
-export const LOADING = "LOADING";
 export const SPACE = "SPACE";
+export const LOADING = "LOADING";
+export const PICK_A_SPACE = "PICK_A_SPACE";
+export const SPACE_PICKED = "SPACE_PICKED";
 export const LOADING_ALL = "LOADING_ALL";
 
 // types for space operations

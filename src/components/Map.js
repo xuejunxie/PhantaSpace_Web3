@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import * as Cesium from "cesium";
 import { useDispatch, useSelector } from "react-redux";
-import { PLACE, UPDATE, CLICK, SELECT_SPACE, MAP_LOADED } from "../redux/types";
+import { PLACE, UPDATE, CLICK, SELECT_SPACE, MAP_LOADED, SPACE_PICKED } from "../redux/types";
 
 Cesium.Ion.defaultAccessToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjNmY0NjhmOS1iZGRjLTQ5ODgtYTQyOS0zNGFhZTQ3M2RlYzYiLCJpZCI6NzE5OTUsImlhdCI6MTYzNzIzODcyM30.C_x5USgZL8Gk2tZ7D3hd__1irF9-cyatRD-9GDaRBGc";
@@ -26,7 +26,7 @@ export default function Map(props) {
   const look = useSelector((state) => state.sidebar.look);
 
   const explore = useSelector((state) => state.sidebar.explore);
-  const space = useSelector((state) => state.sidebar.space);
+  const pick_a_space = useSelector((state) => state.sidebar.pick_a_space);
   const create = useSelector((state) => state.sidebar.create);
 
   const show_space = useSelector((state) => state.space.show_space);
@@ -44,6 +44,7 @@ export default function Map(props) {
         loaded = true;
         dispatch({ type: MAP_LOADED });
         console.log("map loaded");
+        // spinGlobe(viewer);
         // Hide the loading overlay.
       } else {
         numTiles = newNumTiles;
@@ -58,16 +59,26 @@ export default function Map(props) {
       const { precision, longitude, latitude, level, size, bottom, top, heightUnit } = parseGeocode(
         selected_space.geocode
       );
-      current_space = viewer.entities.add({
-        name: "selected_space",
-        wall: {
-          positions: Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitude, latitude, size)),
-          minimumHeights: [bottom, bottom, bottom, bottom, bottom],
-          maximumHeights: [top, top, top, top, top],
-          material: Cesium.Color.fromBytes(8, 182, 190, 100),
-          outline: true,
-        },
-      });
+      dispatch({ type: SPACE_PICKED });
+
+      if (current_space === null) {
+        current_space = viewer.entities.add({
+          name: "selected_space",
+          wall: {
+            positions: Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitude, latitude, size)),
+            minimumHeights: [bottom, bottom, bottom, bottom, bottom],
+            maximumHeights: [top, top, top, top, top],
+            material: Cesium.Color.fromBytes(8, 182, 190, 100),
+            outline: true,
+          },
+        });
+      } else {
+        current_space.wall.minimumHeights = [bottom, bottom, bottom, bottom, bottom];
+        current_space.wall.maximumHeights = [top, top, top, top, top];
+        current_space.wall.positions = new Cesium.CallbackProperty(function () {
+          return Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitude, latitude, size));
+        }, false); // prevent flashing
+      }
     }
   }, [selected_space]);
 
@@ -83,11 +94,12 @@ export default function Map(props) {
       var pointOfInterest = Cesium.Cartographic.fromDegrees(
         longitude + size / 2,
         latitude + size / 2,
-        top + heightUnit * 2
+        top + heightUnit * 1.5
       );
 
       viewer.camera.flyTo({
         destination: ellipsoid.cartographicToCartesian(pointOfInterest),
+        duration: 0,
       });
     }
   }, [show_space]);
@@ -190,6 +202,21 @@ export default function Map(props) {
     // };
   }, []);
 
+  // // codes to spin the globe for fun
+  // var lastNow;
+
+  // function spinIt(scene, time) {
+  //   var now = Date.now();
+  //   var spinRate = ((360 / 8) * 3.1415928) / 180;
+  //   var delta = (now - lastNow) / 1000;
+  //   lastNow = now;
+  //   viewer.scene.camera.rotate(Cesium.Cartesian3.UNIT_Z, spinRate * delta);
+  // }
+  // function spinGlobe(viewer) {
+  //   lastNow = Date.now();
+  //   viewer.scene.postRender.addEventListener(spinIt);
+  // }
+
   // handle mouse events for explore page
   useEffect(() => {
     const dispatchClick = (NFTid) => {
@@ -218,14 +245,14 @@ export default function Map(props) {
 
   // handle mouse events for space page
   useEffect(() => {
-    if (space) {
+    if (pick_a_space) {
       spaceHandler = handleSpace(dispatch);
     } else {
       if (spaceHandler && !spaceHandler.isDestroyed()) {
         spaceHandler.destroy();
       }
     }
-  }, [space]);
+  }, [pick_a_space]);
 
   // clean up on explore page
   useEffect(() => {
@@ -468,24 +495,13 @@ function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft) {
 function handleSpace(dispatch) {
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
-  // initialize the rectangle
-  var spaceEntity = viewer.entities.add({
-    name: "test",
-    wall: {
-      positions: Cesium.Cartesian3.fromDegreesArray([-90.0, 43.0, -87.5, 45.0, -85.0, 43.0, -87.5, 41.0, -90.0, 43.0]),
-      maximumHeights: [1, 1, 1, 1, 1],
-      minimumHeights: [0, 0, 0, 0, 0],
-      material: Cesium.Color.fromBytes(8, 182, 190, 100),
-    },
-  });
-
   // show a square on the floor when the mouse move
 
   handler.setInputAction(function (movement) {
     const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.endPosition), viewer.scene);
 
     if (cartesian) {
-      drawSpace(cartesian, spaceEntity);
+      drawSpace(cartesian);
     }
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
@@ -493,7 +509,8 @@ function handleSpace(dispatch) {
   handler.setInputAction(function (movement) {
     const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.position), viewer.scene);
     if (cartesian) {
-      const geocode = drawSpace(cartesian, spaceEntity);
+      const geocode = drawSpace(cartesian);
+      dispatch({ type: SPACE_PICKED });
       dispatch({
         type: SELECT_SPACE,
         payload: {
@@ -507,7 +524,7 @@ function handleSpace(dispatch) {
 }
 
 // function to draw space
-function drawSpace(cartesian, spaceEntity) {
+function drawSpace(cartesian) {
   var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
   const longitude = Cesium.Math.toDegrees(newPosition.longitude);
   const latitude = Cesium.Math.toDegrees(newPosition.latitude);
@@ -540,11 +557,24 @@ function drawSpace(cartesian, spaceEntity) {
 
   const levelCode = level ? Math.abs(level).toString() : "";
 
-  spaceEntity.wall.minimumHeights = [bottom, bottom, bottom, bottom, bottom];
-  spaceEntity.wall.maximumHeights = [top, top, top, top, top];
-  spaceEntity.wall.positions = new Cesium.CallbackProperty(function () {
-    return Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitudeRounded, latitudeRounded, size));
-  }, false); // prevent flashing
+  if (current_space === null) {
+    current_space = viewer.entities.add({
+      name: "selected_space",
+      wall: {
+        positions: Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitudeRounded, latitudeRounded, size)),
+        minimumHeights: [bottom, bottom, bottom, bottom, bottom],
+        maximumHeights: [top, top, top, top, top],
+        material: Cesium.Color.fromBytes(8, 182, 190, 100),
+        outline: true,
+      },
+    });
+  } else {
+    current_space.wall.minimumHeights = [bottom, bottom, bottom, bottom, bottom];
+    current_space.wall.maximumHeights = [top, top, top, top, top];
+    current_space.wall.positions = new Cesium.CallbackProperty(function () {
+      return Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitudeRounded, latitudeRounded, size));
+    }, false); // prevent flashing
+  }
 
   const geocode = levelCode + levelSign + latitudeCode + longitudeCode + precision.toString();
   return geocode;
