@@ -4,11 +4,8 @@ import { useParams } from "react-router-dom";
 import { SPACE, PICK_A_SPACE, SELECT_SPACE, SHOW_SPACE } from "redux/types";
 import { Tab, Tabs } from "react-bootstrap";
 import { useMoralis, useWeb3Contract } from "react-moralis";
-import Moralis from "moralis";
 import abi from "./abi.json";
 import "./Space.css";
-import { OpenSeaPort, Network } from "opensea-js";
-import { ConsoleSqlOutlined } from "@ant-design/icons";
 
 export default function Space() {
   const dispatch = useDispatch();
@@ -18,18 +15,42 @@ export default function Space() {
   const pick_a_space = useSelector((state) => state.sidebar.pick_a_space);
   const [key, setKey] = useState("mint");
   const { isAuthenticated, web3 } = useMoralis();
+  const [price, setPrice] = useState(0);
+  const [count, setCount] = useState(1);
 
-  const { runContractFunction, data, error, isRunning, isLoading } = useWeb3Contract({
+  const [decimal, setDecimal] = useState(0);
+
+  const getPriceContract = useWeb3Contract({
     chain: "rinkeby",
     abi: abi.abi,
     contractAddress: "0x68fA24fd81e2f4e72437d56B15C46601459Cae0e",
-    functionName: "mint",
-    params: { geocode: 33130710591 },
+    functionName: "vendingPrice",
+  });
+
+  const price_wei = getPriceContract.data;
+
+  const vendingContract = useWeb3Contract({
+    chain: "rinkeby",
+    abi: abi.abi,
+    contractAddress: "0x68fA24fd81e2f4e72437d56B15C46601459Cae0e",
+    functionName: "vending",
+    msgValue: web3.utils.toWei((price * count).toFixed(decimal), "ether"),
   });
 
   useEffect(() => {
     dispatch({ type: SPACE });
   }, []);
+
+  useEffect(() => {
+    getPriceContract.runContractFunction();
+  }, [web3]);
+
+  useEffect(() => {
+    if (price_wei) {
+      setPrice(price_wei / 10 ** 18);
+      setDecimal(Math.max(19 - price_wei.toString().length, 0));
+    }
+  }, [price_wei]);
 
   useEffect(() => {
     if (spacePosition.geocode) {
@@ -55,38 +76,34 @@ export default function Space() {
     }
   }, [key]);
 
-  useEffect(() => {
-    console.log("data:", data, "error:", error, "isRunning:", isRunning, "isLoading:", isLoading);
-  }, [error, isRunning, isLoading, data]);
-
-  const onBuy = async () => {
-    const result = await Moralis.Cloud.run("test", { data: "test" });
-    console.log(result);
+  const onMint = async () => {
+    vendingContract.runContractFunction();
   };
 
-  const [count, setCount] = useState(1);
+  useEffect(() => {
+    console.log(vendingContract.data);
+    const result = vendingContract.data;
+    if (result) {
+      result.events.spaceMinted.map((space) => {
+        console.log(space);
+      });
+    }
+  }, [vendingContract.data]);
 
   const onPick = () => {
     dispatch({ type: PICK_A_SPACE });
   };
 
-  const onAuction = () => {
-    // fetch({ params: options });
-    runContractFunction();
-  };
+  const onAuction = async () => {};
 
   return (
     <div className="bg-dark">
       <Tabs id="controlled-tab-example" activeKey={key} onSelect={(k) => setKey(k)}>
         <Tab eventKey="mint" title="Mint" tabClassName="text-light ml-1">
-          <div className="card-body text-center text-light mt-3">
-            <div className="row justify-content-center">
-              <button type="button" className="btn btn-light rounded" onClick={() => onBuy()}>
-                Mint random spaces
-              </button>
-            </div>
+          <div className="card-body text-center text-light mt-3 qty">
+            <div className="row justify-content-center count bg-dark">Mint random spaces</div>
 
-            <div className="qty mt-3 mb-3">
+            <div className="row justify-content-center mt-3 mb-3">
               <span
                 className="minus bg-dark"
                 onClick={() => {
@@ -106,28 +123,44 @@ export default function Space() {
               >
                 +
               </span>
-              <hr className="bg-dark " />
-
-              <div type="number" className="count bg-dark" name="qty">
-                = {(count * 0.1).toFixed(2)} ETH
-              </div>
             </div>
-
-            <hr className="bg-light " />
-            <div type="number" className=" count bg-dark" name="qty">
-              OR
+            <div type="number" className="row count justify-content-center count bg-dark" name="qty">
+              = {(count * price).toFixed(decimal)} ETH
             </div>
+            <div className="row justify-content-center mt-3">
+              <button
+                type="button"
+                className="btn btn-light rounded"
+                // style={{ font: "20px/1 Arial, sans-serif", font_weight: "700" }}
+                onClick={() => onMint()}
+              >
+                Mint
+              </button>
+            </div>
+            <p className="or-bar">
+              <span>Or</span>
+            </p>
 
             <div className="row justify-content-center mt-3">
-              <button type="button" className="btn btn-light rounded" onClick={() => onPick()}>
+              <button
+                type="button"
+                className="btn btn-light rounded"
+                // style={{ font: "20px/1 Arial, sans-serif", font_weight: "700" }}
+                onClick={() => onPick()}
+              >
                 {space_picked ? "Pick a different Space" : "Pick a unclaimed Space"}
               </button>
             </div>
 
             {space_picked ? (
               <div className="row justify-content-center mt-5">
-                <button type="button" className="btn btn-light rounded" onClick={() => onAuction()}>
-                  Auction for this Space
+                <button
+                  type="button"
+                  className="btn btn-light rounded"
+                  // style={{ font: "20px/1 Arial, sans-serif", font_weight: "700" }}
+                  onClick={() => onAuction()}
+                >
+                  Bid for this Space
                 </button>
               </div>
             ) : null}

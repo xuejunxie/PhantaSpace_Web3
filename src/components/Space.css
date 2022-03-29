@@ -24,7 +24,7 @@
   color: #fff;
   display: inline-block;
   vertical-align: top;
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 700;
   line-height: 30px;
   padding: 0 2px;
@@ -80,4 +80,21 @@ input::-webkit-inner-spin-button {
 }
 input:disabled {
   background-color: white;
+}
+
+.or-bar {
+  height: 15px;
+  width: 100%;
+  border-bottom: solid 2px white;
+  text-align: center;
+  margin: 2em 0;
+}
+.or-bar span {
+  background: #343a40;
+  position: relative;
+  top: 0;
+  padding: 0 20px;
+  line-height: 30px;
+  font: 20px/1 Arial, sans-serif;
+  font-weight: 700;
 }
