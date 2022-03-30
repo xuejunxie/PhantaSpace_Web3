@@ -1,4 +1,16 @@
-import { SELECT, PLACE, UPDATE, LOAD_OWNED, REMOVE, DONE, LOAD_ALL, CLICK, DISCONNECT, MAP_LOADED } from "../types";
+import {
+  SELECT,
+  PLACE,
+  UPDATE,
+  LOAD_OWNED,
+  REMOVE,
+  DONE,
+  LOAD_ALL,
+  CLICK,
+  DISCONNECT,
+  MAP_LOADED,
+  CLEAN_OWNED,
+} from "../types";
 
 const initialState = {
   owned: [],
@@ -68,6 +80,11 @@ export default function (state = initialState, action) {
       return {
         ...state,
         owned: [...state.owned, ...action.payload],
+      };
+    case CLEAN_OWNED:
+      return {
+        ...state,
+        owned: [],
       };
     case DISCONNECT:
       return {

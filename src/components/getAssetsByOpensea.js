@@ -11,11 +11,10 @@ const header = {
 };
 const urlRegex = /(\b(https?|ftp|file|ifps):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
 
-var offset = 0;
-const limit = 50;
-var reachEnd = false;
-
 export default async function getAssetsByOpensea(account, dispatch) {
+  var offset = 0;
+  const limit = 50;
+  var reachEnd = false;
   dispatch({ type: LOADING, payload: true });
   const fetchData = async () => {
     var getURL = baseURL + account + "&limit=" + limit + "&offset=" + offset;

@@ -6,6 +6,7 @@ import { Tab, Tabs } from "react-bootstrap";
 import { useMoralis, useWeb3Contract } from "react-moralis";
 import abi from "./abi.json";
 import "./Space.css";
+import SpaceOwned from "./SpaceOwned";
 
 export default function Space() {
   const dispatch = useDispatch();
@@ -23,7 +24,7 @@ export default function Space() {
   const getPriceContract = useWeb3Contract({
     chain: "rinkeby",
     abi: abi.abi,
-    contractAddress: "0x68fA24fd81e2f4e72437d56B15C46601459Cae0e",
+    contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
     functionName: "vendingPrice",
   });
 
@@ -32,7 +33,7 @@ export default function Space() {
   const vendingContract = useWeb3Contract({
     chain: "rinkeby",
     abi: abi.abi,
-    contractAddress: "0x68fA24fd81e2f4e72437d56B15C46601459Cae0e",
+    contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
     functionName: "vending",
     msgValue: web3.utils.toWei((price * count).toFixed(decimal), "ether"),
   });
@@ -167,7 +168,11 @@ export default function Space() {
           </div>
         </Tab>
 
-        {isAuthenticated ? <Tab eventKey="owned" title="Owned" tabClassName="text-light"></Tab> : null}
+        {isAuthenticated ? (
+          <Tab eventKey="owned" title="Owned" tabClassName="text-light">
+            <SpaceOwned />
+          </Tab>
+        ) : null}
         <Tab eventKey="auction" title="Auction" tabClassName="text-light"></Tab>
       </Tabs>
     </div>

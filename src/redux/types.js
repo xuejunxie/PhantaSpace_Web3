@@ -2,6 +2,7 @@
 export const SELECT = "SELECT";
 export const PLACE = "PLACE";
 export const LOAD_OWNED = "LOAD_OWNED";
+export const CLEAN_OWNED = "CLEAN_OWNED";
 export const UPDATE = "UPDATE";
 export const REMOVE = "REMOVE";
 export const REMOVED = "REMOVED";
@@ -24,6 +25,10 @@ export const LOADING_ALL = "LOADING_ALL";
 // types for space operations
 export const SELECT_SPACE = "SELECT_SPACE";
 export const SHOW_SPACE = "SHOW_SPACE";
+export const LOAD_OWNED_SPACE = "LOAD_OWNED_SPACE";
+export const ADD_OWNED_SPACE = "ADD_OWNED_SPACE";
+export const LOADING_SPACE = "LOADING_SPACE";
+export const CLEAN_OWNED_SPACE = "CLEAN_OWNED_SPACE";
 
 // types for account operations
 export const SET_CONNECTOR_ID = "SET_CONNECTOR_ID";

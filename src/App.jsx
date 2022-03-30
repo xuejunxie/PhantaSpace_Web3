@@ -10,13 +10,14 @@ import { useDispatch, useSelector } from "react-redux";
 import ExploreList from "./components/ExploreList";
 import CreateList from "./components/CreateList";
 import Map from "./components/Map";
-import { LOAD_ALL, LOADING_ALL, UPDATE } from "redux/types";
+import { LOAD_ALL, LOADING_ALL, UPDATE, CLEAN_OWNED, CLEAN_OWNED_SPACE } from "redux/types";
 import Moralis from "moralis";
 import Space from "components/Space";
 import Contract from "web3Parts/Contract/Contract";
 import getAssetsByOpensea from "components/getAssetsByOpensea";
 import getAssetsByMoralis from "components/getAssetsByMoralis";
 import getAssetsByOpenseaMatic from "components/getAssetsByOpenseaMatic";
+import getSpaceByOpensea from "components/getSpaceByOpensea";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
@@ -71,6 +72,7 @@ export default function App() {
   var account = "";
 
   useEffect(() => {
+    console.log("user", user);
     if (user) {
       account = user.attributes.accounts[0];
       // account = "0xe9956cf72cc8e49d903478142dc8dadb4ee328ff";
@@ -80,9 +82,15 @@ export default function App() {
       // account = "0xce90a7949bb78892f159f428d0dc23a8e3584d75";
       // account = "0x5a501b42cfab342571f8ddf18e5e952a8a9bf60f";
       // get user owned NFTs
+
       getAssetsByOpensea(account, dispatch);
       getAssetsByOpenseaMatic(account, dispatch);
+      getSpaceByOpensea(account, dispatch);
       // getAssetsByMoralis(account, dispatch);
+      console.log(account);
+    } else {
+      dispatch({ type: CLEAN_OWNED });
+      dispatch({ type: CLEAN_OWNED_SPACE });
     }
   }, [user]);
 
