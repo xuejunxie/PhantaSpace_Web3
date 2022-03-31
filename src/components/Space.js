@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { SPACE, PICK_A_SPACE, SELECT_SPACE, SHOW_SPACE } from "redux/types";
 import { Tab, Tabs } from "react-bootstrap";
 import { useMoralis, useWeb3Contract } from "react-moralis";
+import Moralis from "moralis";
 import abi from "./abi.json";
 import "./Space.css";
 import SpaceOwned from "./SpaceOwned";
@@ -83,19 +84,22 @@ export default function Space() {
 
   useEffect(() => {
     console.log(vendingContract.data);
-    const result = vendingContract.data;
-    if (result) {
-      result.events.spaceMinted.map((space) => {
-        console.log(space);
-      });
-    }
+    // const result = vendingContract.data;
+    // if (result) {
+    //   result.events.spaceMinted.map((space) => {
+    //     console.log(space);
+    //   });
+    // }
   }, [vendingContract.data]);
 
   const onPick = () => {
     dispatch({ type: PICK_A_SPACE });
   };
 
-  const onAuction = async () => {};
+  const onAuction = async () => {
+    const result = await Moralis.Cloud.run("test", { data: "test1" });
+    console.log(result);
+  };
 
   return (
     <div className="bg-dark">

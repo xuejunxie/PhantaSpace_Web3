@@ -72,7 +72,6 @@ export default function App() {
   var account = "";
 
   useEffect(() => {
-    console.log("user", user);
     if (user) {
       account = user.attributes.accounts[0];
       // account = "0xe9956cf72cc8e49d903478142dc8dadb4ee328ff";
@@ -85,9 +84,8 @@ export default function App() {
 
       getAssetsByOpensea(account, dispatch);
       getAssetsByOpenseaMatic(account, dispatch);
-      getSpaceByOpensea(account, dispatch);
+      // getSpaceByOpensea(account, dispatch);
       // getAssetsByMoralis(account, dispatch);
-      console.log(account);
     } else {
       dispatch({ type: CLEAN_OWNED });
       dispatch({ type: CLEAN_OWNED_SPACE });

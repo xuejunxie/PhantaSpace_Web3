@@ -3,14 +3,23 @@ import React, { useEffect, createRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useMoralis } from "react-moralis";
 
-import { SHOW_SPACE, SELECT_SPACE } from "redux/types";
+import { SHOW_SPACE, SELECT_SPACE, CLEAN_OWNED_SPACE } from "redux/types";
+import getSpaceByOpensea from "./getSpaceByOpensea";
 
 export default function SpaceOwned() {
   const owned_space = useSelector((state) => state.space.owned);
   const loading = useSelector((state) => state.space.loading);
   const dispatch = useDispatch();
-  const { isAuthenticated } = useMoralis();
+  const { isAuthenticated, user } = useMoralis();
   var refs = {};
+
+  useEffect(() => {
+    dispatch({ type: CLEAN_OWNED_SPACE });
+    if (user) {
+      const account = user.attributes.accounts[0];
+      getSpaceByOpensea(account, dispatch);
+    }
+  }, []);
 
   const onSelect = (tokenID) => {
     dispatch({ type: SHOW_SPACE, payload: { geocode: tokenID } });
