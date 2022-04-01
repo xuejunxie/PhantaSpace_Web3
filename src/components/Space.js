@@ -12,13 +12,14 @@ import SpaceOwned from "./SpaceOwned";
 export default function Space() {
   const dispatch = useDispatch();
   var spacePosition = useParams();
-  const selected_space = useSelector((state) => state.space.selected_space);
-  const space_picked = useSelector((state) => state.sidebar.space_picked);
-  const pick_a_space = useSelector((state) => state.sidebar.pick_a_space);
+  const selected_space = useSelector((state) => state.sidebar.selected_space);
   const [key, setKey] = useState("mint");
   const { isAuthenticated, web3 } = useMoralis();
   const [price, setPrice] = useState(0);
   const [count, setCount] = useState(1);
+  const [bidWarning, setBidWarning] = useState("");
+  const [bid, setBid] = useState(1);
+  const [cleanBid, setCleanBid] = useState("1");
 
   const [decimal, setDecimal] = useState(0);
 
@@ -39,8 +40,20 @@ export default function Space() {
     msgValue: web3.utils.toWei((price * count).toFixed(decimal), "ether"),
   });
 
+  const auctionContract = useWeb3Contract({
+    chain: "rinkeby",
+    abi: abi.abi,
+    contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
+    functionName: "genesisAuction",
+    msgValue: web3.utils.toWei(cleanBid, "ether"),
+    params: {
+      geocode: selected_space ? selected_space.geocode : "",
+    },
+  });
+
   useEffect(() => {
     dispatch({ type: SPACE });
+    dispatch({ type: SELECT_SPACE, payload: null });
   }, []);
 
   useEffect(() => {
@@ -97,15 +110,76 @@ export default function Space() {
   };
 
   const onAuction = async () => {
-    const result = await Moralis.Cloud.run("test", { data: "test1" });
-    console.log(result);
+    // auctionContract.runContractFunction();
+    console.log(bid);
   };
+
+  useEffect(() => {
+    if (isNumeric(bid)) {
+      setBidWarning(" ");
+      setCleanBid(bid.toString());
+    } else {
+      if (bid) {
+        setBidWarning("Bid must be a number");
+      }
+    }
+  }, [bid]);
+
+  function isNumeric(value) {
+    return /^-?\d+$/.test(value);
+  }
 
   return (
     <div className="bg-dark">
       <Tabs id="controlled-tab-example" activeKey={key} onSelect={(k) => setKey(k)}>
         <Tab eventKey="mint" title="Mint" tabClassName="text-light ml-1">
           <div className="card-body text-center text-light mt-3 qty">
+            <div className="row justify-content-center mt-3">
+              <button
+                type="button"
+                className="btn btn-light rounded"
+                // style={{ font: "20px/1 Arial, sans-serif", font_weight: "700" }}
+                onClick={() => onPick()}
+              >
+                {selected_space ? "Pick a different Space" : "Pick a unclaimed Space"}
+              </button>
+            </div>
+
+            {selected_space ? (
+              <div>
+                <div className="row  justify-content-center mt-4 ">
+                  <input
+                    type="number"
+                    className="form-control col-6 rounded "
+                    id="bid"
+                    placeholder="Enter your bid"
+                    value={bid}
+                    onChange={(e) => setBid(e.target.value)}
+                  />
+                  <div type="number" className="count col bg-dark col-3 mt-1">
+                    ETH
+                  </div>
+                </div>
+                <div className=" row justify-content-start bg-dark mt-1">
+                  <div className="col-9 justify-content-center">{bidWarning}</div>
+                </div>
+                <div className="row justify-content-center ">
+                  <button
+                    type="button"
+                    className="btn btn-light  rounded mt-4"
+                    // style={{ font: "20px/1 Arial, sans-serif", font_weight: "700" }}
+                    onClick={() => onAuction()}
+                  >
+                    Bid for this Space
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
+            <p className="or-bar">
+              <span>Or</span>
+            </p>
+
             <div className="row justify-content-center count bg-dark">Mint random spaces</div>
 
             <div className="row justify-content-center mt-3 mb-3">
@@ -129,7 +203,7 @@ export default function Space() {
                 +
               </span>
             </div>
-            <div type="number" className="row count justify-content-center count bg-dark" name="qty">
+            <div type="number" className="row count justify-content-center bg-dark" name="qty">
               = {(count * price).toFixed(decimal)} ETH
             </div>
             <div className="row justify-content-center mt-3">
@@ -142,33 +216,6 @@ export default function Space() {
                 Mint
               </button>
             </div>
-            <p className="or-bar">
-              <span>Or</span>
-            </p>
-
-            <div className="row justify-content-center mt-3">
-              <button
-                type="button"
-                className="btn btn-light rounded"
-                // style={{ font: "20px/1 Arial, sans-serif", font_weight: "700" }}
-                onClick={() => onPick()}
-              >
-                {space_picked ? "Pick a different Space" : "Pick a unclaimed Space"}
-              </button>
-            </div>
-
-            {space_picked ? (
-              <div className="row justify-content-center mt-5">
-                <button
-                  type="button"
-                  className="btn btn-light rounded"
-                  // style={{ font: "20px/1 Arial, sans-serif", font_weight: "700" }}
-                  onClick={() => onAuction()}
-                >
-                  Bid for this Space
-                </button>
-              </div>
-            ) : null}
           </div>
         </Tab>
 

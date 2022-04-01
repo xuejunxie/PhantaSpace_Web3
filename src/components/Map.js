@@ -30,7 +30,7 @@ export default function Map(props) {
   const create = useSelector((state) => state.sidebar.create);
 
   const show_space = useSelector((state) => state.space.show_space);
-  const selected_space = useSelector((state) => state.space.selected_space);
+  const selected_space = useSelector((state) => state.sidebar.selected_space);
 
   // check if the map is loaded
   var loaded = false;
@@ -78,6 +78,11 @@ export default function Map(props) {
         current_space.wall.positions = new Cesium.CallbackProperty(function () {
           return Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitude, latitude, size));
         }, false); // prevent flashing
+      }
+    } else {
+      if (current_space) {
+        viewer.entities.remove(current_space);
+        current_space = null;
       }
     }
   }, [selected_space]);
