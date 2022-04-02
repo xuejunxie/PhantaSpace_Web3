@@ -47,6 +47,7 @@ Moralis.Cloud.afterSave("AuctionStarted", async (request) => {
   // const logger = Moralis.Cloud.getLogger();
 
   const spaceDatabase = Moralis.Object.extend("space");
+  const auctionDatabase = Moralis.Object.extend("auction");
 
   const confirmed = request.object.get("confirmed");
 
@@ -57,9 +58,15 @@ Moralis.Cloud.afterSave("AuctionStarted", async (request) => {
     // save space to space table
     const newSpace = new spaceDatabase();
     newSpace.set("geocode", request.object.get("geocode"));
-    newSpace.set("auctionEndTime", request.object.get("auctionEndTime"));
+    newSpace.set("auctionEndTime", parseInt(request.object.get("auctionEndTime")));
     newSpace.set("confirmed", false);
     newSpace.save(null, { useMasterKey: true });
+
+    // create auction in auction database
+    const newAuction = new auctionDatabase();
+    newAuction.set("geocode", request.object.get("geocode"));
+    newAuction.set("auctionEndTime", parseInt(request.object.get("auctionEndTime")));
+    newAuction.save(null, { useMasterKey: true });
   } else {
     // logger.info("confirmed");
     // make space confirmed
@@ -79,6 +86,7 @@ Moralis.Cloud.afterSave("HighestBidIncreased", async (request) => {
   // const logger = Moralis.Cloud.getLogger();
 
   const spaceDatabase = Moralis.Object.extend("space");
+  const auctionDatabase = Moralis.Object.extend("auction");
 
   const confirmed = request.object.get("confirmed");
 
@@ -94,6 +102,18 @@ Moralis.Cloud.afterSave("HighestBidIncreased", async (request) => {
       space.set("highestBid", request.object.get("highestBid"));
       space.set("confirmed", false);
       space.save(null, { useMasterKey: true });
+    }
+
+    // update auciton database
+    const auctionQuery = new Moralis.Query(auctionDatabase);
+    auctionQuery.equalTo("geocode", request.object.get("geocode"));
+    const auctionQueryResult = await auctionQuery.find({ useMasterKey: true });
+    const auction = auctionQueryResult[0];
+    if (auction) {
+      // logger.info("auction found: " + auction.get("geocode"));
+      auction.set("highestBidder", request.object.get("highestBidder"));
+      auction.set("highestBid", request.object.get("highestBid"));
+      auction.save(null, { useMasterKey: true });
     }
 
     // logger.info("space minted: " + request.object.get("geocode"));
@@ -117,6 +137,7 @@ Moralis.Cloud.afterSave("AuctionExtended", async (request) => {
   // const logger = Moralis.Cloud.getLogger();
 
   const spaceDatabase = Moralis.Object.extend("space");
+  const auctionDatabase = Moralis.Object.extend("auction");
 
   const confirmed = request.object.get("confirmed");
 
@@ -128,11 +149,21 @@ Moralis.Cloud.afterSave("AuctionExtended", async (request) => {
     const space = spaceQueryResult[0];
     if (space) {
       // logger.info("space found: " + space.get("geocode"));
-      space.set("auctionEndTime", request.object.get("newAuctionEndTime"));
+      space.set("auctionEndTime", parseInt(request.object.get("newAuctionEndTime")));
       space.set("confirmed", false);
       space.save(null, { useMasterKey: true });
     }
 
+    // update auciton database
+    const auctionQuery = new Moralis.Query(auctionDatabase);
+    auctionQuery.equalTo("geocode", request.object.get("geocode"));
+    const auctionQueryResult = await auctionQuery.find({ useMasterKey: true });
+    const auction = auctionQueryResult[0];
+    if (auction) {
+      // logger.info("auction found: " + auction.get("geocode"));
+      auction.set("auctionEndTime", parseInt(request.object.get("newAuctionEndTime")));
+      auction.save(null, { useMasterKey: true });
+    }
     // logger.info("space minted: " + request.object.get("geocode"));
     // save space to space table
   } else {
@@ -155,6 +186,7 @@ Moralis.Cloud.afterSave("AuctionEnded", async (request) => {
 
   const userDatabase = Moralis.Object.extend(userDatabaseName);
   const spaceDatabase = Moralis.Object.extend("space");
+  const auctionDatabase = Moralis.Object.extend("auction");
 
   const userQuery = new Moralis.Query(userDatabase);
 
@@ -186,6 +218,16 @@ Moralis.Cloud.afterSave("AuctionEnded", async (request) => {
       space.set("highestBid", request.object.get("highestBid"));
       space.set("confirmed", false);
       space.save(null, { useMasterKey: true });
+    }
+
+    // update auciton database
+    const auctionQuery = new Moralis.Query(auctionDatabase);
+    auctionQuery.equalTo("geocode", request.object.get("geocode"));
+    const auctionQueryResult = await auctionQuery.find({ useMasterKey: true });
+    const auction = auctionQueryResult[0];
+    if (auction) {
+      // remove this item
+      auction.destroy({ useMasterKey: true });
     }
   } else {
     // logger.info("confirmed");

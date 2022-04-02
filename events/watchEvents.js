@@ -11,6 +11,7 @@ function pickAbi(name) {
 }
 
 let SpaceMinted = {
+  description: "SpaceMinted",
   chainId: process.env.CHAIN_ID,
   address: process.env.REACT_APP_CONTRACT_ADDRESS,
   topic: "SpaceMinted(address, uint256)",
@@ -21,6 +22,7 @@ let SpaceMinted = {
 };
 
 let AuctionStarted = {
+  description: "AuctionStarted",
   chainId: process.env.CHAIN_ID,
   address: process.env.REACT_APP_CONTRACT_ADDRESS,
   topic: "AuctionStarted(uint256, uint256)",
@@ -31,6 +33,7 @@ let AuctionStarted = {
 };
 
 let AuctionExtended = {
+  description: "AuctionExtended",
   chainId: process.env.CHAIN_ID,
   address: process.env.REACT_APP_CONTRACT_ADDRESS,
   topic: "AuctionExtended(uint256, uint256)",
@@ -41,6 +44,7 @@ let AuctionExtended = {
 };
 
 let AuctionEnded = {
+  description: "AuctionEnded",
   chainId: process.env.CHAIN_ID,
   address: process.env.REACT_APP_CONTRACT_ADDRESS,
   topic: "AuctionEnded(uint256, address, uint256)",
@@ -51,6 +55,7 @@ let AuctionEnded = {
 };
 
 let HighestBidIncreased = {
+  description: "HighestBidIncreased",
   chainId: process.env.CHAIN_ID,
   address: process.env.REACT_APP_CONTRACT_ADDRESS,
   topic: "HighestBidIncreased(uint256, address, uint256)",
@@ -61,6 +66,7 @@ let HighestBidIncreased = {
 };
 
 let SubSpaceAuctionAllowed = {
+  description: "SubSpaceAuctionAllowed",
   chainId: process.env.CHAIN_ID,
   address: process.env.REACT_APP_CONTRACT_ADDRESS,
   topic: "SubSpaceAuctionAllowed(uint256)",
@@ -71,6 +77,7 @@ let SubSpaceAuctionAllowed = {
 };
 
 let SubSpaceAuctionStarted = {
+  description: "SubSpaceAuctionStarted",
   chainId: process.env.CHAIN_ID,
   address: process.env.REACT_APP_CONTRACT_ADDRESS,
   topic: "SubSpaceAuctionStarted(uint256, uint256)",
@@ -86,8 +93,15 @@ const main = async () => {
   //   console.log(result);
 
   //   console.log(pickAbi("AuctionStarted"));
-  Moralis.Cloud.run("watchContractEvent", SpaceMinted, { useMasterKey: true });
-  Moralis.Cloud.run("watchContractEvent", AuctionStarted, { useMasterKey: true });
+
+  // Moralis.Cloud.run("unwatchContractEvent", { tableName: "SpaceMinted" }, { useMasterKey: true });
+  // Moralis.Cloud.run("unwatchContractEvent", { tableName: "AuctionStarted" }, { useMasterKey: true });
+  // Moralis.Cloud.run("unwatchContractEvent", { tableName: "AuctionExtended" }, { useMasterKey: true });
+  // Moralis.Cloud.run("unwatchContractEvent", { tableName: "AuctionEnded" }, { useMasterKey: true });
+  // Moralis.Cloud.run("unwatchContractEvent", { tableName: "HighestBidIncreased" }, { useMasterKey: true });
+
+  //   Moralis.Cloud.run("watchContractEvent", SpaceMinted, { useMasterKey: true });
+  //   Moralis.Cloud.run("watchContractEvent", AuctionStarted, { useMasterKey: true });
   Moralis.Cloud.run("watchContractEvent", AuctionExtended, { useMasterKey: true });
   Moralis.Cloud.run("watchContractEvent", AuctionEnded, { useMasterKey: true });
   Moralis.Cloud.run("watchContractEvent", HighestBidIncreased, { useMasterKey: true });

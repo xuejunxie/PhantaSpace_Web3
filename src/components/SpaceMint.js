@@ -1,0 +1,213 @@
+import React, { Fragment, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { SPACE, PICK_A_SPACE, SELECT_SPACE, SHOW_SPACE } from "redux/types";
+import { useMoralis, useWeb3Contract } from "react-moralis";
+import abi from "./abi.json";
+import "./Space.css";
+
+export default function SpaceMint() {
+  const dispatch = useDispatch();
+  const selected_space = useSelector((state) => state.sidebar.selected_space);
+  const { isAuthenticated, web3 } = useMoralis();
+  const [vendingPrice, setVendingPrice] = useState(0);
+  const [count, setCount] = useState(1);
+  const [bidWarning, setBidWarning] = useState("");
+  const [bid, setBid] = useState("1");
+  const [cleanBid, setCleanBid] = useState("1");
+
+  const [decimal, setDecimal] = useState(0);
+
+  const getPriceContract = useWeb3Contract({
+    chain: "rinkeby",
+    abi: abi.abi,
+    contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
+    functionName: "vendingPrice",
+  });
+
+  const price_wei = getPriceContract.data;
+
+  const vendingContract = useWeb3Contract({
+    chain: "rinkeby",
+    abi: abi.abi,
+    contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
+    functionName: "vending",
+    msgValue: web3.utils.toWei((vendingPrice * count).toFixed(decimal), "ether"),
+  });
+
+  const auctionContract = useWeb3Contract({
+    chain: "rinkeby",
+    abi: abi.abi,
+    contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
+    functionName: "genesisAuction",
+    msgValue: web3.utils.toWei(cleanBid, "ether"),
+    params: {
+      geocode: selected_space ? selected_space.geocode : "",
+    },
+  });
+
+  useEffect(() => {
+    getPriceContract.runContractFunction();
+  }, [web3]);
+
+  useEffect(() => {
+    if (price_wei) {
+      setVendingPrice(price_wei / 10 ** 18);
+      setDecimal(Math.max(19 - price_wei.toString().length + 1, 0));
+    }
+  }, [price_wei]);
+
+  const onMint = async () => {
+    vendingContract.runContractFunction();
+  };
+
+  useEffect(() => {
+    console.log(vendingContract.data);
+    // const result = vendingContract.data;
+    // if (result) {
+    //   result.events.spaceMinted.map((space) => {
+    //     console.log(space);
+    //   });
+    // }
+  }, [vendingContract.data]);
+
+  const onPick = () => {
+    dispatch({ type: PICK_A_SPACE });
+  };
+
+  const onAuction = async () => {
+    auctionContract.runContractFunction();
+    console.log(bid);
+  };
+
+  useEffect(() => {
+    if (isNumeric(bid)) {
+      if (bid >= vendingPrice * 25) {
+        setBidWarning(" ");
+        setCleanBid(bid.toString());
+      } else {
+        setBidWarning("Must be ≥ " + vendingPrice * 25);
+      }
+    } else {
+      if (bid) {
+        setBidWarning("Invalid number");
+      }
+    }
+  }, [bid]);
+
+  function isNumeric(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n) && n.match(/^[0-9]*\.?[0-9]*$/); // '1e2' like number will not pass this test
+  }
+
+  return (
+    <Fragment>
+      {isAuthenticated ? (
+        <div className="card-body text-center text-light qty">
+          <div className="row justify-content-center">
+            <button
+              type="button"
+              className="btn btn-light rounded"
+              // style={{ font: "20px/1 Arial, sans-serif", font_weight: "700" }}
+              onClick={() => onPick()}
+            >
+              {selected_space ? "Pick a different Space" : "Pick a unclaimed Space"}
+            </button>
+          </div>
+
+          {selected_space ? (
+            <div>
+              <div className="row  justify-content-center mt-4 ">
+                <input
+                  type="number"
+                  className="form-control col-6 rounded "
+                  id="bid"
+                  placeholder="Enter your bid"
+                  value={bid}
+                  onChange={(e) => setBid(e.target.value)}
+                />
+                <div type="number" className="count col bg-dark col-3 mt-1">
+                  ETH
+                </div>
+              </div>
+              <div className=" row justify-content-start bg-dark mt-1">
+                <div className="col-9 justify-content-center">{bidWarning}</div>
+              </div>
+              <div className="row justify-content-center ">
+                <button
+                  type="button"
+                  className="btn btn-light  rounded mt-4"
+                  // style={{ font: "20px/1 Arial, sans-serif", font_weight: "700" }}
+                  onClick={() => onAuction()}
+                >
+                  Bid for this Space
+                </button>
+              </div>
+              <div className="row justify-content-center mt-3">
+                <h6>
+                  This is an on-chain auction with starting price of {vendingPrice * 25} ETH. Your first bid will
+                  initiate a 48-hour auction. Any bid in the last 10 minutes will extend the auction by 10 minutes. To
+                  prevent re-entrancy attach, you can only withdraw your bid after the auction.
+                </h6>
+              </div>
+            </div>
+          ) : null}
+
+          <p className="or-bar">
+            <span>Or</span>
+          </p>
+
+          <div className="row justify-content-center count bg-dark">
+            Mint random spaces with {vendingPrice} ETH per space
+          </div>
+
+          <div className="row justify-content-center mt-3 mb-3">
+            <span
+              className="minus bg-dark"
+              onClick={() => {
+                count > 1 && setCount(count - 1);
+              }}
+            >
+              -
+            </span>
+            <div type="number" className="count bg-dark" name="qty">
+              {count}
+            </div>
+            <span
+              className="plus bg-dark"
+              onClick={() => {
+                setCount(count + 1);
+              }}
+            >
+              +
+            </span>
+          </div>
+          <div type="number" className="row count justify-content-center bg-dark" name="qty">
+            = {(count * vendingPrice).toFixed(decimal)} ETH
+          </div>
+          <div className="row justify-content-center mt-3">
+            <button
+              type="button"
+              className="btn btn-light rounded"
+              // style={{ font: "20px/1 Arial, sans-serif", font_weight: "700" }}
+              onClick={() => onMint()}
+            >
+              Mint
+            </button>
+          </div>
+          <div className="row justify-content-center mt-3">
+            <h6>
+              Since there are only 4% of the earth's surface has human activity, the vending price is set to be 4% of
+              the auction starting price. Good luck!
+            </h6>
+          </div>
+        </div>
+      ) : (
+        <div className="card card-body bg-dark text-light">
+          <div className="row justify-content-center">
+            <h5>Connect your wallet to mint</h5>
+          </div>
+        </div>
+      )}
+    </Fragment>
+  );
+}
