@@ -89,7 +89,6 @@ export default function SpaceAuction() {
   };
 
   const bidContract = useWeb3Contract({
-    chain: "rinkeby",
     abi: abi.abi,
     contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
     functionName: "bid",
@@ -99,24 +98,20 @@ export default function SpaceAuction() {
     },
   });
 
-  const increaseBid = async () => {
-    bidContract.runContractFunction();
-    if (user) {
-      const userBids = (await user.fetch()).attributes.auction;
-      if (userBids) {
-        const newUserBids = userBids.map((bid) => {
-          if (bid.geocode === selected_space.geocode) {
-            bid.highestBid = web3.utils.toWei(
-              (parseFloat(cleanBid) + parseFloat(bid.bid) / 10 ** 18).toString(),
-              "ether"
-            );
-          }
-          return bid;
-        });
-        user.set("auction", newUserBids);
-        user.save();
-      }
-    }
+  const increaseBid = async (currentUserBid) => {
+    bidContract.runContractFunction().then(async (res) => {
+      console.log(res);
+      var userBids = (await user.fetch()).attributes.auction;
+      const newUserBids = userBids.map((bid) => {
+        if (bid.geocode === selected_space.geocode) {
+          const newBid = parseFloat(currentUserBid) + parseFloat(cleanBid);
+          bid.bid = web3.utils.toWei(newBid.toString(), "ether");
+        }
+        return bid;
+      });
+      user.set("auction", newUserBids);
+      user.save();
+    });
   };
 
   useEffect(() => {
@@ -145,20 +140,25 @@ export default function SpaceAuction() {
             .slice(0)
             .reverse()
             .map((auction) => {
+              const geocode = auction.geocode;
               const timeLeft = parseInt(auction.auctionEndTime) - date / 1000;
-              const imageURL = imageBaseURL + auction.geocode + ".jpg";
+              const imageURL = imageBaseURL + geocode + ".jpg";
+              const highestBid = web3.utils.fromWei(auction.highestBid.toString(), "ether");
+              const currentUserBid = auction.currentUserBid
+                ? web3.utils.fromWei(auction.currentUserBid.toString(), "ether")
+                : 0;
               //   console.log(auction.highestBidder, account);
               return (
-                <div className="card  bg-dark" key={auction.geocode}>
+                <div className="card  bg-dark" key={geocode}>
                   <div className="card-body text-center ">
                     <a
                       className="btn rounded-pill"
                       data-toggle="collapse"
-                      href={"#collapse" + auction.geocode}
+                      href={"#collapse" + geocode}
                       role="button"
                       aria-expanded="false"
-                      aria-controls={"collapse" + auction.geocode}
-                      onClick={() => onSelect(auction.geocode)}
+                      aria-controls={"collapse" + geocode}
+                      onClick={() => onSelect(geocode)}
                     >
                       <div>
                         <img
@@ -172,23 +172,23 @@ export default function SpaceAuction() {
                           }}
                           alt="auction"
                         />
-                        <h5 className="text-light">{auction.geocode}</h5>
+                        <h5 className="text-light">{geocode}</h5>
                         <h5 className="text-light">Highest bid: </h5>
-                        <h5 className="text-light"> {auction.highestBid / 10 ** 18} ETH</h5>
+                        <h5 className="text-light"> {highestBid} ETH</h5>
                         <h5 className="text-light">{timeLeft > 0 ? timeString(timeLeft) : "Ended"} </h5>
                         <h5 className="text-light">{} </h5>
                       </div>
                     </a>
                   </div>
-                  <div className="collapse" id={"collapse" + auction.geocode} data-parent="#accordionParent">
+                  <div className="collapse" id={"collapse" + geocode} data-parent="#accordionParent">
                     <div className="card card-body bg-dark">
                       <div className=" justify-content-center">
                         {timeLeft > 0 ? (
                           <div className="  justify-content-center">
-                            {auction.currentUserBid ? (
+                            {currentUserBid ? (
                               <div className="row justify-content-center">
                                 <div type="number" className="h5 bg-dark mt-1">
-                                  Your bid: {auction.currentUserBid / 10 ** 18} ETH
+                                  Your bid: {currentUserBid} ETH
                                 </div>
                               </div>
                             ) : null}
@@ -200,8 +200,8 @@ export default function SpaceAuction() {
                                 type="number"
                                 className="form-control col-6 col rounded "
                                 id="bid"
-                                placeholder={auction.highestBid}
-                                value={bid ? bid : auction.highestBid}
+                                placeholder="Enter amount"
+                                value={bid}
                                 onChange={(e) => setBid(e.target.value)}
                               />
                               <div type="number" className="h5 col bg-dark  mt-1">
@@ -215,7 +215,7 @@ export default function SpaceAuction() {
                             <button
                               type="button"
                               className="  btn btn-light rounded mt-1"
-                              onClick={() => increaseBid()}
+                              onClick={() => increaseBid(currentUserBid)}
                             >
                               Increase bid
                             </button>

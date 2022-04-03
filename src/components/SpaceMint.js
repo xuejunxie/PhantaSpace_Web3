@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { SPACE, PICK_A_SPACE, SELECT_SPACE, SHOW_SPACE, LOAD_OWNED_SPACE } from "redux/types";
+import { SPACE, PICK_A_SPACE, SELECT_SPACE, SHOW_SPACE, LOAD_OWNED_SPACE, ADD_OWNED_SPACE } from "redux/types";
 import { useMoralis, useWeb3Contract, useMoralisQuery } from "react-moralis";
 import Moralis from "moralis";
 import abi from "./abi.json";
@@ -28,7 +28,6 @@ export default function SpaceMint() {
   const [decimal, setDecimal] = useState(0);
 
   const getPriceContract = useWeb3Contract({
-    chain: "rinkeby",
     abi: abi.abi,
     contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
     functionName: "vendingPrice",
@@ -37,7 +36,6 @@ export default function SpaceMint() {
   const price_wei = getPriceContract.data;
 
   const vendingContract = useWeb3Contract({
-    chain: "rinkeby",
     abi: abi.abi,
     contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
     functionName: "vending",
@@ -45,7 +43,6 @@ export default function SpaceMint() {
   });
 
   const auctionContract = useWeb3Contract({
-    chain: "rinkeby",
     abi: abi.abi,
     contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
     functionName: "genesisAuction",
@@ -78,25 +75,26 @@ export default function SpaceMint() {
 
   useEffect(() => {
     const result = vendingContract.data;
+    console.log(result);
     var allGeocode = [];
     if (result) {
-      const spaceMinted = result?.events?.spaceMinted;
-      if (typeof spaceMinted === "object") {
+      const spaceMinted = result?.events?.SpaceMinted;
+      if (spaceMinted.length === undefined) {
         const geocode = spaceMinted.returnValues.geocode;
         allGeocode = [{ geocode: geocode }];
-        user.addUniqq("space", geocode);
+        user.addUnique("space", geocode);
         prepareThumbnail(geocode);
       } else {
-        result?.events?.spaceMinted.map((space) => {
+        result?.events?.SpaceMinted.map((space) => {
           const geocode = space.returnValues.geocode;
           allGeocode.push({ geocode: geocode });
-          user.addUniqq("space", geocode);
+          user.addUnique("space", geocode);
           prepareThumbnail(geocode);
         });
       }
       user.save();
     }
-    dispatch({ type: LOAD_OWNED_SPACE, payload: allGeocode });
+    dispatch({ type: ADD_OWNED_SPACE, payload: allGeocode });
   }, [vendingContract.data]);
 
   const onPick = () => {
@@ -109,7 +107,6 @@ export default function SpaceMint() {
 
   useEffect(() => {
     const result = auctionContract.data;
-    console.log(result);
 
     if (result) {
       const AuctionStarted = result?.events?.AuctionStarted;
@@ -205,7 +202,7 @@ export default function SpaceMint() {
             <span>Or</span>
           </p>
 
-          <div className="row justify-content-center count bg-dark">
+          <div className="row justify-content-center h4 bg-dark">
             Mint random spaces with {vendingPrice} ETH per space
           </div>
 
