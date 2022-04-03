@@ -1,7 +1,7 @@
 import { useEffect, Fragment, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
-import "./style.css";
+import "./App.css";
 
 import Header from "./components/Header";
 
@@ -27,10 +27,8 @@ Moralis.serverURL = serverUrl;
 
 const dataClass = Moralis.Object.extend("allNFT");
 
-var listWidth = "250px";
-const headerHeight = "50px";
-var viewerWidth = "calc(100% - " + listWidth + ")";
-const height = "calc(100vh - " + headerHeight + ")";
+var viewerWidth = "calc(100% - var(--listWidth))";
+const height = "calc(100vh - var(--navBarHeight))";
 const mobileWidth = 768;
 
 export default function App() {
@@ -111,11 +109,11 @@ export default function App() {
 
   return (
     <Fragment>
-      {width > mobileWidth ? <Header headerHeight={headerHeight} /> : null}
+      {width > mobileWidth ? <Header headerHeight={"var(--navBarHeight)"} /> : null}
       <div className="container-fluid">
         <div className="row bg-dark">
           {width > mobileWidth ? (
-            <div style={{ width: listWidth, maxHeight: height }} className="overflow-auto">
+            <div style={{ width: "var(--listWidth)", maxHeight: height }} className="overflow-auto">
               <Routes>
                 <Route exact path="" element={<ExploreList />} />
                 <Route exact path="explore" element={<ExploreList />} />

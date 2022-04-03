@@ -1,10 +1,12 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { SPACE, PICK_A_SPACE, SELECT_SPACE, SHOW_SPACE } from "redux/types";
-import { useMoralis, useWeb3Contract } from "react-moralis";
+import { SPACE, PICK_A_SPACE, SELECT_SPACE, SHOW_SPACE, LOAD_OWNED_SPACE } from "redux/types";
+import { useMoralis, useWeb3Contract, useMoralisQuery } from "react-moralis";
+import Moralis from "moralis";
 import abi from "./abi.json";
 import "./Space.css";
+import axios from "axios";
 
 export default function SpaceMint() {
   const dispatch = useDispatch();
@@ -46,6 +48,11 @@ export default function SpaceMint() {
     },
   });
 
+  //   useEffect(() => {
+  //     var user = Moralis.User.current();
+  //     console.log("user", user);
+  //   }, []);
+
   useEffect(() => {
     getPriceContract.runContractFunction();
   }, [web3]);
@@ -61,14 +68,31 @@ export default function SpaceMint() {
     vendingContract.runContractFunction();
   };
 
+  const image_server_url = "http://phantaspace.com/thumbnails/";
+
+  const prepareThumbnail = async (geocode) => {
+    axios.get(image_server_url + geocode + ".jpg");
+  };
+
   useEffect(() => {
     console.log(vendingContract.data);
-    // const result = vendingContract.data;
-    // if (result) {
-    //   result.events.spaceMinted.map((space) => {
-    //     console.log(space);
-    //   });
-    // }
+    const result = vendingContract.data;
+    var allGeocode = [];
+    if (result) {
+      const spaceMinted = result?.events?.spaceMinted;
+      if (typeof spaceMinted === "object") {
+        const geocode = spaceMinted.returnValue.geocode;
+        allGeocode = [{ geocode: geocode }];
+        prepareThumbnail(geocode);
+      } else {
+        result?.events?.spaceMinted.map((space) => {
+          const geocode = space.returnValue.geocode;
+          allGeocode.push({ geocode: space.returnValue.geocode });
+          prepareThumbnail(geocode);
+        });
+      }
+    }
+    dispatch({ type: LOAD_OWNED_SPACE, payload: allGeocode });
   }, [vendingContract.data]);
 
   const onPick = () => {

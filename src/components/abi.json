@@ -157,13 +157,13 @@
         {
           "indexed": false,
           "internalType": "address",
-          "name": "bidder",
+          "name": "highestBidder",
           "type": "address"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "bid",
+          "name": "highestBid",
           "type": "uint256"
         }
       ],

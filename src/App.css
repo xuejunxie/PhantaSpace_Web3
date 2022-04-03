@@ -1,4 +1,5 @@
-.ant-row-rtl #components-layout-demo-top-side-2 .logo {
-  float: right;
-  margin: 16px 0 16px 24px;
+:root {
+  --listWidth: 250px;
+  --navBarHeight: 50px;
+  --navTabHeight: 40px;
 }

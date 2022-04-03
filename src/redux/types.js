@@ -26,7 +26,6 @@ export const LOADING_ALL = "LOADING_ALL";
 export const SELECT_SPACE = "SELECT_SPACE";
 export const SHOW_SPACE = "SHOW_SPACE";
 export const LOAD_OWNED_SPACE = "LOAD_OWNED_SPACE";
-export const ADD_OWNED_SPACE = "ADD_OWNED_SPACE";
 export const LOADING_SPACE = "LOADING_SPACE";
 export const CLEAN_OWNED_SPACE = "CLEAN_OWNED_SPACE";
 

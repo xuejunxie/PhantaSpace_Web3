@@ -87,6 +87,17 @@ let SubSpaceAuctionStarted = {
   sync_historical: false,
 };
 
+let Transfer = {
+  description: "Transfer",
+  chainId: process.env.CHAIN_ID,
+  address: process.env.REACT_APP_CONTRACT_ADDRESS,
+  topic: "Transfer(address, address, uint256)",
+  abi: pickAbi("Transfer"),
+  limit: 500000,
+  tableName: "Transfer",
+  sync_historical: false,
+};
+
 const main = async () => {
   await Moralis.start({ serverUrl, appId, masterKey });
   //   const result = await Moralis.Cloud.run("test", { data: "test1" }, { useMasterKey: true });
@@ -100,11 +111,14 @@ const main = async () => {
   // Moralis.Cloud.run("unwatchContractEvent", { tableName: "AuctionEnded" }, { useMasterKey: true });
   // Moralis.Cloud.run("unwatchContractEvent", { tableName: "HighestBidIncreased" }, { useMasterKey: true });
 
-  //   Moralis.Cloud.run("watchContractEvent", SpaceMinted, { useMasterKey: true });
-  //   Moralis.Cloud.run("watchContractEvent", AuctionStarted, { useMasterKey: true });
+  Moralis.Cloud.run("watchContractEvent", SpaceMinted, { useMasterKey: true });
+  Moralis.Cloud.run("watchContractEvent", AuctionStarted, { useMasterKey: true });
   Moralis.Cloud.run("watchContractEvent", AuctionExtended, { useMasterKey: true });
   Moralis.Cloud.run("watchContractEvent", AuctionEnded, { useMasterKey: true });
   Moralis.Cloud.run("watchContractEvent", HighestBidIncreased, { useMasterKey: true });
+  // Moralis.Cloud.run("watchContractEvent", SubSpaceAuctionAllowed, { useMasterKey: true });
+  // Moralis.Cloud.run("watchContractEvent", SubSpaceAuctionStarted, { useMasterKey: true });
+  Moralis.Cloud.run("watchContractEvent", Transfer, { useMasterKey: true });
 };
 
 main();

@@ -13,7 +13,7 @@ export default function Space() {
   const dispatch = useDispatch();
   var spacePosition = useParams();
   const selected_space = useSelector((state) => state.sidebar.selected_space);
-  const [key, setKey] = useState("auction");
+  const [key, setKey] = useState("mint");
   const { isAuthenticated, web3 } = useMoralis();
 
   useEffect(() => {

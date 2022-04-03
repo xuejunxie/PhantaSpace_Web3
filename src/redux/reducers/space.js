@@ -3,6 +3,7 @@ import { CLEAN_OWNED_SPACE, LOADING_SPACE, LOAD_OWNED_SPACE, SHOW_SPACE } from "
 const initialState = {
   show_space: null,
   owned: [],
+  auction: [],
   loading: false,
 };
 
