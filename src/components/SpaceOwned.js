@@ -3,13 +3,19 @@ import React, { useEffect, createRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useMoralis } from "react-moralis";
 
-import { SHOW_SPACE, SELECT_SPACE, CLEAN_OWNED_SPACE } from "redux/types";
+import { SHOW_SPACE, SELECT_SPACE, CLEAN_OWNED_SPACE, LOAD_OWNED_SPACE } from "redux/types";
 import getSpaceByOpensea from "./getSpaceByOpensea";
 
 const image_server_url = "http://phantaspace.com/thumbnails/";
 
+const opense_asset_url = "https://opensea.io/assets/";
+
 const getThumbnail = (geocode) => {
   return image_server_url + geocode + ".jpg";
+};
+
+const getPermalink = (geocode) => {
+  return opense_asset_url + process.env.REACT_APP_CONTRACT_ADDRESS + "/" + geocode;
 };
 
 export default function SpaceOwned() {
@@ -23,16 +29,20 @@ export default function SpaceOwned() {
     dispatch({ type: CLEAN_OWNED_SPACE });
   }, []);
 
-  useEffect(() => {
+  useEffect(async () => {
     if (user) {
-      const account = user.attributes.accounts[0];
-      getSpaceByOpensea(account, dispatch);
+      const userSpace = (await user.fetch()).attributes.space;
+      const userSpaceObject = userSpace.map((space) => {
+        return { geocode: space };
+      });
+      dispatch({ type: LOAD_OWNED_SPACE, payload: userSpaceObject });
+      // getSpaceByOpensea(account, dispatch);
     }
   }, [user]);
 
-  const onSelect = (tokenID) => {
-    dispatch({ type: SHOW_SPACE, payload: { geocode: tokenID } });
-    dispatch({ type: SELECT_SPACE, payload: { geocode: tokenID } });
+  const onSelect = (geocode) => {
+    dispatch({ type: SHOW_SPACE, payload: { geocode: geocode } });
+    dispatch({ type: SELECT_SPACE, payload: { geocode: geocode } });
   };
 
   return (
@@ -46,34 +56,41 @@ export default function SpaceOwned() {
           .slice(0)
           .reverse()
           .map((space) => {
-            refs[space.token_id] = createRef();
+            refs[space.geocode] = createRef();
 
             return (
-              <div className="card  bg-dark" key={space.token_id} ref={refs[space.token_id]}>
+              <div className="card  bg-dark" key={space.geocode} ref={refs[space.geocode]}>
                 <div className="card-body text-center ">
                   <a
                     className="btn rounded-pill"
                     data-toggle="collapse"
-                    href={"#collapse" + space.token_id}
+                    href={"#collapse" + space.geocode}
                     role="button"
                     aria-expanded="false"
-                    aria-controls={"collapse" + space.token_id}
-                    onClick={() => onSelect(space.token_id)}
+                    aria-controls={"collapse" + space.geocode}
+                    onClick={() => onSelect(space.geocode)}
                   >
                     <div>
                       <img
                         className="img-thumbnail rounded-pill"
-                        src={space.image_url ? space.image_url : getThumbnail(space.token_id)}
+                        src={getThumbnail(space.geocode)}
+                        onError={(e) => {
+                          e.target.src = "faviconS.gif";
+                        }}
                         alt="space"
                       />
-                      <h5 className="text-light">{space.token_id}</h5>
+                      <h5 className="text-light">{space.geocode}</h5>
                     </div>
                   </a>
                 </div>
-                <div className="collapse" id={"collapse" + space.token_id} data-parent="#accordionParent">
+                <div className="collapse" id={"collapse" + space.geocode} data-parent="#accordionParent">
                   <div className="card card-body bg-dark">
                     <div className="row justify-content-center">
-                      <a href={space.permalink} className="text-light  justify-content-center" target="_blank">
+                      <a
+                        href={getPermalink(space.geocode)}
+                        className="text-light  justify-content-center"
+                        target="_blank"
+                      >
                         <button type="button" className="  btn btn-light rounded">
                           See it on Opensea
                         </button>

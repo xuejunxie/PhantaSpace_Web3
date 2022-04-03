@@ -42,3 +42,4 @@ deploy checks:
 env, abi.json
 cloud function
 opensea_api_url, contract_address, contract_wallet, abi.json on phanta_space.server
+testnet in UI code

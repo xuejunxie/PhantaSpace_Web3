@@ -8,10 +8,17 @@ import abi from "./abi.json";
 import "./Space.css";
 import axios from "axios";
 
+const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
+const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
+
+Moralis.initialize(appId);
+Moralis.serverURL = serverUrl;
+const auctionDatabase = Moralis.Object.extend("auction");
+
 export default function SpaceMint() {
   const dispatch = useDispatch();
   const selected_space = useSelector((state) => state.sidebar.selected_space);
-  const { isAuthenticated, web3 } = useMoralis();
+  const { isAuthenticated, web3, user } = useMoralis();
   const [vendingPrice, setVendingPrice] = useState(0);
   const [count, setCount] = useState(1);
   const [bidWarning, setBidWarning] = useState("");
@@ -48,11 +55,6 @@ export default function SpaceMint() {
     },
   });
 
-  //   useEffect(() => {
-  //     var user = Moralis.User.current();
-  //     console.log("user", user);
-  //   }, []);
-
   useEffect(() => {
     getPriceContract.runContractFunction();
   }, [web3]);
@@ -75,22 +77,24 @@ export default function SpaceMint() {
   };
 
   useEffect(() => {
-    console.log(vendingContract.data);
     const result = vendingContract.data;
     var allGeocode = [];
     if (result) {
       const spaceMinted = result?.events?.spaceMinted;
       if (typeof spaceMinted === "object") {
-        const geocode = spaceMinted.returnValue.geocode;
+        const geocode = spaceMinted.returnValues.geocode;
         allGeocode = [{ geocode: geocode }];
+        user.addUniqq("space", geocode);
         prepareThumbnail(geocode);
       } else {
         result?.events?.spaceMinted.map((space) => {
-          const geocode = space.returnValue.geocode;
-          allGeocode.push({ geocode: space.returnValue.geocode });
+          const geocode = space.returnValues.geocode;
+          allGeocode.push({ geocode: geocode });
+          user.addUniqq("space", geocode);
           prepareThumbnail(geocode);
         });
       }
+      user.save();
     }
     dispatch({ type: LOAD_OWNED_SPACE, payload: allGeocode });
   }, [vendingContract.data]);
@@ -101,8 +105,29 @@ export default function SpaceMint() {
 
   const onAuction = async () => {
     auctionContract.runContractFunction();
-    console.log(bid);
   };
+
+  useEffect(() => {
+    const result = auctionContract.data;
+    console.log(result);
+
+    if (result) {
+      const AuctionStarted = result?.events?.AuctionStarted;
+      const geocode = AuctionStarted.returnValues.geocode;
+      const auctionEndTime = AuctionStarted.returnValues.auctionEndTime;
+      const HighestBidIncreased = result?.events?.HighestBidIncreased;
+      const highestBid = HighestBidIncreased.returnValues.highestBid;
+      const highestBidder = HighestBidIncreased.returnValues.highestBidder;
+      const newAuction = new auctionDatabase();
+      newAuction.set("geocode", geocode);
+      newAuction.set("auctionEndTime", auctionEndTime);
+      newAuction.set("highestBid", highestBid);
+      newAuction.set("highestBidder", highestBidder);
+      newAuction.save();
+      user.add("auction", { geocode: geocode, bid: highestBid });
+      user.save();
+    }
+  }, [auctionContract.data]);
 
   useEffect(() => {
     if (isNumeric(bid)) {
@@ -221,7 +246,7 @@ export default function SpaceMint() {
           <div className="row justify-content-center mt-3">
             <h6>
               Since there are only 4% of the earth's surface has human activity, the vending price is set to be 4% of
-              the auction starting price. Good luck!
+              the auction starting price ({vendingPrice * 25} ETH). Good luck!
             </h6>
           </div>
         </div>
