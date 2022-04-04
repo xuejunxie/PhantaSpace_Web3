@@ -1,6 +1,83 @@
 const userDatabaseName = "_User";
 const logger = Moralis.Cloud.getLogger();
 
+async function saveSpaceToUserAuction(geocode, highestBid, highestBidder) {
+  const userDatabase = Moralis.Object.extend(userDatabaseName);
+  const userQuery = new Moralis.Query(userDatabase);
+  userQuery.equalTo("ethAddress", highestBidder);
+  const userQueryResult = await userQuery.find({ useMasterKey: true });
+  var user = userQueryResult[0];
+  if (user) {
+  } else {
+    user = new userDatabase();
+    user.set("ethAddress", highestBidder);
+  }
+  const newBid = {
+    geocode: geocode,
+    bid: highestBid,
+  };
+  var userAuctions = await user.get("auction");
+  if (userAuctions) {
+    const userAuctionIndex = userAuctions.findIndex((oldBid) => oldBid.geocode == geocode);
+    logger.info(userAuctionIndex);
+    if (userAuctionIndex === -1) {
+      userAuctions.push(newBid);
+    } else {
+      userAuctions[userAuctionIndex] = newBid;
+    }
+  } else {
+    userAuctions = [newBid];
+  }
+  user.set("auction", userAuctions);
+  await user.save(null, { useMasterKey: true });
+}
+
+async function saveSpaceAuctiontoAuctionList(geocode, highestBid, highestBidder, auctionEndTime) {
+  const auctionDatabase = Moralis.Object.extend("auction");
+  const auctionQuery = new Moralis.Query(auctionDatabase);
+  auctionQuery.equalTo("geocode", geocode);
+  const auctionQueryResult = await auctionQuery.find({ useMasterKey: true });
+  var auction = auctionQueryResult[0];
+  if (auction) {
+  } else {
+    auction = new auctionDatabase();
+    auction.set("geocode", geocode);
+  }
+  auction.set("auctionEndTime", parseInt(auctionEndTime));
+  auction.set("highestBid", highestBid);
+  auction.set("highestBidder", highestBidder);
+  await auction.save(null, { useMasterKey: true });
+}
+
+async function saveSpaceAuctionToSpaceList(geocode, highestBid, highestBidder, auctionEndTime) {
+  const spaceDatabase = Moralis.Object.extend("space");
+  const spaceQuery = new Moralis.Query(spaceDatabase);
+  spaceQuery.equalTo("geocode", geocode);
+  const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
+  var space = spaceQueryResult[0];
+  if (space) {
+  } else {
+    space = new spaceDatabase();
+    space.set("geocode", geocode);
+  }
+  space.set("highestBid", highestBid);
+  space.set("highestBidder", highestBidder);
+  space.set("auctionEndTime", parseInt(auctionEndTime));
+  await space.save(null, { useMasterKey: true });
+}
+
+async function markSpaceConfirmed(geocode) {
+  const spaceDatabase = Moralis.Object.extend("space");
+  const spaceQuery = new Moralis.Query(spaceDatabase);
+  spaceQuery.equalTo("geocode", geocode);
+  const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
+  var space = spaceQueryResult[0];
+  if (space) {
+    space.set("confirmed", true);
+    await space.save(null, { useMasterKey: true });
+  }
+}
+
 Moralis.Cloud.afterSave("SpaceMinted", async (request) => {
   // const logger = Moralis.Cloud.getLogger();
 
@@ -10,10 +87,12 @@ Moralis.Cloud.afterSave("SpaceMinted", async (request) => {
   const userQuery = new Moralis.Query(userDatabase);
 
   const confirmed = request.object.get("confirmed");
+  const geocode = request.object.get("geocode");
+  const owner = request.object.get("to");
 
   if (!confirmed) {
     // logger.info("request address: " + request.object.get("to"));
-    userQuery.equalTo("ethAddress", request.object.get("to"));
+    userQuery.equalTo("ethAddress", owner);
 
     // save space to user
     const userQueryResult = await userQuery.find({ useMasterKey: true });
@@ -33,140 +112,70 @@ Moralis.Cloud.afterSave("SpaceMinted", async (request) => {
       space = new spaceDatabase();
     }
     space.set("geocode", request.object.get("geocode"));
-    space.set("owner", request.object.get("to"));
+    space.set("owner", owner);
     space.set("confirmed", false);
     space.save(null, { useMasterKey: true });
   } else {
     // logger.info("confirmed");
     // make space confirmed
-    const spaceQuery = new Moralis.Query(spaceDatabase);
-    spaceQuery.equalTo("geocode", request.object.get("geocode"));
-    const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
-    const space = spaceQueryResult[0];
-    if (space) {
-      // logger.info("space found: " + space.get("geocode"));
-      space.set("confirmed", true);
-      space.save(null, { useMasterKey: true });
-    }
+    await markSpaceConfirmed(geocode);
   }
 });
 
 Moralis.Cloud.beforeSave("AuctionStarted", async (request) => {
   // const logger = Moralis.Cloud.getLogger();
-
   const spaceDatabase = Moralis.Object.extend("space");
-  const auctionDatabase = Moralis.Object.extend("auction");
 
   const confirmed = request.object.get("confirmed");
 
   const geocode = request.object.get("geocode");
+  const auctionEndTime = request.object.get("auctionEndTime");
+  const highestBidder = request.object.get("highestBidder");
+  const highestBid = request.object.get("highestBid");
+
   if (!confirmed) {
-    // logger.info("request address: " + request.object.get("to"));
+    // save space to user auction
+    await saveSpaceToUserAuction(geocode, highestBid, highestBidder);
 
-    // logger.info("space minted: " + request.object.get("geocode"));
-    // save space to space table
-    const auctionEndTime = request.object.get("auctionEndTime");
-    const highestBidder = request.object.get("highestBidder");
-    const highestBid = request.object.get("highestBid");
-    logger.info("auctionEndTime: " + auctionEndTime);
-    logger.info("highestBidder: " + highestBidder);
-    logger.info("highestBid: " + highestBid);
+    // save space to space
+    table;
+    await saveSpaceAuctionToSpaceList(geocode, highestBid, highestBidder, auctionEndTime);
 
-    const spaceQuery = new Moralis.Query(spaceDatabase);
-    spaceQuery.equalTo("geocode", geocode);
-    const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
-    var space = spaceQueryResult[0];
-    if (space) {
-    } else {
-      space = new spaceDatabase();
-      space.set("geocode", geocode);
-    }
-
-    space.set("auctionEndTime", parseInt(auctionEndTime));
-    space.set("highestBidder", highestBidder);
-    space.set("highestBid", highestBid);
-    space.set("confirmed", false);
-    space.save(null, { useMasterKey: true });
-
-    // update auciton database
-    const auctionQuery = new Moralis.Query(auctionDatabase);
-    auctionQuery.equalTo("geocode", geocode);
-    const auctionQueryResult = await auctionQuery.find({ useMasterKey: true });
-    var auction = auctionQueryResult[0];
-    logger.info("auction here ================ ");
-    logger.info(auction);
-    if (auction) {
-      logger.info("auction exist ================ ");
-      logger.info(auction);
-    } else {
-      auction = new auctionDatabase();
-      auction.set("geocode", geocode);
-    }
-
-    auction.set("auctionEndTime", parseInt(auctionEndTime));
-    auction.set("highestBidder", highestBidder);
-    auction.set("highestBid", highestBid);
-    auction.save(null, { useMasterKey: true });
+    // save space to auction table
+    await saveSpaceAuctiontoAuctionList(geocode, highestBid, highestBidder, auctionEndTime);
   } else {
     // logger.info("confirmed");
     // make space confirmed
-    const spaceQuery = new Moralis.Query(spaceDatabase);
-    spaceQuery.equalTo("geocode", geocode);
-    const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
-    const space = spaceQueryResult[0];
-    if (space) {
-      // logger.info("space found: " + space.get("geocode"));
-      space.set("confirmed", true);
-      space.save(null, { useMasterKey: true });
-    }
+    await markSpaceConfirmed(geocode);
   }
 });
 
 Moralis.Cloud.afterSave("HighestBidIncreased", async (request) => {
   // const logger = Moralis.Cloud.getLogger();
-  const userDatabase = Moralis.Object.extend(userDatabaseName);
-  const userQuery = new Moralis.Query(userDatabase);
   const spaceDatabase = Moralis.Object.extend("space");
   const auctionDatabase = Moralis.Object.extend("auction");
 
   const confirmed = request.object.get("confirmed");
   const geocode = request.object.get("geocode");
+  const highestBidder = request.object.get("highestBidder");
+  const highestBid = request.object.get("highestBid");
   if (!confirmed) {
+    // save space to user auction
+
+    await saveSpaceToUserAuction(geocode, highestBid, highestBidder);
+
     // update space database
-    const spaceQuery = new Moralis.Query(spaceDatabase);
-    spaceQuery.equalTo("geocode", geocode);
-    const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
-    const space = spaceQueryResult[0];
-    space.set("highestBidder", request.object.get("highestBidder"));
-    space.set("highestBid", request.object.get("highestBid"));
-    space.set("confirmed", false);
-    space.save(null, { useMasterKey: true });
+    await saveSpaceAuctionToSpaceList(geocode, highestBid, highestBidder);
 
     // update auciton database
-    const auctionQuery = new Moralis.Query(auctionDatabase);
-    auctionQuery.equalTo("geocode", geocode);
-    const auctionQueryResult = await auctionQuery.find({ useMasterKey: true });
-    var auction = auctionQueryResult[0];
-    logger.info("bid increased ================ ");
-    logger.info(auction);
-    auction.set("highestBidder", request.object.get("highestBidder"));
-    auction.set("highestBid", request.object.get("highestBid"));
-    auction.save(null, { useMasterKey: true });
+    await saveSpaceAuctiontoAuctionList(geocode, highestBid, highestBidder);
 
     // logger.info("space minted: " + geocode);
     // save space to space table
   } else {
     // logger.info("confirmed");
     // make space confirmed
-    const spaceQuery = new Moralis.Query(spaceDatabase);
-    spaceQuery.equalTo("geocode", geocode);
-    const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
-    const space = spaceQueryResult[0];
-    if (space) {
-      // logger.info("space found: " + space.get("geocode"));
-      space.set("confirmed", true);
-      space.save(null, { useMasterKey: true });
-    }
+    await markSpaceConfirmed(geocode);
   }
 });
 
@@ -207,15 +216,7 @@ Moralis.Cloud.afterSave("AuctionExtended", async (request) => {
   } else {
     // logger.info("confirmed");
     // make space confirmed
-    const spaceQuery = new Moralis.Query(spaceDatabase);
-    spaceQuery.equalTo("geocode", geocode);
-    const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
-    const space = spaceQueryResult[0];
-    if (space) {
-      // logger.info("space found: " + space.get("geocode"));
-      space.set("confirmed", true);
-      space.save(null, { useMasterKey: true });
-    }
+    await markSpaceConfirmed(geocode);
   }
 });
 
@@ -270,15 +271,7 @@ Moralis.Cloud.afterSave("AuctionEnded", async (request) => {
   } else {
     // logger.info("confirmed");
     // make space confirmed
-    const spaceQuery = new Moralis.Query(spaceDatabase);
-    spaceQuery.equalTo("geocode", geocode);
-    const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
-    const space = spaceQueryResult[0];
-    if (space) {
-      // logger.info("space found: " + space.get("geocode"));
-      space.set("confirmed", true);
-      space.save(null, { useMasterKey: true });
-    }
+    await markSpaceConfirmed(geocode);
   }
 });
 

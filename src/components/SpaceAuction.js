@@ -18,6 +18,8 @@ export default function SpaceAuction() {
   const [cleanBidWei, setCleanBidWei] = useState("0");
   const selected_space = useSelector((state) => state.sidebar.selected_space);
   const [loadingBid, setLoadingBid] = useState(false);
+  const [loadingWithdraw, setLoadingWithdraw] = useState(false);
+  const [loadingClaim, setLoadingClaim] = useState(false);
   const userBids = useSelector((state) => state.space.userBids);
   // deal with time
   var BN = web3.utils.BN;
@@ -51,6 +53,9 @@ export default function SpaceAuction() {
 
       //   account = user.attributes.ethAddress;
       const getUserAuction = await user.get("auction");
+      console.log("getUserAuction", getUserAuction);
+      const fetchUser = await user.fetch("auction");
+      console.log("fetchUser", fetchUser);
       if (getUserAuction && getUserAuction.length > 0) {
         dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
       }
@@ -111,12 +116,14 @@ export default function SpaceAuction() {
         dispatch({ type: ADD_USER_BID, payload: { geocode: selected_space.geocode, bid: cleanBidWei } });
       }
 
-      user.set("auction", userBids);
-      user.save();
       setLoadingBid(false);
       dispatch({ type: SET_SPACE_TAB, payload: "auction" });
     });
   };
+
+  function isNumeric(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n) && n.match(/^[0-9]*\.?[0-9]*$/); // '1e2' like number will not pass this test
+  }
 
   useEffect(() => {
     if (isNumeric(bid)) {
@@ -129,9 +136,38 @@ export default function SpaceAuction() {
     }
   }, [bid]);
 
-  function isNumeric(n) {
-    return !isNaN(parseFloat(n)) && isFinite(n) && n.match(/^[0-9]*\.?[0-9]*$/); // '1e2' like number will not pass this test
-  }
+  const withdrawContract = useWeb3Contract({
+    abi: abi.abi,
+    contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
+    functionName: "withdraw",
+    params: {
+      geocode: selected_space ? selected_space.geocode : "",
+    },
+  });
+
+  const withdraw = async () => {
+    setLoadingWithdraw(true);
+    withdrawContract.runContractFunction().then(async (res) => {
+      setLoadingWithdraw(false);
+    });
+  };
+
+  const claimContract = useWeb3Contract({
+    abi: abi.abi,
+    contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
+    functionName: "genesisAuctionEnd",
+    params: {
+      geocode: selected_space ? selected_space.geocode : "",
+    },
+  });
+
+  const claim = async () => {
+    setLoadingClaim(true);
+    claimContract.runContractFunction().then(async (res) => {
+      setLoadingClaim(false);
+      dispatch({ type: SET_SPACE_TAB, payload: "owned" });
+    });
+  };
 
   if (auctionList && auctionList.length > 0) {
     return (
@@ -235,11 +271,11 @@ export default function SpaceAuction() {
                           </button>
                         </div>
                       ) : auction.highestBidder == account ? (
-                        <button type="button" className="  btn btn-light rounded ml-1">
+                        <button type="button" className="  btn btn-light rounded ml-1" onClick={() => claim()}>
                           Claim
                         </button>
                       ) : (
-                        <button type="button" className="  btn btn-light rounded ml-1">
+                        <button type="button" className="  btn btn-light rounded ml-1" onClick={() => withdraw()}>
                           Withdraw
                         </button>
                       )}
