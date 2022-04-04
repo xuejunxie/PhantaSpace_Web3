@@ -51,7 +51,6 @@ export default function SpaceAuction() {
 
       //   account = user.attributes.ethAddress;
       const getUserAuction = await user.get("auction");
-      console.log(getUserAuction);
       if (getUserAuction && getUserAuction.length > 0) {
         dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
       }
@@ -100,16 +99,14 @@ export default function SpaceAuction() {
     },
   });
 
-  const increaseBid = async (userBidEther) => {
+  const increaseBid = async (userOldBidEther) => {
     setLoadingBid(true);
 
     bidContract.runContractFunction().then(async (res) => {
-      if (userBidEther) {
-        const userBidWei = web3.utils.toWei(userBidEther, "ether");
-        console.log("userBidWei", userBidWei);
-        const newBidInWei = new BN(userBidWei).add(new BN(cleanBidWei)).toString();
-        console.log("newBidInWei", newBidInWei);
-        dispatch({ type: UPDATE_USER_BIDS, payload: { geocode: selected_space.geocode, bid: newBidInWei } });
+      if (userOldBidEther > 0) {
+        const userOldBidWei = web3.utils.toWei(userOldBidEther, "ether");
+        const totalBidWei = new BN(userOldBidWei).add(new BN(cleanBidWei)).toString();
+        dispatch({ type: UPDATE_USER_BIDS, payload: { geocode: selected_space.geocode, bid: totalBidWei } });
       } else {
         dispatch({ type: ADD_USER_BID, payload: { geocode: selected_space.geocode, bid: cleanBidWei } });
       }
@@ -125,9 +122,6 @@ export default function SpaceAuction() {
     if (isNumeric(bid)) {
       setBidWarning(" ");
       setCleanBidWei(web3.utils.toWei(bid.toString(), "ether"));
-      const userBidWei = web3.utils.toWei(bid, "ether");
-      const newBidInWei = new BN(userBidWei).add(new BN(cleanBidWei)).toString();
-      console.log(newBidInWei);
     } else {
       if (bid) {
         setBidWarning("Invalid number");
@@ -155,8 +149,8 @@ export default function SpaceAuction() {
             const imageURL = imageBaseURL + geocode + ".jpg";
             const highestBid =
               auction.highestBid !== undefined ? web3.utils.fromWei(auction.highestBid.toString(), "ether") : 0;
-            const userBid = userBids ? userBids.find((bid) => bid.geocode === geocode) : null;
-            const userBidEther = userBid ? web3.utils.fromWei(userBid.bid, "ether") : 0;
+            const userBidded = userBids ? userBids.find((bid) => bid.geocode === geocode) : null;
+            const userBidEther = userBidded ? web3.utils.fromWei(userBidded.bid, "ether") : 0;
             //   userBids !== undefined ? web3.utils.fromWei(auction.userBidEther.toString(), "ether") : 0;
             //   console.log(auction.highestBidder, account);
             return (
@@ -196,7 +190,7 @@ export default function SpaceAuction() {
                     <div className=" justify-content-center">
                       {timeLeft > 0 ? (
                         <div className="  justify-content-center">
-                          {userBid && (
+                          {userBidded && (
                             <div className="row justify-content-center">
                               <div type="number" className="h5 bg-dark mt-1">
                                 Your bid: {userBidEther} ETH
@@ -205,7 +199,7 @@ export default function SpaceAuction() {
                           )}
                           <div className="row justify-content-center">
                             <div type="number" className=" bg-dark col h3">
-                              {userBid && "+"}
+                              {userBidded && "+"}
                             </div>
                             <input
                               type="number"
@@ -236,7 +230,7 @@ export default function SpaceAuction() {
                                 <div className="mr-2">Bidding</div>
                               </div>
                             ) : (
-                              <div className="ml-2 mr-2">{userBid ? "Increase bid" : "Bid"}</div>
+                              <div className="ml-2 mr-2">{userBidded ? "Increase bid" : "Bid"}</div>
                             )}
                           </button>
                         </div>

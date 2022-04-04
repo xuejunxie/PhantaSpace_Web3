@@ -38,13 +38,7 @@ export default function (state = initialState, action) {
     case UPDATE_OWNED_SPACE:
       return {
         ...state,
-        owned: state.owned.map((space) => {
-          if (space.geocode === action.payload.geocode) {
-            return action.payload;
-          } else {
-            return space;
-          }
-        }),
+        owned: state.owned.map((space) => (space.geocode === action.payload.geocode ? action.payload : space)),
       };
     case LOAD_USER_BIDS:
       return {
@@ -60,11 +54,7 @@ export default function (state = initialState, action) {
     case UPDATE_USER_BIDS:
       return {
         ...state,
-        userBids: state.userBids.map((bid) => {
-          if (bid.geocode === action.payload.geocode) {
-            return action.payload;
-          }
-        }),
+        userBids: state.userBids.map((bid) => (bid.geocode === action.payload.geocode ? action.payload : bid)),
       };
 
     case LOADING_SPACE:
