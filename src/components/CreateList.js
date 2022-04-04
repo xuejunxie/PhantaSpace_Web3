@@ -128,7 +128,7 @@ export default function CreateList() {
   };
 
   return (
-    <div className="bg-dark text-light" id="accordionParent">
+    <div className="bg-dark text-light" id="CreateListAccordion">
       {NFTs.length > 0 || loading ? (
         NFTs.map((nft) => {
           refs[nft.NFTid] = createRef();
@@ -155,7 +155,7 @@ export default function CreateList() {
                   )}
                 </a>
               </div>
-              <div className="collapse" id={"collapse" + nft.NFTid} data-parent="#accordionParent">
+              <div className="collapse" id={"collapse" + nft.NFTid} data-parent="#CreateListAccordion">
                 {nft.placed ? (
                   nft.editing ? (
                     <div className="card card-body bg-dark">

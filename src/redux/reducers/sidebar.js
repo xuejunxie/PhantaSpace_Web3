@@ -1,4 +1,15 @@
-import { LOOK, EXPLORE, CREATE, LOADING, SELECT_SPACE, PICK_A_SPACE, SPACE_PICKED, LOADING_ALL, SPACE } from "../types";
+import {
+  LOOK,
+  EXPLORE,
+  SET_SPACE_TAB,
+  CREATE,
+  LOADING,
+  SELECT_SPACE,
+  PICK_A_SPACE,
+  SPACE_PICKED,
+  LOADING_ALL,
+  SPACE,
+} from "../types";
 
 const initialState = {
   look: null,
@@ -10,6 +21,7 @@ const initialState = {
   space_picked: false,
   selected_space: null,
   loadingAll: true,
+  space_tab: "mint",
 };
 
 export default function (state = initialState, action) {
@@ -40,6 +52,11 @@ export default function (state = initialState, action) {
       return {
         ...state,
         selected_space: action.payload,
+      };
+    case SET_SPACE_TAB:
+      return {
+        ...state,
+        space_tab: action.payload,
       };
 
     case LOADING_ALL:

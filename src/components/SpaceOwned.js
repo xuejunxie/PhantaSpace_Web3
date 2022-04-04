@@ -32,10 +32,12 @@ export default function SpaceOwned() {
   useEffect(async () => {
     if (user) {
       const userSpace = (await user.fetch()).attributes.space;
-      const userSpaceObject = userSpace.map((space) => {
-        return { geocode: space };
-      });
-      dispatch({ type: LOAD_OWNED_SPACE, payload: userSpaceObject });
+      if (userSpace) {
+        const userSpaceObject = userSpace.map((space) => {
+          return { geocode: space };
+        });
+        dispatch({ type: LOAD_OWNED_SPACE, payload: userSpaceObject });
+      }
       // getSpaceByOpensea(account, dispatch);
     }
   }, [user]);
@@ -49,7 +51,7 @@ export default function SpaceOwned() {
     <div
       className="bg-dark text-light overflow-auto"
       style={{ maxHeight: "calc(100vh - var(--navBarHeight) - var(--navTabHeight))" }}
-      id="accordionParent"
+      id="SpaceOwnedAccordion"
     >
       {owned_space.length > 0 || loading ? (
         owned_space
@@ -77,13 +79,16 @@ export default function SpaceOwned() {
                         onError={(e) => {
                           e.target.src = "faviconS.gif";
                         }}
+                        onLoadStart={(e) => {
+                          e.target.src = "faviconS.gif";
+                        }}
                         alt="space"
                       />
                       <h5 className="text-light">{space.geocode}</h5>
                     </div>
                   </a>
                 </div>
-                <div className="collapse" id={"collapse" + space.geocode} data-parent="#accordionParent">
+                <div className="collapse" id={"collapse" + space.geocode} data-parent="#SpaceOwnedAccordion">
                   <div className="card card-body bg-dark">
                     <div className="row justify-content-center">
                       <a

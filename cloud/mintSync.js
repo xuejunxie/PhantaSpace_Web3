@@ -1,4 +1,5 @@
 const userDatabaseName = "_User";
+const logger = Moralis.Cloud.getLogger();
 
 Moralis.Cloud.afterSave("SpaceMinted", async (request) => {
   // const logger = Moralis.Cloud.getLogger();
@@ -50,7 +51,7 @@ Moralis.Cloud.afterSave("SpaceMinted", async (request) => {
   }
 });
 
-Moralis.Cloud.afterSave("AuctionStarted", async (request) => {
+Moralis.Cloud.beforeSave("AuctionStarted", async (request) => {
   // const logger = Moralis.Cloud.getLogger();
 
   const spaceDatabase = Moralis.Object.extend("space");
@@ -58,45 +59,59 @@ Moralis.Cloud.afterSave("AuctionStarted", async (request) => {
 
   const confirmed = request.object.get("confirmed");
 
+  const geocode = request.object.get("geocode");
   if (!confirmed) {
     // logger.info("request address: " + request.object.get("to"));
 
     // logger.info("space minted: " + request.object.get("geocode"));
     // save space to space table
+    const auctionEndTime = request.object.get("auctionEndTime");
+    const highestBidder = request.object.get("highestBidder");
+    const highestBid = request.object.get("highestBid");
+    logger.info("auctionEndTime: " + auctionEndTime);
+    logger.info("highestBidder: " + highestBidder);
+    logger.info("highestBid: " + highestBid);
 
     const spaceQuery = new Moralis.Query(spaceDatabase);
-    spaceQuery.equalTo("geocode", request.object.get("geocode"));
+    spaceQuery.equalTo("geocode", geocode);
     const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
     var space = spaceQueryResult[0];
     if (space) {
     } else {
       space = new spaceDatabase();
+      space.set("geocode", geocode);
     }
 
-    space.set("geocode", request.object.get("geocode"));
-    space.set("auctionEndTime", parseInt(request.object.get("auctionEndTime")));
+    space.set("auctionEndTime", parseInt(auctionEndTime));
+    space.set("highestBidder", highestBidder);
+    space.set("highestBid", highestBid);
     space.set("confirmed", false);
     space.save(null, { useMasterKey: true });
 
     // update auciton database
     const auctionQuery = new Moralis.Query(auctionDatabase);
-    auctionQuery.equalTo("geocode", request.object.get("geocode"));
+    auctionQuery.equalTo("geocode", geocode);
     const auctionQueryResult = await auctionQuery.find({ useMasterKey: true });
     var auction = auctionQueryResult[0];
+    logger.info("auction here ================ ");
+    logger.info(auction);
     if (auction) {
+      logger.info("auction exist ================ ");
+      logger.info(auction);
     } else {
       auction = new auctionDatabase();
+      auction.set("geocode", geocode);
     }
 
-    auction.set("geocode", request.object.get("geocode"));
-    auction.set("highestBidder", request.object.get("highestBidder"));
-    auction.set("highestBid", request.object.get("highestBid"));
+    auction.set("auctionEndTime", parseInt(auctionEndTime));
+    auction.set("highestBidder", highestBidder);
+    auction.set("highestBid", highestBid);
     auction.save(null, { useMasterKey: true });
   } else {
     // logger.info("confirmed");
     // make space confirmed
     const spaceQuery = new Moralis.Query(spaceDatabase);
-    spaceQuery.equalTo("geocode", request.object.get("geocode"));
+    spaceQuery.equalTo("geocode", geocode);
     const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
     const space = spaceQueryResult[0];
     if (space) {
@@ -109,47 +124,42 @@ Moralis.Cloud.afterSave("AuctionStarted", async (request) => {
 
 Moralis.Cloud.afterSave("HighestBidIncreased", async (request) => {
   // const logger = Moralis.Cloud.getLogger();
+  const userDatabase = Moralis.Object.extend(userDatabaseName);
   const userQuery = new Moralis.Query(userDatabase);
   const spaceDatabase = Moralis.Object.extend("space");
   const auctionDatabase = Moralis.Object.extend("auction");
 
   const confirmed = request.object.get("confirmed");
-
+  const geocode = request.object.get("geocode");
   if (!confirmed) {
     // update space database
     const spaceQuery = new Moralis.Query(spaceDatabase);
-    spaceQuery.equalTo("geocode", request.object.get("geocode"));
+    spaceQuery.equalTo("geocode", geocode);
     const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
     const space = spaceQueryResult[0];
-    if (space) {
-      space.set("highestBidder", request.object.get("highestBidder"));
-      space.set("highestBid", request.object.get("highestBid"));
-      space.set("confirmed", false);
-      space.save(null, { useMasterKey: true });
-    }
+    space.set("highestBidder", request.object.get("highestBidder"));
+    space.set("highestBid", request.object.get("highestBid"));
+    space.set("confirmed", false);
+    space.save(null, { useMasterKey: true });
 
     // update auciton database
     const auctionQuery = new Moralis.Query(auctionDatabase);
-    auctionQuery.equalTo("geocode", request.object.get("geocode"));
+    auctionQuery.equalTo("geocode", geocode);
     const auctionQueryResult = await auctionQuery.find({ useMasterKey: true });
     var auction = auctionQueryResult[0];
-    if (auction) {
-    } else {
-      auction = new auctionDatabase();
-    }
-
-    auction.set("geocode", request.object.get("geocode"));
+    logger.info("bid increased ================ ");
+    logger.info(auction);
     auction.set("highestBidder", request.object.get("highestBidder"));
     auction.set("highestBid", request.object.get("highestBid"));
     auction.save(null, { useMasterKey: true });
 
-    // logger.info("space minted: " + request.object.get("geocode"));
+    // logger.info("space minted: " + geocode);
     // save space to space table
   } else {
     // logger.info("confirmed");
     // make space confirmed
     const spaceQuery = new Moralis.Query(spaceDatabase);
-    spaceQuery.equalTo("geocode", request.object.get("geocode"));
+    spaceQuery.equalTo("geocode", geocode);
     const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
     const space = spaceQueryResult[0];
     if (space) {
@@ -167,11 +177,12 @@ Moralis.Cloud.afterSave("AuctionExtended", async (request) => {
   const auctionDatabase = Moralis.Object.extend("auction");
 
   const confirmed = request.object.get("confirmed");
+  const geocode = request.object.get("geocode");
 
   if (!confirmed) {
     // logger.info("request address: " + request.object.get("to"));
     const spaceQuery = new Moralis.Query(spaceDatabase);
-    spaceQuery.equalTo("geocode", request.object.get("geocode"));
+    spaceQuery.equalTo("geocode", geocode);
     const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
     const space = spaceQueryResult[0];
     if (space) {
@@ -183,7 +194,7 @@ Moralis.Cloud.afterSave("AuctionExtended", async (request) => {
 
     // update auciton database
     const auctionQuery = new Moralis.Query(auctionDatabase);
-    auctionQuery.equalTo("geocode", request.object.get("geocode"));
+    auctionQuery.equalTo("geocode", geocode);
     const auctionQueryResult = await auctionQuery.find({ useMasterKey: true });
     const auction = auctionQueryResult[0];
     if (auction) {
@@ -191,13 +202,13 @@ Moralis.Cloud.afterSave("AuctionExtended", async (request) => {
       auction.set("auctionEndTime", parseInt(request.object.get("newAuctionEndTime")));
       auction.save(null, { useMasterKey: true });
     }
-    // logger.info("space minted: " + request.object.get("geocode"));
+    // logger.info("space minted: " + geocode);
     // save space to space table
   } else {
     // logger.info("confirmed");
     // make space confirmed
     const spaceQuery = new Moralis.Query(spaceDatabase);
-    spaceQuery.equalTo("geocode", request.object.get("geocode"));
+    spaceQuery.equalTo("geocode", geocode);
     const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
     const space = spaceQueryResult[0];
     if (space) {
@@ -218,6 +229,7 @@ Moralis.Cloud.afterSave("AuctionEnded", async (request) => {
   const userQuery = new Moralis.Query(userDatabase);
 
   const confirmed = request.object.get("confirmed");
+  const geocode = request.object.get("geocode");
 
   if (!confirmed) {
     // logger.info("request address: " + request.object.get("to"));
@@ -227,20 +239,19 @@ Moralis.Cloud.afterSave("AuctionEnded", async (request) => {
     const userQueryResult = await userQuery.find({ useMasterKey: true });
     const user = userQueryResult[0];
     if (user) {
-      user.addUnique("space", request.object.get("geocode"));
+      user.addUnique("space", geocode);
       user.save(null, { useMasterKey: true });
     }
-    // logger.info("space minted: " + request.object.get("geocode"));
+    // logger.info("space minted: " + geocode);
     // save space to space table
 
     const spaceQuery = new Moralis.Query(spaceDatabase);
-    spaceQuery.equalTo("geocode", request.object.get("geocode"));
+    spaceQuery.equalTo("geocode", geocode);
     const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
     const space = spaceQueryResult[0];
     if (space) {
       // logger.info("space found: " + space.get("geocode"));
 
-      space.set("geocode", request.object.get("geocode"));
       space.set("owner", request.object.get("highestBidder"));
       space.set("highestBid", request.object.get("highestBid"));
       space.set("confirmed", false);
@@ -249,7 +260,7 @@ Moralis.Cloud.afterSave("AuctionEnded", async (request) => {
 
     // update auciton database
     const auctionQuery = new Moralis.Query(auctionDatabase);
-    auctionQuery.equalTo("geocode", request.object.get("geocode"));
+    auctionQuery.equalTo("geocode", geocode);
     const auctionQueryResult = await auctionQuery.find({ useMasterKey: true });
     const auction = auctionQueryResult[0];
     if (auction) {
@@ -260,7 +271,7 @@ Moralis.Cloud.afterSave("AuctionEnded", async (request) => {
     // logger.info("confirmed");
     // make space confirmed
     const spaceQuery = new Moralis.Query(spaceDatabase);
-    spaceQuery.equalTo("geocode", request.object.get("geocode"));
+    spaceQuery.equalTo("geocode", geocode);
     const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
     const space = spaceQueryResult[0];
     if (space) {
@@ -274,33 +285,41 @@ Moralis.Cloud.afterSave("AuctionEnded", async (request) => {
 Moralis.Cloud.afterSave("Transfer", async (request) => {
   const userDatabase = Moralis.Object.extend(userDatabaseName);
   const spaceDatabase = Moralis.Object.extend("space");
+  const zeroAddress = "0x0000000000000000000000000000000000000000";
 
-  const toUserQuery = new Moralis.Query(userDatabase);
-  toUserQuery.equalTo("ethAddress", request.object.get("to"));
+  // handle from user
+  const fromUserAddress = request.object.get("from");
+  if (fromUserAddress !== zeroAddress) {
+    const fromUserQuery = new Moralis.Query(userDatabase);
+    fromUserQuery.equalTo("ethAddress", request.object.get("to"));
+    fromUserQuery.equalTo("ethAddress", fromUserAddress);
+    const fromUserQueryResult = await fromUserQuery.find({ useMasterKey: true });
+    const fromUser = fromUserQueryResult[0];
+  }
 
-  const fromUserQuery = new Moralis.Query(userDatabase);
-  fromUserQuery.equalTo("ethAddress", request.object.get("from"));
-
+  // handle space
   const geocode = request.object.get("tokenId");
   const spaceQuery = new Moralis.Query(spaceDatabase);
   spaceQuery.equalTo("geocode", geocode);
-
-  const toUserQueryResult = await toUserQuery.find({ useMasterKey: true });
-  const fromUserQueryResult = await fromUserQuery.find({ useMasterKey: true });
   const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
-
-  const toUser = toUserQueryResult[0];
-  const fromUser = fromUserQueryResult[0];
   const space = spaceQueryResult[0];
+
+  // handle to user
+  const toUserQuery = new Moralis.Query(userDatabase);
+  toUserQuery.equalTo("ethAddress", request.object.get("to"));
+  const toUserQueryResult = await toUserQuery.find({ useMasterKey: true });
+  const toUser = toUserQueryResult[0];
 
   const confirmed = request.object.get("confirmed");
 
   if (confirmed) {
     if (toUser && space) {
+      if (fromUserAddress !== zeroAddress) {
+        fromUser.remove("space", geocode);
+        fromUser.save(null, { useMasterKey: true });
+      }
       toUser.addUnique("space", geocode);
       toUser.save(null, { useMasterKey: true });
-      fromUser.remove("space", geocode);
-      fromUser.save(null, { useMasterKey: true });
       space.set("owner", request.object.get("to"));
       space.save(null, { useMasterKey: true });
     }

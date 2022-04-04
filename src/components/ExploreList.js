@@ -40,7 +40,7 @@ export default function ExploreList() {
   };
 
   return (
-    <div className="bg-dark text-light" id="accordionParent">
+    <div className="bg-dark text-light" id="ExploreListAccordion">
       {NFTs.slice(0)
         .reverse()
         .map((nft) => {
@@ -68,7 +68,7 @@ export default function ExploreList() {
                 </a>
                 <h5 className="text-center ">{nft.name}</h5>
               </div>
-              <div className="collapse" id={"collapse" + nft.NFTid} data-parent="#accordionParent">
+              <div className="collapse" id={"collapse" + nft.NFTid} data-parent="#ExploreListAccordion">
                 <a href={nft.metadata.permalink} className="text-light  justify-content-center" target="_blank">
                   {nft.metadata.description ? nft.metadata.description : "Check out the source for description"}
                 </a>

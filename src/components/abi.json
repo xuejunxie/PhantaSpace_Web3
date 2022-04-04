@@ -127,6 +127,18 @@
           "internalType": "uint256",
           "name": "auctionEndTime",
           "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "highestBid",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "highestBidder",
+          "type": "address"
         }
       ],
       "name": "AuctionStarted",
@@ -238,38 +250,6 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "geocode",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "startTime",
-          "type": "uint256"
-        }
-      ],
-      "name": "SubSpaceAuctionStarted",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "geocode",
-          "type": "uint256"
-        }
-      ],
-      "name": "SubSpaceMinted",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
           "indexed": true,
           "internalType": "address",
           "name": "from",
@@ -315,25 +295,6 @@
         }
       ],
       "name": "Upgraded",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "geocodes",
-          "type": "uint256"
-        }
-      ],
-      "name": "VendingHappend",
       "type": "event"
     },
     {
@@ -967,32 +928,6 @@
         }
       ],
       "name": "setVendingPrice",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "geocode",
-          "type": "uint256"
-        }
-      ],
-      "name": "subspaceAuction",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "geocode",
-          "type": "uint256"
-        }
-      ],
-      "name": "subspaceAuctionEnd",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

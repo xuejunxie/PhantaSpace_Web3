@@ -21,6 +21,7 @@ export const LOADING = "LOADING";
 export const PICK_A_SPACE = "PICK_A_SPACE";
 export const SPACE_PICKED = "SPACE_PICKED";
 export const LOADING_ALL = "LOADING_ALL";
+export const SET_SPACE_TAB = "SET_SPACE_TAB";
 
 // types for space operations
 export const SELECT_SPACE = "SELECT_SPACE";

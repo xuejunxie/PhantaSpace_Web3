@@ -1,7 +1,15 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { SPACE, PICK_A_SPACE, SELECT_SPACE, SHOW_SPACE, LOAD_OWNED_SPACE, ADD_OWNED_SPACE } from "redux/types";
+import {
+  SPACE,
+  PICK_A_SPACE,
+  SELECT_SPACE,
+  SHOW_SPACE,
+  LOAD_OWNED_SPACE,
+  ADD_OWNED_SPACE,
+  SET_SPACE_TAB,
+} from "redux/types";
 import { useMoralis, useWeb3Contract, useMoralisQuery } from "react-moralis";
 import Moralis from "moralis";
 import abi from "./abi.json";
@@ -24,6 +32,8 @@ export default function SpaceMint() {
   const [bidWarning, setBidWarning] = useState("");
   const [bid, setBid] = useState("1");
   const [cleanBid, setCleanBid] = useState("1");
+  const [loadingMint, setLoadingMint] = useState(false);
+  const [loadingAuction, setLoadingAuction] = useState(false);
 
   const [decimal, setDecimal] = useState(0);
 
@@ -42,16 +52,6 @@ export default function SpaceMint() {
     msgValue: web3.utils.toWei((vendingPrice * count).toFixed(decimal), "ether"),
   });
 
-  const auctionContract = useWeb3Contract({
-    abi: abi.abi,
-    contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
-    functionName: "genesisAuction",
-    msgValue: web3.utils.toWei(cleanBid, "ether"),
-    params: {
-      geocode: selected_space ? selected_space.geocode : "",
-    },
-  });
-
   useEffect(() => {
     getPriceContract.runContractFunction();
   }, [web3]);
@@ -64,7 +64,14 @@ export default function SpaceMint() {
   }, [price_wei]);
 
   const onMint = async () => {
-    vendingContract.runContractFunction();
+    setLoadingMint(true);
+    vendingContract.runContractFunction().then(async (res) => {
+      console.log("res", res);
+      if (res === undefined) {
+        setLoadingMint(false);
+        return;
+      }
+    });
   };
 
   const image_server_url = "http://phantaspace.com/thumbnails/";
@@ -93,36 +100,44 @@ export default function SpaceMint() {
         });
       }
       user.save();
+      setLoadingMint(false);
+      dispatch({ type: SET_SPACE_TAB, payload: "owned" });
+      dispatch({ type: ADD_OWNED_SPACE, payload: allGeocode });
     }
-    dispatch({ type: ADD_OWNED_SPACE, payload: allGeocode });
   }, [vendingContract.data]);
 
   const onPick = () => {
     dispatch({ type: PICK_A_SPACE });
   };
 
+  const auctionContract = useWeb3Contract({
+    abi: abi.abi,
+    contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
+    functionName: "genesisAuction",
+    msgValue: cleanBid,
+    params: {
+      geocode: selected_space ? selected_space.geocode : "",
+    },
+  });
+
   const onAuction = async () => {
-    auctionContract.runContractFunction();
+    setLoadingAuction(true);
+    auctionContract.runContractFunction().then(async (res) => {
+      if (res === undefined) {
+        setLoadingAuction(false);
+        return;
+      }
+    });
   };
 
-  useEffect(() => {
-    const result = auctionContract.data;
-
+  useEffect(async () => {
+    const result = await auctionContract.data;
+    console.log("auction rsult", result);
     if (result) {
-      const AuctionStarted = result?.events?.AuctionStarted;
-      const geocode = AuctionStarted.returnValues.geocode;
-      const auctionEndTime = AuctionStarted.returnValues.auctionEndTime;
-      const HighestBidIncreased = result?.events?.HighestBidIncreased;
-      const highestBid = HighestBidIncreased.returnValues.highestBid;
-      const highestBidder = HighestBidIncreased.returnValues.highestBidder;
-      const newAuction = new auctionDatabase();
-      newAuction.set("geocode", geocode);
-      newAuction.set("auctionEndTime", auctionEndTime);
-      newAuction.set("highestBid", highestBid);
-      newAuction.set("highestBidder", highestBidder);
-      newAuction.save();
-      user.add("auction", { geocode: geocode, bid: highestBid });
+      user.add("auction", { geocode: selected_space.geocode, bid: cleanBid });
       user.save();
+      setLoadingAuction(false);
+      dispatch({ type: SET_SPACE_TAB, payload: "auction" });
     }
   }, [auctionContract.data]);
 
@@ -130,7 +145,7 @@ export default function SpaceMint() {
     if (isNumeric(bid)) {
       if (bid >= vendingPrice * 25) {
         setBidWarning(" ");
-        setCleanBid(bid.toString());
+        setCleanBid(web3.utils.toWei(bid.toString(), "ether"));
       } else {
         setBidWarning("Must be ≥ " + vendingPrice * 25);
       }
@@ -185,7 +200,18 @@ export default function SpaceMint() {
                   // style={{ font: "20px/1 Arial, sans-serif", font_weight: "700" }}
                   onClick={() => onAuction()}
                 >
-                  Bid for this Space
+                  <div className="row">
+                    {loadingAuction ? (
+                      <Fragment>
+                        <div className="spinner-border spinner-border-sm mr-1 ml-2 mt-1" role="status">
+                          <span className="sr-only">Loading...</span>
+                        </div>
+                        <div className="mr-2">Starting auction</div>
+                      </Fragment>
+                    ) : (
+                      <div className="ml-2 mr-2">Bid for this space</div>
+                    )}
+                  </div>
                 </button>
               </div>
               <div className="row justify-content-center mt-3">
@@ -237,7 +263,16 @@ export default function SpaceMint() {
               // style={{ font: "20px/1 Arial, sans-serif", font_weight: "700" }}
               onClick={() => onMint()}
             >
-              Mint
+              {loadingMint ? (
+                <div className="row">
+                  <div className="spinner-border spinner-border-sm ml-2 mt-1" role="status">
+                    <span className="sr-only">Loading...</span>
+                  </div>
+                  <div className="ml-2 mr-2">Minting</div>
+                </div>
+              ) : (
+                <div>Mint</div>
+              )}
             </button>
           </div>
           <div className="row justify-content-center mt-3">

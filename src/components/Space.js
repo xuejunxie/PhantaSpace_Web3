@@ -13,6 +13,7 @@ export default function Space() {
   const dispatch = useDispatch();
   var spacePosition = useParams();
   const selected_space = useSelector((state) => state.sidebar.selected_space);
+  const space_tab = useSelector((state) => state.sidebar.space_tab);
   const [key, setKey] = useState("mint");
   const { isAuthenticated, web3 } = useMoralis();
 
@@ -38,12 +39,10 @@ export default function Space() {
   }, [selected_space]);
 
   useEffect(() => {
-    if (key === "mint") {
+    if (space_tab) {
+      setKey(space_tab);
     }
-    if (key === "owned") {
-      console.log("show owned");
-    }
-  }, [key]);
+  }, [space_tab]);
 
   return (
     <div className="bg-dark">
