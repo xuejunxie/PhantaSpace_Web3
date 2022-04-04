@@ -12,7 +12,7 @@ export default function SpaceAuction() {
   const limit = 10000;
   const [auctionList, setAuctionList] = useState();
   const dispatch = useDispatch();
-  const { isAuthenticated, web3, user } = useMoralis();
+  const { isAuthenticated, web3, user, refetchUserData } = useMoralis();
   const [bidWarning, setBidWarning] = useState("");
   const [bid, setBid] = useState("0");
   const [cleanBidWei, setCleanBidWei] = useState("0");
@@ -53,9 +53,6 @@ export default function SpaceAuction() {
 
       //   account = user.attributes.ethAddress;
       const getUserAuction = await user.get("auction");
-      console.log("getUserAuction", getUserAuction);
-      const fetchUser = await user.fetch("auction");
-      console.log("fetchUser", fetchUser);
       if (getUserAuction && getUserAuction.length > 0) {
         dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
       }
@@ -108,16 +105,19 @@ export default function SpaceAuction() {
     setLoadingBid(true);
 
     bidContract.runContractFunction().then(async (res) => {
-      if (userOldBidEther > 0) {
-        const userOldBidWei = web3.utils.toWei(userOldBidEther, "ether");
-        const totalBidWei = new BN(userOldBidWei).add(new BN(cleanBidWei)).toString();
-        dispatch({ type: UPDATE_USER_BIDS, payload: { geocode: selected_space.geocode, bid: totalBidWei } });
-      } else {
-        dispatch({ type: ADD_USER_BID, payload: { geocode: selected_space.geocode, bid: cleanBidWei } });
+      // if (userOldBidEther > 0) {
+      //   const userOldBidWei = web3.utils.toWei(userOldBidEther, "ether");
+      //   const totalBidWei = new BN(userOldBidWei).add(new BN(cleanBidWei)).toString();
+      //   dispatch({ type: UPDATE_USER_BIDS, payload: { geocode: selected_space.geocode, bid: totalBidWei } });
+      // } else {
+      //   dispatch({ type: ADD_USER_BID, payload: { geocode: selected_space.geocode, bid: cleanBidWei } });
+      // }
+      await refetchUserData();
+      const getUserAuction = await user.get("auction");
+      if (getUserAuction && getUserAuction.length > 0) {
+        dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
       }
-
       setLoadingBid(false);
-      dispatch({ type: SET_SPACE_TAB, payload: "auction" });
     });
   };
 
