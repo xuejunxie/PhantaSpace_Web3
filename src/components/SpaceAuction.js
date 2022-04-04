@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useMoralisQuery, useMoralis, useWeb3Contract } from "react-moralis";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  SHOW_SPACE,
-  SELECT_SPACE,
-  CLEAN_OWNED_SPACE,
-  UPDATE_USER_BIDS,
-  ADD_USER_BID,
-  LOAD_USER_BIDS,
-} from "redux/types";
+import { SHOW_SPACE, SELECT_SPACE, SET_SPACE_TAB, UPDATE_USER_BIDS, ADD_USER_BID, LOAD_USER_BIDS } from "redux/types";
 import abi from "./abi.json";
 
 const imageBaseURL = "http://phantaspace.com/thumbnails/";
@@ -22,11 +15,13 @@ export default function SpaceAuction() {
   const { isAuthenticated, web3, user } = useMoralis();
   const [bidWarning, setBidWarning] = useState("");
   const [bid, setBid] = useState("0");
-  const [cleanBid, setCleanBid] = useState("0");
+  const [cleanBidWei, setCleanBidWei] = useState("0");
   const selected_space = useSelector((state) => state.sidebar.selected_space);
   const [loadingBid, setLoadingBid] = useState(false);
   const userBids = useSelector((state) => state.space.userBids);
   // deal with time
+  var BN = web3.utils.BN;
+
   const [date, setDate] = useState(new Date());
 
   function refreshClock() {
@@ -51,9 +46,15 @@ export default function SpaceAuction() {
   // deal with user
   useEffect(async () => {
     if (user) {
-      account = user.attributes.accounts[0];
+      //   account = user.attributes.accounts[0];
+      account = user.get("ethAddress");
+
       //   account = user.attributes.ethAddress;
-      dispatch({ type: LOAD_USER_BIDS, payload: user.get("auction") });
+      const getUserAuction = await user.get("userData");
+      console.log(getUserAuction);
+      if (getUserAuction && getUserAuction.length > 0) {
+        dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
+      }
     }
   }, [user]);
 
@@ -93,35 +94,40 @@ export default function SpaceAuction() {
     abi: abi.abi,
     contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
     functionName: "bid",
-    msgValue: web3.utils.toWei(cleanBid, "ether"),
+    msgValue: cleanBidWei,
     params: {
       geocode: selected_space ? selected_space.geocode : "",
     },
   });
 
-  const increaseBid = async (currentUserBid) => {
+  const increaseBid = async (userBidEther) => {
     setLoadingBid(true);
 
     bidContract.runContractFunction().then(async (res) => {
-      if (currentUserBid) {
-        const newBid = parseFloat(currentUserBid) + parseFloat(cleanBid);
-        const newBidInWei = web3.utils.toWei(newBid.toFixed(10).toString(), "ether");
+      if (userBidEther) {
+        const userBidWei = web3.utils.toWei(userBidEther, "ether");
+        console.log("userBidWei", userBidWei);
+        const newBidInWei = new BN(userBidWei).add(new BN(cleanBidWei)).toString();
+        console.log("newBidInWei", newBidInWei);
         dispatch({ type: UPDATE_USER_BIDS, payload: { geocode: selected_space.geocode, bid: newBidInWei } });
       } else {
-        const newBidInWei = cleanBid;
-        dispatch({ type: ADD_USER_BID, payload: { geocode: selected_space.geocode, bid: newBidInWei } });
+        dispatch({ type: ADD_USER_BID, payload: { geocode: selected_space.geocode, bid: cleanBidWei } });
       }
 
       user.set("auction", userBids);
       user.save();
       setLoadingBid(false);
+      dispatch({ type: SET_SPACE_TAB, payload: "auction" });
     });
   };
 
   useEffect(() => {
     if (isNumeric(bid)) {
       setBidWarning(" ");
-      setCleanBid(bid.toString());
+      setCleanBidWei(web3.utils.toWei(bid.toString(), "ether"));
+      const userBidWei = web3.utils.toWei(bid, "ether");
+      const newBidInWei = new BN(userBidWei).add(new BN(cleanBidWei)).toString();
+      console.log(newBidInWei);
     } else {
       if (bid) {
         setBidWarning("Invalid number");
@@ -149,7 +155,7 @@ export default function SpaceAuction() {
             const imageURL = imageBaseURL + geocode + ".jpg";
             const highestBid =
               auction.highestBid !== undefined ? web3.utils.fromWei(auction.highestBid.toString(), "ether") : 0;
-            const userBid = userBids.find((bid) => bid.geocode === geocode);
+            const userBid = userBids ? userBids.find((bid) => bid.geocode === geocode) : null;
             const userBidEther = userBid ? web3.utils.fromWei(userBid.bid, "ether") : 0;
             //   userBids !== undefined ? web3.utils.fromWei(auction.userBidEther.toString(), "ether") : 0;
             //   console.log(auction.highestBidder, account);

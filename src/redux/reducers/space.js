@@ -14,8 +14,8 @@ const initialState = {
   show_space: null,
   owned: [],
   auction: [],
-  loading: false,
   userBids: [],
+  loading: false,
 };
 
 export default function (state = initialState, action) {
@@ -41,6 +41,8 @@ export default function (state = initialState, action) {
         owned: state.owned.map((space) => {
           if (space.geocode === action.payload.geocode) {
             return action.payload;
+          } else {
+            return space;
           }
         }),
       };

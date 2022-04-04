@@ -57,7 +57,8 @@ function Account() {
 
   var account = "";
   if (user) {
-    account = user.attributes.accounts[0];
+    // account = user.attributes.accounts[0];
+    account = user.get("ethAddress");
   }
 
   if (!isAuthenticated || !account) {

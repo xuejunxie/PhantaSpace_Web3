@@ -36,6 +36,7 @@ export default function SpaceMint() {
   const [loadingMint, setLoadingMint] = useState(false);
   const [loadingAuction, setLoadingAuction] = useState(false);
   const userBids = useSelector((state) => state.space.userBids);
+  var BN = web3.utils.BN;
 
   const [decimal, setDecimal] = useState(0);
 

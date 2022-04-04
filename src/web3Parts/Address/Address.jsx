@@ -22,7 +22,8 @@ function Address(props) {
   const [isClicked, setIsClicked] = useState(false);
   var account = "";
   if (user) {
-    account = user.attributes.accounts[0];
+    // account = user.attributes.accounts[0];
+    account = user.get("ethAddress");
   }
   useEffect(() => {
     setAddress(props?.address || (isAuthenticated && account));
