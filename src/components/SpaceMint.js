@@ -9,6 +9,7 @@ import {
   LOAD_OWNED_SPACE,
   ADD_OWNED_SPACE,
   SET_SPACE_TAB,
+  ADD_USER_BID,
 } from "redux/types";
 import { useMoralis, useWeb3Contract, useMoralisQuery } from "react-moralis";
 import Moralis from "moralis";
@@ -34,6 +35,7 @@ export default function SpaceMint() {
   const [cleanBid, setCleanBid] = useState("1");
   const [loadingMint, setLoadingMint] = useState(false);
   const [loadingAuction, setLoadingAuction] = useState(false);
+  const userBids = useSelector((state) => state.space.userBids);
 
   const [decimal, setDecimal] = useState(0);
 
@@ -123,23 +125,19 @@ export default function SpaceMint() {
   const onAuction = async () => {
     setLoadingAuction(true);
     auctionContract.runContractFunction().then(async (res) => {
-      if (res === undefined) {
-        setLoadingAuction(false);
-        return;
-      }
-    });
-  };
-
-  useEffect(async () => {
-    const result = await auctionContract.data;
-    console.log("auction rsult", result);
-    if (result) {
       user.add("auction", { geocode: selected_space.geocode, bid: cleanBid });
       user.save();
       setLoadingAuction(false);
+      dispatch({ type: ADD_USER_BID, payload: { geocode: selected_space.geocode, bid: cleanBid } });
       dispatch({ type: SET_SPACE_TAB, payload: "auction" });
-    }
-  }, [auctionContract.data]);
+      setLoadingAuction(false);
+    });
+  };
+
+  //   useEffect(async () => {
+  //     const result = await auctionContract.data;
+  //     console.log("auction rsult", result);
+  //   }, [auctionContract.data]);
 
   useEffect(() => {
     if (isNumeric(bid)) {

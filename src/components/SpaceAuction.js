@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useMoralisQuery, useMoralis, useWeb3Contract } from "react-moralis";
 import { useDispatch, useSelector } from "react-redux";
-import { SHOW_SPACE, SELECT_SPACE, CLEAN_OWNED_SPACE } from "redux/types";
+import {
+  SHOW_SPACE,
+  SELECT_SPACE,
+  CLEAN_OWNED_SPACE,
+  UPDATE_USER_BIDS,
+  ADD_USER_BID,
+  LOAD_USER_BIDS,
+} from "redux/types";
 import abi from "./abi.json";
 
 const imageBaseURL = "http://phantaspace.com/thumbnails/";
@@ -18,7 +25,7 @@ export default function SpaceAuction() {
   const [cleanBid, setCleanBid] = useState("0");
   const selected_space = useSelector((state) => state.sidebar.selected_space);
   const [loadingBid, setLoadingBid] = useState(false);
-  const [userBids, setUserBids] = useState([]);
+  const userBids = useSelector((state) => state.space.userBids);
   // deal with time
   const [date, setDate] = useState(new Date());
 
@@ -46,7 +53,7 @@ export default function SpaceAuction() {
     if (user) {
       account = user.attributes.accounts[0];
       //   account = user.attributes.ethAddress;
-      setUserBids(user.get("auction"));
+      dispatch({ type: LOAD_USER_BIDS, payload: user.get("auction") });
     }
   }, [user]);
 
@@ -93,20 +100,19 @@ export default function SpaceAuction() {
   });
 
   const increaseBid = async (currentUserBid) => {
-    console.log(selected_space.geocode);
     setLoadingBid(true);
+
     bidContract.runContractFunction().then(async (res) => {
-      console.log(res);
-      const newUserBids = userBids.map((bid) => {
-        if (bid.geocode === selected_space.geocode) {
-          const newBid = parseFloat(currentUserBid) + parseFloat(cleanBid);
-          bid.bid = web3.utils.toWei(newBid.toFixed(10).toString(), "ether");
-        }
-        return bid;
-      });
-      console.log("newUserBids", newUserBids);
-      setUserBids(newUserBids);
-      user.set("auction", newUserBids);
+      if (currentUserBid) {
+        const newBid = parseFloat(currentUserBid) + parseFloat(cleanBid);
+        const newBidInWei = web3.utils.toWei(newBid.toFixed(10).toString(), "ether");
+        dispatch({ type: UPDATE_USER_BIDS, payload: { geocode: selected_space.geocode, bid: newBidInWei } });
+      } else {
+        const newBidInWei = cleanBid;
+        dispatch({ type: ADD_USER_BID, payload: { geocode: selected_space.geocode, bid: newBidInWei } });
+      }
+
+      user.set("auction", userBids);
       user.save();
       setLoadingBid(false);
     });
@@ -143,8 +149,9 @@ export default function SpaceAuction() {
             const imageURL = imageBaseURL + geocode + ".jpg";
             const highestBid =
               auction.highestBid !== undefined ? web3.utils.fromWei(auction.highestBid.toString(), "ether") : 0;
-            const currentUserBid = web3.utils.fromWei(userBids.find((bid) => bid.geocode === geocode).bid, "ether");
-            //   userBids !== undefined ? web3.utils.fromWei(auction.currentUserBid.toString(), "ether") : 0;
+            const userBid = userBids.find((bid) => bid.geocode === geocode);
+            const userBidEther = userBid ? web3.utils.fromWei(userBid.bid, "ether") : 0;
+            //   userBids !== undefined ? web3.utils.fromWei(auction.userBidEther.toString(), "ether") : 0;
             //   console.log(auction.highestBidder, account);
             return (
               <div className="card  bg-dark" key={geocode}>
@@ -183,16 +190,16 @@ export default function SpaceAuction() {
                     <div className=" justify-content-center">
                       {timeLeft > 0 ? (
                         <div className="  justify-content-center">
-                          {currentUserBid ? (
+                          {userBid && (
                             <div className="row justify-content-center">
                               <div type="number" className="h5 bg-dark mt-1">
-                                Your bid: {currentUserBid} ETH
+                                Your bid: {userBidEther} ETH
                               </div>
                             </div>
-                          ) : null}
+                          )}
                           <div className="row justify-content-center">
                             <div type="number" className=" bg-dark col h3">
-                              +
+                              {userBid && "+"}
                             </div>
                             <input
                               type="number"
@@ -213,7 +220,7 @@ export default function SpaceAuction() {
                           <button
                             type="button"
                             className="  btn btn-light rounded mt-1"
-                            onClick={() => increaseBid(currentUserBid)}
+                            onClick={() => increaseBid(userBidEther)}
                           >
                             {loadingBid ? (
                               <div className="row">
@@ -223,7 +230,7 @@ export default function SpaceAuction() {
                                 <div className="mr-2">Bidding</div>
                               </div>
                             ) : (
-                              <div className="ml-2 mr-2">Increase bid</div>
+                              <div className="ml-2 mr-2">{userBid ? "Increase bid" : "Bid"}</div>
                             )}
                           </button>
                         </div>

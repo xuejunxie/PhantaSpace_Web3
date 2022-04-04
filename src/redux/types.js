@@ -31,6 +31,9 @@ export const ADD_OWNED_SPACE = "ADD_OWNED_SPACE";
 export const UPDATE_OWNED_SPACE = "UPDATE_OWNED_SPACE";
 export const LOADING_SPACE = "LOADING_SPACE";
 export const CLEAN_OWNED_SPACE = "CLEAN_OWNED_SPACE";
+export const LOAD_USER_BIDS = "LOAD_USER_BIDS";
+export const UPDATE_USER_BIDS = "UPDATE_USER_BIDS";
+export const ADD_USER_BID = "ADD_USER_BID";
 
 // types for account operations
 export const SET_CONNECTOR_ID = "SET_CONNECTOR_ID";

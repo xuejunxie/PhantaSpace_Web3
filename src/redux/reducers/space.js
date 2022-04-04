@@ -5,6 +5,9 @@ import {
   LOAD_OWNED_SPACE,
   UPDATE_OWNED_SPACE,
   SHOW_SPACE,
+  LOAD_USER_BIDS,
+  UPDATE_USER_BIDS,
+  ADD_USER_BID,
 } from "../types";
 
 const initialState = {
@@ -12,6 +15,7 @@ const initialState = {
   owned: [],
   auction: [],
   loading: false,
+  userBids: [],
 };
 
 export default function (state = initialState, action) {
@@ -36,6 +40,26 @@ export default function (state = initialState, action) {
         ...state,
         owned: state.owned.map((space) => {
           if (space.geocode === action.payload.geocode) {
+            return action.payload;
+          }
+        }),
+      };
+    case LOAD_USER_BIDS:
+      return {
+        ...state,
+        userBids: action.payload,
+      };
+    case ADD_USER_BID:
+      return {
+        ...state,
+        userBids: [...state.userBids, action.payload],
+      };
+
+    case UPDATE_USER_BIDS:
+      return {
+        ...state,
+        userBids: state.userBids.map((bid) => {
+          if (bid.geocode === action.payload.geocode) {
             return action.payload;
           }
         }),
