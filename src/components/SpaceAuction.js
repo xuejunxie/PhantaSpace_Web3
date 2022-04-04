@@ -50,7 +50,7 @@ export default function SpaceAuction() {
       account = user.get("ethAddress");
 
       //   account = user.attributes.ethAddress;
-      const getUserAuction = await user.get("userData");
+      const getUserAuction = await user.get("auction");
       console.log(getUserAuction);
       if (getUserAuction && getUserAuction.length > 0) {
         dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
