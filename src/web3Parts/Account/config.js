@@ -19,12 +19,12 @@ export const connectors = [
     connectorId: "walletconnect",
     priority: 2,
   },
-  {
-    title: "Trust Wallet",
-    icon: TrustWallet,
-    connectorId: "injected",
-    priority: 3,
-  },
+  // {
+  //   title: "Trust Wallet",
+  //   icon: TrustWallet,
+  //   connectorId: "injected",
+  //   priority: 3,
+  // },
   {
     title: "MathWallet",
     icon: MathWallet,
@@ -37,12 +37,12 @@ export const connectors = [
     connectorId: "injected",
     priority: 999,
   },
-  {
-    title: "SafePal",
-    icon: SafePal,
-    connectorId: "injected",
-    priority: 999,
-  },
+  // {
+  //   title: "SafePal",
+  //   icon: SafePal,
+  //   connectorId: "injected",
+  //   priority: 999,
+  // },
   {
     title: "Coin98",
     icon: Coin98,
