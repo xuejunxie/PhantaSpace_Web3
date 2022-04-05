@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, createRef } from "react";
 import { useMoralisQuery, useMoralis, useWeb3Contract } from "react-moralis";
 import { useDispatch, useSelector } from "react-redux";
-import { SHOW_SPACE, SELECT_SPACE, SET_SPACE_TAB, UPDATE_USER_BIDS, ADD_USER_BID, LOAD_USER_BIDS } from "redux/types";
+import { SHOW_SPACE, SELECT_SPACE, SET_SPACE_TAB, LOAD_USER_BIDS } from "redux/types";
 import abi from "./abi.json";
 import { Tab, Tabs } from "react-bootstrap";
 
-const imageBaseURL = "http://phantaspace.com/thumbnails/";
+const image_server_url = "http://phantaspace.com/thumbnails/";
 
 var account;
 
@@ -22,6 +22,7 @@ export default function SpaceAuction() {
   const [loadingWithdraw, setLoadingWithdraw] = useState(false);
   const [loadingClaim, setLoadingClaim] = useState(false);
   const userBids = useSelector((state) => state.space.userBids);
+  const all_spaces = useSelector((state) => state.space.all);
   // deal with time
 
   const [date, setDate] = useState(new Date());
@@ -198,18 +199,32 @@ export default function SpaceAuction() {
 
   const [key, setKey] = useState("active");
 
+  const getThumbnail = (geocode) => {
+    return image_server_url + geocode + ".jpg";
+  };
+
+  // useEffect(() => {
+  //   refs[selected_space.geocode].current.scrollIntoView({
+  //     behavior: "smooth",
+  //     block: "start",
+  //   });
+  // }, [selected_space]);
+
+  var refs = {};
+
   function renderAuctionCard(auction) {
     const geocode = auction.geocode;
     const timeLeft = parseInt(auction.auctionEndTime) - date / 1000;
-    const imageURL = imageBaseURL + geocode + ".jpg";
     const highestBid =
       auction.highestBid !== undefined ? web3.utils.fromWei(auction.highestBid.toString(), "ether") : 0;
     const userBidded = userBids ? userBids.find((bid) => bid.geocode === geocode) : null;
     const userBidEther = userBidded ? web3.utils.fromWei(userBidded.bid, "ether") : 0;
     //   userBids !== undefined ? web3.utils.fromWei(auction.userBidEther.toString(), "ether") : 0;
     //   console.log(auction.highestBidder, account);
+    refs[geocode] = createRef();
+
     return (
-      <div className="card  bg-dark" key={geocode}>
+      <div className="card  bg-dark" key={geocode} ref={refs[geocode]}>
         <div className="card-body text-center ">
           <a
             className="btn rounded-pill"
@@ -223,7 +238,7 @@ export default function SpaceAuction() {
             <div>
               <img
                 className="img-thumbnail rounded-pill"
-                src={imageURL}
+                src={getThumbnail(geocode)}
                 onError={(e) => {
                   e.target.src = "faviconS.gif";
                 }}
@@ -235,8 +250,16 @@ export default function SpaceAuction() {
               <h5 className="text-light">{geocode}</h5>
               <h5 className="text-light">Highest bid: </h5>
               <h5 className="text-light"> {highestBid} ETH</h5>
-              <h5 className="text-light">{timeLeft > 0 ? timeString(timeLeft) : "Ended"} </h5>
-              <h5 className="text-light">{} </h5>
+
+              <h5 className="text-light">
+                {timeLeft > 0
+                  ? timeString(timeLeft)
+                  : userBidded && userBidded.claimed
+                  ? "Claimed"
+                  : userBidded && userBidded.withdraw
+                  ? "Withdrawn"
+                  : "Ended"}
+              </h5>
             </div>
           </a>
         </div>
@@ -293,9 +316,7 @@ export default function SpaceAuction() {
                   </button>
                 </div>
               ) : auction.highestBidder == account ? (
-                userBidded.claimed ? (
-                  <div className="mr-2">Claimed</div>
-                ) : (
+                userBidded && userBidded.claimed ? null : (
                   <button type="button" className="  btn btn-light rounded ml-1" onClick={() => claim(geocode)}>
                     {loadingClaim ? (
                       <div className="row">
@@ -309,7 +330,7 @@ export default function SpaceAuction() {
                     )}
                   </button>
                 )
-              ) : (
+              ) : userBidded && userBidded.withdraw ? null : (
                 <button type="button" className="  btn btn-light rounded ml-1" onClick={() => withdraw(geocode)}>
                   {loadingWithdraw ? (
                     <div className="row">

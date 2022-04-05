@@ -9,7 +9,7 @@ import {
   LOAD_OWNED_SPACE,
   ADD_OWNED_SPACE,
   SET_SPACE_TAB,
-  ADD_USER_BID,
+  LOAD_USER_BIDS,
 } from "redux/types";
 import { useMoralis, useWeb3Contract, useMoralisQuery } from "react-moralis";
 import Moralis from "moralis";
@@ -27,7 +27,7 @@ const auctionDatabase = Moralis.Object.extend("auction");
 export default function SpaceMint() {
   const dispatch = useDispatch();
   const selected_space = useSelector((state) => state.sidebar.selected_space);
-  const { isAuthenticated, web3, user } = useMoralis();
+  const { isAuthenticated, web3, user, refetchUserData } = useMoralis();
   const [vendingPrice, setVendingPrice] = useState(0);
   const [count, setCount] = useState(1);
   const [bidWarning, setBidWarning] = useState("");
@@ -126,8 +126,11 @@ export default function SpaceMint() {
   const onAuction = async () => {
     setLoadingAuction(true);
     auctionContract.runContractFunction().then(async (res) => {
-      setLoadingAuction(false);
-      dispatch({ type: ADD_USER_BID, payload: { geocode: selected_space.geocode, bid: cleanBid } });
+      await refetchUserData();
+      const getUserAuction = await user.get("auction");
+      if (getUserAuction && getUserAuction.length > 0) {
+        dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
+      }
       dispatch({ type: SET_SPACE_TAB, payload: "auction" });
       setLoadingAuction(false);
     });

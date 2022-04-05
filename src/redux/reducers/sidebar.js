@@ -9,6 +9,7 @@ import {
   SPACE_PICKED,
   LOADING_ALL,
   SPACE,
+  SHOW_ALL_SPACES,
 } from "../types";
 
 const initialState = {
@@ -16,6 +17,7 @@ const initialState = {
   explore: false,
   create: false,
   space: false,
+  show_all_spaces: false,
   loading: false,
   pick_a_space: false,
   space_picked: false,
@@ -32,6 +34,7 @@ export default function (state = initialState, action) {
         explore: true,
         create: false,
         selected_space: null,
+        show_all_spaces: false,
       };
     case CREATE:
       return {
@@ -39,6 +42,12 @@ export default function (state = initialState, action) {
         create: true,
         explore: false,
         selected_space: null,
+        show_all_spaces: false,
+      };
+    case SHOW_ALL_SPACES:
+      return {
+        ...state,
+        show_all_spaces: action.payload,
       };
 
     case SPACE:

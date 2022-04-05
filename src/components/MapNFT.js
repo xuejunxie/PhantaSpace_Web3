@@ -68,7 +68,8 @@ export default function MapNFT(props) {
             positions: Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitude, latitude, size)),
             minimumHeights: [bottom, bottom, bottom, bottom, bottom],
             maximumHeights: [top, top, top, top, top],
-            material: Cesium.Color.fromBytes(8, 182, 190, 100),
+            // material: Cesium.Color.fromBytes(8, 182, 190, 100),
+            material: Cesium.Color.fromBytes(255, 255, 255, 100),
             outline: true,
           },
         });

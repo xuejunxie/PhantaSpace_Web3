@@ -8,6 +8,7 @@ import {
   LOAD_USER_BIDS,
   UPDATE_USER_BIDS,
   ADD_USER_BID,
+  LOAD_ALL_SPACES,
 } from "../types";
 
 const initialState = {
@@ -15,11 +16,18 @@ const initialState = {
   owned: [],
   auction: [],
   userBids: [],
+  all: [],
   loading: false,
 };
 
 export default function (state = initialState, action) {
   switch (action.type) {
+    case LOAD_ALL_SPACES:
+      return {
+        ...state,
+        all: action.payload,
+      };
+
     case SHOW_SPACE:
       return {
         ...state,
