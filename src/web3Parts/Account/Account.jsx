@@ -2,7 +2,7 @@ import { useMoralis } from "react-moralis";
 import { getEllipsisTxt } from "helpers/formatters";
 import Blockie from "../Blockie";
 import { Button, Card, Modal } from "react-bootstrap";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Address from "../Address/Address";
 import { getExplorer } from "helpers/networks";
 import { connectors } from "./config";
@@ -54,6 +54,13 @@ function Account() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isAuthModalVisible, setIsAuthModalVisible] = useState(false);
   const connectorIdInStore = useSelector((state) => state.account.connectorId);
+  const ask_user_to_connect = useSelector((state) => state.sidebar.ask_user_to_connect);
+
+  useEffect(() => {
+    if (ask_user_to_connect) {
+      setIsAuthModalVisible(true);
+    }
+  }, [ask_user_to_connect]);
 
   var account = "";
   if (user) {
@@ -68,7 +75,7 @@ function Account() {
           <p style={styles.account}>Connect wallet to create</p>
         </div>
         <Modal show={isAuthModalVisible} onHide={() => setIsAuthModalVisible(false)}>
-          <Modal.Header closeButton>
+          <Modal.Header>
             <Modal.Title>Connect Wallet</Modal.Title>
           </Modal.Header>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
@@ -138,7 +145,7 @@ function Account() {
         <p style={{ marginLeft: "5px", ...styles.text }}>{getEllipsisTxt(account, 6)}</p>
       </div>
       <Modal show={isModalVisible} onHide={() => setIsModalVisible(false)}>
-        <Modal.Header closeButton>
+        <Modal.Header>
           <Modal.Title>Account</Modal.Title>
         </Modal.Header>
         <Modal.Body>

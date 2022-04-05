@@ -23,6 +23,7 @@ export const SPACE_PICKED = "SPACE_PICKED";
 export const LOADING_ALL = "LOADING_ALL";
 export const SET_SPACE_TAB = "SET_SPACE_TAB";
 export const SHOW_ALL_SPACES = "SHOW_ALL_SPACES";
+export const ASK_USER_TO_CONNECT = "ASK_USER_TO_CONNECT";
 
 // types for space operations
 export const SELECT_SPACE = "SELECT_SPACE";

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, createRef } from "react";
 import { useMoralisQuery, useMoralis, useWeb3Contract } from "react-moralis";
 import { useDispatch, useSelector } from "react-redux";
-import { SHOW_SPACE, SELECT_SPACE, SET_SPACE_TAB, LOAD_USER_BIDS } from "redux/types";
+import { SHOW_SPACE, SELECT_SPACE, SET_SPACE_TAB, LOAD_USER_BIDS, ASK_USER_TO_CONNECT } from "redux/types";
 import abi from "./abi.json";
 import { Tab, Tabs } from "react-bootstrap";
 
@@ -23,6 +23,7 @@ export default function SpaceAuction() {
   const [loadingClaim, setLoadingClaim] = useState(false);
   const userBids = useSelector((state) => state.space.userBids);
   const all_spaces = useSelector((state) => state.space.all);
+  const ask_user_to_connect = useSelector((state) => state.sidebar.ask_user_to_connect);
   // deal with time
 
   const [date, setDate] = useState(new Date());
@@ -111,7 +112,9 @@ export default function SpaceAuction() {
 
   const increaseBid = async (userOldBidEther) => {
     setLoadingBid(true);
-
+    if (!isAuthenticated) {
+      dispatch({ type: ASK_USER_TO_CONNECT, payload: ask_user_to_connect + 1 });
+    }
     bidContract.runContractFunction().then(async (res) => {
       // if (userOldBidEther > 0) {
       //   const userOldBidWei = web3.utils.toWei(userOldBidEther, "ether");
@@ -315,34 +318,37 @@ export default function SpaceAuction() {
                     )}
                   </button>
                 </div>
-              ) : auction.highestBidder == account ? (
-                userBidded && userBidded.claimed ? null : (
-                  <button type="button" className="  btn btn-light rounded ml-1" onClick={() => claim(geocode)}>
-                    {loadingClaim ? (
+              ) : (
+                userBidded &&
+                (auction.highestBidder == account ? (
+                  userBidded.claimed ? null : (
+                    <button type="button" className="  btn btn-light rounded ml-1" onClick={() => claim(geocode)}>
+                      {loadingClaim ? (
+                        <div className="row">
+                          <div className="spinner-border spinner-border-sm mr-1 ml-2 mt-1" role="status">
+                            <span className="sr-only">Loading...</span>
+                          </div>
+                          <div className="mr-2">Claiming</div>
+                        </div>
+                      ) : (
+                        <div className="ml-2 mr-2">Claim</div>
+                      )}
+                    </button>
+                  )
+                ) : userBidded.withdraw ? null : (
+                  <button type="button" className="  btn btn-light rounded ml-1" onClick={() => withdraw(geocode)}>
+                    {loadingWithdraw ? (
                       <div className="row">
                         <div className="spinner-border spinner-border-sm mr-1 ml-2 mt-1" role="status">
                           <span className="sr-only">Loading...</span>
                         </div>
-                        <div className="mr-2">Claiming</div>
+                        <div className="mr-2">Withdrawing</div>
                       </div>
                     ) : (
-                      <div className="ml-2 mr-2">Claim</div>
+                      <div className="ml-2 mr-2">Withdraw</div>
                     )}
                   </button>
-                )
-              ) : userBidded && userBidded.withdraw ? null : (
-                <button type="button" className="  btn btn-light rounded ml-1" onClick={() => withdraw(geocode)}>
-                  {loadingWithdraw ? (
-                    <div className="row">
-                      <div className="spinner-border spinner-border-sm mr-1 ml-2 mt-1" role="status">
-                        <span className="sr-only">Loading...</span>
-                      </div>
-                      <div className="mr-2">Withdrawing</div>
-                    </div>
-                  ) : (
-                    <div className="ml-2 mr-2">Withdraw</div>
-                  )}
-                </button>
+                ))
               )}
             </div>
           </div>

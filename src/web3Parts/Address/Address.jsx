@@ -57,7 +57,7 @@ function Address(props) {
   );
 
   return (
-    <div style={{ ...styles.address, ...props.style }}>
+    <div style={{ ...styles.address, ...props.style }} className="justify-content-center">
       {props.avatar === "left" && <Blockie address={address} size={7} />}
       <p style={{ marginLeft: "10px" }}>{props.size ? getEllipsisTxt(address, props.size) : address}</p>
       {props.avatar === "right" && <Blockie address={address} size={7} />}

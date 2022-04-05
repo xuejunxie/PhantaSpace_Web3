@@ -10,6 +10,7 @@ import {
   LOADING_ALL,
   SPACE,
   SHOW_ALL_SPACES,
+  ASK_USER_TO_CONNECT,
 } from "../types";
 
 const initialState = {
@@ -24,6 +25,7 @@ const initialState = {
   selected_space: null,
   loadingAll: true,
   space_tab: "mint",
+  ask_user_to_connect: 0,
 };
 
 export default function (state = initialState, action) {
@@ -48,6 +50,11 @@ export default function (state = initialState, action) {
       return {
         ...state,
         show_all_spaces: action.payload,
+      };
+    case ASK_USER_TO_CONNECT:
+      return {
+        ...state,
+        ask_user_to_connect: action.payload,
       };
 
     case SPACE:
