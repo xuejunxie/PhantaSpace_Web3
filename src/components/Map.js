@@ -104,7 +104,7 @@ export default function Map(props) {
 
       viewer.camera.flyTo({
         destination: ellipsoid.cartographicToCartesian(pointOfInterest),
-        duration: 0,
+        duration: 2,
       });
     }
   }, [show_space]);

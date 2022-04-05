@@ -3,6 +3,7 @@ import { useMoralisQuery, useMoralis, useWeb3Contract } from "react-moralis";
 import { useDispatch, useSelector } from "react-redux";
 import { SHOW_SPACE, SELECT_SPACE, SET_SPACE_TAB, UPDATE_USER_BIDS, ADD_USER_BID, LOAD_USER_BIDS } from "redux/types";
 import abi from "./abi.json";
+import { Tab, Tabs } from "react-bootstrap";
 
 const imageBaseURL = "http://phantaspace.com/thumbnails/";
 
@@ -22,7 +23,6 @@ export default function SpaceAuction() {
   const [loadingClaim, setLoadingClaim] = useState(false);
   const userBids = useSelector((state) => state.space.userBids);
   // deal with time
-  var BN = web3.utils.BN;
 
   const [date, setDate] = useState(new Date());
 
@@ -84,6 +84,13 @@ export default function SpaceAuction() {
       });
     }
     setAuctionList(list);
+    if (user) {
+      await refetchUserData();
+      const getUserAuction = await user.get("auction");
+      if (getUserAuction && getUserAuction.length > 0) {
+        dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
+      }
+    }
   }, [data]);
 
   const onSelect = (geocode) => {
@@ -112,11 +119,8 @@ export default function SpaceAuction() {
       // } else {
       //   dispatch({ type: ADD_USER_BID, payload: { geocode: selected_space.geocode, bid: cleanBidWei } });
       // }
-      await refetchUserData();
-      const getUserAuction = await user.get("auction");
-      if (getUserAuction && getUserAuction.length > 0) {
-        dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
-      }
+      console.log("done");
+
       setLoadingBid(false);
     });
   };
@@ -145,10 +149,16 @@ export default function SpaceAuction() {
     },
   });
 
-  const withdraw = async () => {
+  const withdraw = async (geocode) => {
     setLoadingWithdraw(true);
     withdrawContract.runContractFunction().then(async (res) => {
       setLoadingWithdraw(false);
+
+      await refetchUserData();
+      const getUserAuction = await user.get("auction");
+      if (getUserAuction && getUserAuction.length > 0) {
+        dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
+      }
     });
   };
 
@@ -161,13 +171,164 @@ export default function SpaceAuction() {
     },
   });
 
-  const claim = async () => {
+  const claim = async (geocode) => {
     setLoadingClaim(true);
     claimContract.runContractFunction().then(async (res) => {
       setLoadingClaim(false);
       dispatch({ type: SET_SPACE_TAB, payload: "owned" });
+      // user.set(
+      //   "auction",
+      //   userBids.map((bid) => {
+      //     if (bid.geocode == geocode) {
+      //       bid.claimed = true;
+      //       return bid;
+      //     } else {
+      //       return bid;
+      //     }
+      //   })
+      // );
+      // user.save();
+      await refetchUserData();
+      const getUserAuction = await user.get("auction");
+      if (getUserAuction && getUserAuction.length > 0) {
+        dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
+      }
     });
   };
+
+  const [key, setKey] = useState("active");
+
+  function renderAuctionCard(auction) {
+    const geocode = auction.geocode;
+    const timeLeft = parseInt(auction.auctionEndTime) - date / 1000;
+    const imageURL = imageBaseURL + geocode + ".jpg";
+    const highestBid =
+      auction.highestBid !== undefined ? web3.utils.fromWei(auction.highestBid.toString(), "ether") : 0;
+    const userBidded = userBids ? userBids.find((bid) => bid.geocode === geocode) : null;
+    const userBidEther = userBidded ? web3.utils.fromWei(userBidded.bid, "ether") : 0;
+    //   userBids !== undefined ? web3.utils.fromWei(auction.userBidEther.toString(), "ether") : 0;
+    //   console.log(auction.highestBidder, account);
+    return (
+      <div className="card  bg-dark" key={geocode}>
+        <div className="card-body text-center ">
+          <a
+            className="btn rounded-pill"
+            data-toggle="collapse"
+            href={"#collapse" + geocode}
+            role="button"
+            aria-expanded="false"
+            aria-controls={"collapse" + geocode}
+            onClick={() => onSelect(geocode)}
+          >
+            <div>
+              <img
+                className="img-thumbnail rounded-pill"
+                src={imageURL}
+                onError={(e) => {
+                  e.target.src = "faviconS.gif";
+                }}
+                onLoadStart={(e) => {
+                  e.target.src = "faviconS.gif";
+                }}
+                alt="auction"
+              />
+              <h5 className="text-light">{geocode}</h5>
+              <h5 className="text-light">Highest bid: </h5>
+              <h5 className="text-light"> {highestBid} ETH</h5>
+              <h5 className="text-light">{timeLeft > 0 ? timeString(timeLeft) : "Ended"} </h5>
+              <h5 className="text-light">{} </h5>
+            </div>
+          </a>
+        </div>
+        <div className="collapse" id={"collapse" + geocode} data-parent="#SpaceAuctionAccordion">
+          <div className="card card-body bg-dark">
+            <div className=" justify-content-center">
+              {timeLeft > 0 ? (
+                <div className="  justify-content-center">
+                  {userBidded && (
+                    <div className="row justify-content-center">
+                      <div type="number" className="h5 bg-dark mt-1">
+                        {userBidEther >= highestBid ? "Your are the highest bidder" : "Your are lossing"}
+                      </div>
+                      <div type="number" className="h5 bg-dark mt-1">
+                        Your bid: {userBidEther} ETH
+                      </div>
+                    </div>
+                  )}
+                  <div className="row justify-content-center">
+                    <div type="number" className=" bg-dark col h3">
+                      {userBidded && "+"}
+                    </div>
+                    <input
+                      type="number"
+                      className="form-control col-6 col rounded "
+                      id="bid"
+                      placeholder="Enter amount"
+                      value={bid}
+                      onChange={(e) => setBid(e.target.value)}
+                    />
+                    <div type="number" className="h5 col bg-dark  mt-1">
+                      ETH
+                    </div>
+                  </div>
+
+                  <div className=" row justify-content-start bg-dark mt-1">
+                    <div className="col-9 justify-content-center">{bidWarning}</div>
+                  </div>
+                  <button
+                    type="button"
+                    className="  btn btn-light rounded mt-1"
+                    onClick={() => increaseBid(userBidEther)}
+                  >
+                    {loadingBid ? (
+                      <div className="row">
+                        <div className="spinner-border spinner-border-sm mr-1 ml-2 mt-1" role="status">
+                          <span className="sr-only">Loading...</span>
+                        </div>
+                        <div className="mr-2">Bidding</div>
+                      </div>
+                    ) : (
+                      <div className="ml-2 mr-2">{userBidded ? "Increase bid" : "Bid"}</div>
+                    )}
+                  </button>
+                </div>
+              ) : auction.highestBidder == account ? (
+                userBidded.claimed ? (
+                  <div className="mr-2">Claimed</div>
+                ) : (
+                  <button type="button" className="  btn btn-light rounded ml-1" onClick={() => claim(geocode)}>
+                    {loadingClaim ? (
+                      <div className="row">
+                        <div className="spinner-border spinner-border-sm mr-1 ml-2 mt-1" role="status">
+                          <span className="sr-only">Loading...</span>
+                        </div>
+                        <div className="mr-2">Claiming</div>
+                      </div>
+                    ) : (
+                      <div className="ml-2 mr-2">Claim</div>
+                    )}
+                  </button>
+                )
+              ) : (
+                <button type="button" className="  btn btn-light rounded ml-1" onClick={() => withdraw(geocode)}>
+                  {loadingWithdraw ? (
+                    <div className="row">
+                      <div className="spinner-border spinner-border-sm mr-1 ml-2 mt-1" role="status">
+                        <span className="sr-only">Loading...</span>
+                      </div>
+                      <div className="mr-2">Withdrawing</div>
+                    </div>
+                  ) : (
+                    <div className="ml-2 mr-2">Withdraw</div>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (auctionList && auctionList.length > 0) {
     return (
@@ -176,118 +337,63 @@ export default function SpaceAuction() {
         style={{ maxHeight: "calc(100vh - var(--navBarHeight) - var(--navTabHeight))" }}
         id="SpaceAuctionAccordion"
       >
-        {auctionList
-          .slice(0)
-          .reverse()
-          .map((auction) => {
-            const geocode = auction.geocode;
-            const timeLeft = parseInt(auction.auctionEndTime) - date / 1000;
-            const imageURL = imageBaseURL + geocode + ".jpg";
-            const highestBid =
-              auction.highestBid !== undefined ? web3.utils.fromWei(auction.highestBid.toString(), "ether") : 0;
-            const userBidded = userBids ? userBids.find((bid) => bid.geocode === geocode) : null;
-            const userBidEther = userBidded ? web3.utils.fromWei(userBidded.bid, "ether") : 0;
-            //   userBids !== undefined ? web3.utils.fromWei(auction.userBidEther.toString(), "ether") : 0;
-            //   console.log(auction.highestBidder, account);
-            return (
-              <div className="card  bg-dark" key={geocode}>
-                <div className="card-body text-center ">
-                  <a
-                    className="btn rounded-pill"
-                    data-toggle="collapse"
-                    href={"#collapse" + geocode}
-                    role="button"
-                    aria-expanded="false"
-                    aria-controls={"collapse" + geocode}
-                    onClick={() => onSelect(geocode)}
-                  >
-                    <div>
-                      <img
-                        className="img-thumbnail rounded-pill"
-                        src={imageURL}
-                        onError={(e) => {
-                          e.target.src = "faviconS.gif";
-                        }}
-                        onLoadStart={(e) => {
-                          e.target.src = "faviconS.gif";
-                        }}
-                        alt="auction"
-                      />
-                      <h5 className="text-light">{geocode}</h5>
-                      <h5 className="text-light">Highest bid: </h5>
-                      <h5 className="text-light"> {highestBid} ETH</h5>
-                      <h5 className="text-light">{timeLeft > 0 ? timeString(timeLeft) : "Ended"} </h5>
-                      <h5 className="text-light">{} </h5>
-                    </div>
-                  </a>
-                </div>
-                <div className="collapse" id={"collapse" + geocode} data-parent="#SpaceAuctionAccordion">
-                  <div className="card card-body bg-dark">
-                    <div className=" justify-content-center">
-                      {timeLeft > 0 ? (
-                        <div className="  justify-content-center">
-                          {userBidded && (
-                            <div className="row justify-content-center">
-                              <div type="number" className="h5 bg-dark mt-1">
-                                Your bid: {userBidEther} ETH
-                              </div>
-                            </div>
-                          )}
-                          <div className="row justify-content-center">
-                            <div type="number" className=" bg-dark col h3">
-                              {userBidded && "+"}
-                            </div>
-                            <input
-                              type="number"
-                              className="form-control col-6 col rounded "
-                              id="bid"
-                              placeholder="Enter amount"
-                              value={bid}
-                              onChange={(e) => setBid(e.target.value)}
-                            />
-                            <div type="number" className="h5 col bg-dark  mt-1">
-                              ETH
-                            </div>
-                          </div>
+        <Tabs id="controlled-tab-example" activeKey={key} onSelect={(k) => setKey(k)}>
+          <Tab eventKey="active" title="Active" tabClassName="text-light ml-1">
+            <div
+              className="bg-dark text-light overflow-auto "
+              style={{ maxHeight: "calc(100vh - var(--navBarHeight) - 2* var(--navTabHeight))" }}
+            >
+              {auctionList
+                .slice(0)
+                .reverse()
+                .map((auction) => {
+                  const timeLeft = parseInt(auction.auctionEndTime) - date / 1000;
+                  if (timeLeft > 0) {
+                    return renderAuctionCard(auction);
+                  }
+                })}
+            </div>
+          </Tab>
 
-                          <div className=" row justify-content-start bg-dark mt-1">
-                            <div className="col-9 justify-content-center">{bidWarning}</div>
-                          </div>
-                          <button
-                            type="button"
-                            className="  btn btn-light rounded mt-1"
-                            onClick={() => increaseBid(userBidEther)}
-                          >
-                            {loadingBid ? (
-                              <div className="row">
-                                <div className="spinner-border spinner-border-sm mr-1 ml-2 mt-1" role="status">
-                                  <span className="sr-only">Loading...</span>
-                                </div>
-                                <div className="mr-2">Bidding</div>
-                              </div>
-                            ) : (
-                              <div className="ml-2 mr-2">{userBidded ? "Increase bid" : "Bid"}</div>
-                            )}
-                          </button>
-                        </div>
-                      ) : auction.highestBidder == account ? (
-                        <button type="button" className="  btn btn-light rounded ml-1" onClick={() => claim()}>
-                          Claim
-                        </button>
-                      ) : (
-                        <button type="button" className="  btn btn-light rounded ml-1" onClick={() => withdraw()}>
-                          Withdraw
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
+          {isAuthenticated ? (
+            <Tab eventKey="bidded" title="Bidded" tabClassName="text-light">
+              <div
+                className="bg-dark text-light overflow-auto "
+                style={{ maxHeight: "calc(100vh - var(--navBarHeight) - 2* var(--navTabHeight))" }}
+              >
+                {auctionList
+                  .slice(0)
+                  .reverse()
+                  .map((auction) => {
+                    const geocode = auction.geocode;
+
+                    if (userBids.find((bid) => bid.geocode == geocode)) {
+                      return renderAuctionCard(auction);
+                    }
+                  })}
               </div>
-            );
-          })}
+            </Tab>
+          ) : null}
+          <Tab eventKey="ended" title="Ended" tabClassName="text-light">
+            <div
+              className="bg-dark text-light overflow-auto "
+              style={{ maxHeight: "calc(100vh - var(--navBarHeight) - 2* var(--navTabHeight))" }}
+            >
+              {auctionList
+                .slice(0)
+                .reverse()
+                .map((auction) => {
+                  const timeLeft = parseInt(auction.auctionEndTime) - date / 1000;
+                  if (timeLeft < 0) {
+                    return renderAuctionCard(auction);
+                  }
+                })}
+            </div>
+          </Tab>
+        </Tabs>
       </div>
     );
   } else {
-    return <div className="text-light">Loading...</div>;
+    return <div className="text-light"></div>;
   }
 }

@@ -16,19 +16,19 @@ async function saveSpaceToUserAuction(geocode, highestBid, highestBidder) {
     geocode: geocode,
     bid: highestBid,
   };
-  var userAuctions = await user.get("auction");
-  if (userAuctions) {
-    const userAuctionIndex = userAuctions.findIndex((oldBid) => oldBid.geocode == geocode);
+  var userBids = await user.get("auction");
+  if (userBids) {
+    const userAuctionIndex = userBids.findIndex((oldBid) => oldBid.geocode == geocode);
     logger.info(userAuctionIndex);
     if (userAuctionIndex === -1) {
-      userAuctions.push(newBid);
+      userBids.push(newBid);
     } else {
-      userAuctions[userAuctionIndex] = newBid;
+      userBids[userAuctionIndex] = newBid;
     }
   } else {
-    userAuctions = [newBid];
+    userBids = [newBid];
   }
-  user.set("auction", userAuctions);
+  user.set("auction", userBids);
   await user.save(null, { useMasterKey: true });
 }
 
@@ -142,7 +142,6 @@ Moralis.Cloud.beforeSave("AuctionStarted", async (request) => {
     await saveSpaceToUserAuction(geocode, highestBid, highestBidder);
 
     // save space to space
-    table;
     await saveSpaceAuctionToSpaceList(geocode, highestBid, highestBidder, auctionEndTime);
 
     // save space to auction table
@@ -242,6 +241,22 @@ Moralis.Cloud.afterSave("AuctionEnded", async (request) => {
     const userQueryResult = await userQuery.find({ useMasterKey: true });
     const user = userQueryResult[0];
     if (user) {
+      var userBids = await user.get("auction");
+
+      if (userBids) {
+        user.set(
+          "auction",
+          userBids.map((bid) => {
+            if (bid.geocode == geocode) {
+              bid.claimed = true;
+              return bid;
+            } else {
+              return bid;
+            }
+          })
+        );
+      }
+
       user.addUnique("space", geocode);
       user.save(null, { useMasterKey: true });
     }
@@ -267,13 +282,43 @@ Moralis.Cloud.afterSave("AuctionEnded", async (request) => {
     const auctionQueryResult = await auctionQuery.find({ useMasterKey: true });
     const auction = auctionQueryResult[0];
     if (auction) {
-      // remove this item
-      auction.destroy({ useMasterKey: true });
+      // move auction to archieve
     }
   } else {
     // logger.info("confirmed");
     // make space confirmed
     await markSpaceConfirmed(geocode);
+  }
+});
+
+Moralis.Cloud.afterSave("withDrawalRequested", async (request) => {
+  const userDatabase = Moralis.Object.extend(userDatabaseName);
+  const geocode = request.object.get("geocode");
+  const bidder = request.object.get("bidder");
+  const amount = request.object.get("amount");
+
+  const userQuery = new Moralis.Query(userDatabase);
+  userQuery.equalTo("ethAddress", bidder);
+
+  const userQueryResult = await userQuery.find({ useMasterKey: true });
+  const user = userQueryResult[0];
+  if (user) {
+    var userBids = await user.get("auction");
+
+    if (userBids) {
+      user.set(
+        "auction",
+        userBids.map((bid) => {
+          if (bid.geocode == geocode) {
+            bid.withdraw = amount;
+            return bid;
+          } else {
+            return bid;
+          }
+        })
+      );
+    }
+    user.save(null, { useMasterKey: true });
   }
 });
 

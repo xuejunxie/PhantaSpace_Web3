@@ -126,8 +126,6 @@ export default function SpaceMint() {
   const onAuction = async () => {
     setLoadingAuction(true);
     auctionContract.runContractFunction().then(async (res) => {
-      user.add("auction", { geocode: selected_space.geocode, bid: cleanBid });
-      user.save();
       setLoadingAuction(false);
       dispatch({ type: ADD_USER_BID, payload: { geocode: selected_space.geocode, bid: cleanBid } });
       dispatch({ type: SET_SPACE_TAB, payload: "auction" });
@@ -162,7 +160,10 @@ export default function SpaceMint() {
   return (
     <Fragment>
       {isAuthenticated ? (
-        <div className="card-body text-center text-light qty">
+        <div
+          className="card-body text-center text-light qty overflow-auto"
+          style={{ maxHeight: "calc(100vh - var(--navBarHeight) - var(--navTabHeight))" }}
+        >
           <div className="row justify-content-center">
             <button
               type="button"

@@ -54,6 +54,17 @@ let AuctionEnded = {
   sync_historical: false,
 };
 
+let withDrawalRequested = {
+  description: "withDrawalRequested",
+  chainId: process.env.CHAIN_ID,
+  address: process.env.REACT_APP_CONTRACT_ADDRESS,
+  topic: "withDrawalRequested(uint256, address,uint256)",
+  abi: pickAbi("withDrawalRequested"),
+  limit: 500000,
+  tableName: "withDrawalRequested",
+  sync_historical: false,
+};
+
 let HighestBidIncreased = {
   description: "HighestBidIncreased",
   chainId: process.env.CHAIN_ID,
@@ -107,6 +118,7 @@ const main = async () => {
   Moralis.Cloud.run("watchContractEvent", HighestBidIncreased, { useMasterKey: true });
   Moralis.Cloud.run("watchContractEvent", SubSpaceAuctionAllowed, { useMasterKey: true });
   Moralis.Cloud.run("watchContractEvent", Transfer, { useMasterKey: true });
+  Moralis.Cloud.run("watchContractEvent", withDrawalRequested, { useMasterKey: true });
 };
 
 main();

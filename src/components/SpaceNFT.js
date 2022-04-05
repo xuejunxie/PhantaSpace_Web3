@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { SPACE, SELECT_SPACE, SHOW_SPACE } from "redux/types";
-import Map from "./Map";
+import MapNFT from "./MapNFT";
 
 export default function SpaceNFT() {
   const dispatch = useDispatch();
@@ -18,5 +18,5 @@ export default function SpaceNFT() {
     }
   }, [spacePosition]);
 
-  return <Map viewerWidth={"100vw"} viewerHeight={"100vh"} />;
+  return <MapNFT viewerWidth={"100vw"} viewerHeight={"100vh"} />;
 }

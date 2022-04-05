@@ -4,11 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useMoralis } from "react-moralis";
 
 import { SHOW_SPACE, SELECT_SPACE, CLEAN_OWNED_SPACE, LOAD_OWNED_SPACE } from "redux/types";
-import getSpaceByOpensea from "./getSpaceByOpensea";
 
 const image_server_url = "http://phantaspace.com/thumbnails/";
 
-const opense_asset_url = "https://opensea.io/assets/";
+const opense_asset_url = "https://testnets.opensea.io/assets/";
 
 const getThumbnail = (geocode) => {
   return image_server_url + geocode + ".jpg";
@@ -22,23 +21,34 @@ export default function SpaceOwned() {
   const owned_space = useSelector((state) => state.space.owned);
   const loading = useSelector((state) => state.space.loading);
   const dispatch = useDispatch();
-  const { isAuthenticated, user } = useMoralis();
+  const { isAuthenticated, user, refetchUserData } = useMoralis();
+  const space_tab = useSelector((state) => state.sidebar.space_tab);
   var refs = {};
 
   useEffect(() => {
     dispatch({ type: CLEAN_OWNED_SPACE });
   }, []);
 
+  async function updateUserSpace() {
+    const userSpace = (await user.fetch()).attributes.space;
+    if (userSpace) {
+      const userSpaceObject = userSpace.map((space) => {
+        return { geocode: space };
+      });
+      dispatch({ type: LOAD_OWNED_SPACE, payload: userSpaceObject });
+    }
+  }
+
+  useEffect(async () => {
+    if (space_tab == "owned") {
+      await refetchUserData();
+      await updateUserSpace();
+    }
+  }, [space_tab]);
+
   useEffect(async () => {
     if (user) {
-      const userSpace = (await user.fetch()).attributes.space;
-      if (userSpace) {
-        const userSpaceObject = userSpace.map((space) => {
-          return { geocode: space };
-        });
-        dispatch({ type: LOAD_OWNED_SPACE, payload: userSpaceObject });
-      }
-      // getSpaceByOpensea(account, dispatch);
+      updateUserSpace();
     }
   }, [user]);
 
