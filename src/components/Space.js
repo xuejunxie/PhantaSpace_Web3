@@ -30,7 +30,7 @@ export default function Space() {
       dispatch({ type: SHOW_SPACE, payload: space });
       dispatch({ type: SELECT_SPACE, payload: space });
     }
-  }, [spacePosition]);
+  }, []);
 
   useEffect(() => {
     if (selected_space) {
