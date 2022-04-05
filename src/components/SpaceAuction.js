@@ -261,6 +261,8 @@ export default function SpaceAuction() {
                   ? "Claimed"
                   : userBidded && userBidded.withdraw
                   ? "Withdrawn"
+                  : userBidded && userBidded.bid < highestBid
+                  ? "Lost"
                   : "Ended"}
               </h5>
             </div>

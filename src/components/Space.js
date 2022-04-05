@@ -18,6 +18,38 @@ export default function Space() {
   const { isAuthenticated, web3 } = useMoralis();
   const limit = 10000;
 
+  // deal with time
+
+  const [date, setDate] = useState(new Date());
+  const startTime = Date.parse("09 APR 2022 00:00:00 PST");
+
+  function refreshClock() {
+    setDate(new Date());
+  }
+
+  function timeString(time) {
+    const seconds = Math.floor(time % 60);
+    const minutes = Math.floor((time / 60) % 60);
+    const hours = Math.floor(time / 60 / 60) % 24;
+    const days = Math.floor(time / 60 / 60 / 24);
+
+    return (
+      <div className="mt-3">
+        <h2> {days} days </h2>
+        <h2> {hours} hours </h2>
+        <h2> {minutes} minutes </h2>
+        <h2> {seconds} seconds </h2>
+      </div>
+    );
+  }
+
+  useEffect(() => {
+    const timerId = setInterval(refreshClock, 1000);
+    return function cleanup() {
+      clearInterval(timerId);
+    };
+  }, []);
+
   // get live with space list
   const { data, error, isLoading } = useMoralisQuery(
     "space",
@@ -74,21 +106,25 @@ export default function Space() {
   }, [space_tab]);
 
   return (
-    <div className="bg-dark">
-      <Tabs id="controlled-tab-example" activeKey={key} onSelect={(k) => setKey(k)}>
-        <Tab eventKey="mint" title="Mint" tabClassName="text-light ml-1">
-          <SpaceMint />
-        </Tab>
-
-        {isAuthenticated ? (
-          <Tab eventKey="owned" title="Owned" tabClassName="text-light">
-            <SpaceOwned />
+    <div className="bg-dark text-light">
+      {startTime > date ? (
+        <h2 className="mt-5"> Initial space offering counting down: {timeString((startTime - date) / 1000)} </h2>
+      ) : (
+        <Tabs id="controlled-tab-example" activeKey={key} onSelect={(k) => setKey(k)}>
+          <Tab eventKey="mint" title="Mint" tabClassName="text-light ml-1">
+            <SpaceMint />
           </Tab>
-        ) : null}
-        <Tab eventKey="auction" title="Auction" tabClassName="text-light">
-          <SpaceAuction />
-        </Tab>
-      </Tabs>
+
+          {isAuthenticated ? (
+            <Tab eventKey="owned" title="Owned" tabClassName="text-light">
+              <SpaceOwned />
+            </Tab>
+          ) : null}
+          <Tab eventKey="auction" title="Auction" tabClassName="text-light">
+            <SpaceAuction />
+          </Tab>
+        </Tabs>
+      )}
     </div>
   );
 }
