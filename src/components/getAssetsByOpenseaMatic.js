@@ -74,7 +74,7 @@ export default async function getAssetsByOpenseaMatic(account, dispatch) {
               thumbnail = nft.image_url;
             }
 
-            if (url) {
+            if (1) {
               const id = nft.token_id + "-" + nft.asset_contract.address;
               gltfNFTs.push({
                 metadata: nft,

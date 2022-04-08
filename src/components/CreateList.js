@@ -71,6 +71,8 @@ export default function CreateList() {
       scale: nft.scale,
       heading: nft.heading,
       pitch: nft.pitch,
+      wide: nft.wide,
+      tall: nft.tall,
       roll: nft.roll,
       placed: true,
       created: created,
@@ -94,8 +96,15 @@ export default function CreateList() {
   };
 
   const onSelect = (nft) => {
-    dispatch({ type: SELECT, payload: nft });
-    dispatch({ type: LOOK, payload: nft });
+    const image = new Image();
+    image.src = nft.thumbnail;
+    image.onload = () => {
+      nft.wide = image.width;
+      nft.tall = image.height;
+
+      dispatch({ type: LOOK, payload: nft });
+      dispatch({ type: SELECT, payload: nft });
+    };
   };
 
   const onEdit = (nft) => {
@@ -165,7 +174,7 @@ export default function CreateList() {
                       <input
                         type="range"
                         min="0"
-                        max="1000"
+                        max="10000"
                         step="0.01"
                         value={nft.height}
                         className="custom-range"

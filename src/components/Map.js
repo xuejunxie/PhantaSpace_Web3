@@ -290,14 +290,14 @@ export default function Map(props) {
 
   // handle mouse events for space page
   useEffect(() => {
-    if (pick_a_space) {
-      spaceHandler = handleSpace(dispatch);
+    if (pick_a_space && all_spaces) {
+      spaceHandler = handleSpace(dispatch, all_spaces);
     } else {
       if (spaceHandler && !spaceHandler.isDestroyed()) {
         spaceHandler.destroy();
       }
     }
-  }, [pick_a_space]);
+  }, [pick_a_space, all_spaces]);
 
   // clean up on explore page
   useEffect(() => {
@@ -340,25 +340,28 @@ export default function Map(props) {
         // handle the update of the entity
         if (entity) {
           // update endity position and orientation based on its current position and orientation
-          var cartographic = Cesium.Cartographic.fromCartesian(entity.position._value);
-          cartographic.height = nft.height;
-          var cartesian = Cesium.Cartesian3.fromRadians(
-            cartographic.longitude,
-            cartographic.latitude,
-            cartographic.height
-          );
-          entity.position = cartesian;
+          var cartesian = Cesium.Cartesian3.fromRadians(nft.longitude, nft.latitude, nft.height);
+          entity.position = new Cesium.CallbackProperty(function () {
+            return cartesian;
+          }, false);
 
           // update entity scale
-          entity.model.scale = nft.scale;
-
+          if (entity.model) {
+            entity.model.scale = nft.scale;
+          } else {
+            entity.box.dimensions = new Cesium.CallbackProperty(function () {
+              return new Cesium.Cartesian3(nft.wide * nft.scale, 0, nft.tall * nft.scale);
+            }, false);
+          }
           // update entity orientation
           var heading = Cesium.Math.toRadians(nft.heading);
           var pitch = Cesium.Math.toRadians(nft.pitch);
           var roll = Cesium.Math.toRadians(nft.roll);
           var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
           var orientation = Cesium.Transforms.headingPitchRollQuaternion(cartesian, hpr);
-          entity.orientation = orientation;
+          entity.orientation = new Cesium.CallbackProperty(function () {
+            return orientation;
+          }, false);
         }
       }
     }
@@ -393,285 +396,294 @@ export default function Map(props) {
     }
   }, [all]);
 
-  function addModel(cartesian, heading, pitch, roll, scale, item) {
-    // var cartesian = Cesium.Cartesian3.fromDegrees(latitude, longitude, height);
-    var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
-    var orientation = Cesium.Transforms.headingPitchRollQuaternion(cartesian, hpr);
-    const newEntity = viewer.entities.add({
-      id: item.NFTid,
-      name: item.url,
-      position: cartesian,
-      orientation: orientation,
-      availability: new Cesium.TimeIntervalCollection([
-        new Cesium.TimeInterval({
-          start: Cesium.JulianDate.fromIso8601(item.created),
-          stop: item.removed
-            ? Cesium.JulianDate.fromIso8601(item.removed)
-            : Cesium.JulianDate.fromIso8601("9999-12-02T00:00:00Z"),
-        }),
-      ]),
-      model: {
-        uri: item.url,
-        minimumPixelSize: 0,
-        scale: scale,
-      },
-    });
+  return <div id="cesiumContainer" style={{ height: props.viewerHeight, width: props.viewerWidth }}></div>;
+}
 
-    return newEntity;
-  }
+function addModel(cartesian, heading, pitch, roll, scale, item) {
+  // var cartesian = Cesium.Cartesian3.fromDegrees(latitude, longitude, height);
+  var hpr = new Cesium.HeadingPitchRoll(heading, pitch, roll);
+  var orientation = Cesium.Transforms.headingPitchRollQuaternion(cartesian, hpr);
+  const newEntity = viewer.entities.add({
+    id: item.NFTid,
+    name: item.url,
+    position: cartesian,
+    orientation: orientation,
+    availability: new Cesium.TimeIntervalCollection([
+      new Cesium.TimeInterval({
+        start: Cesium.JulianDate.fromIso8601(item.created),
+        stop: item.removed
+          ? Cesium.JulianDate.fromIso8601(item.removed)
+          : Cesium.JulianDate.fromIso8601("9999-12-02T00:00:00Z"),
+      }),
+    ]),
+  });
 
-  function handleExplore(dispatchClick) {
-    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-    handler.setInputAction(function (movement) {
-      var pickedObject = viewer.scene.pick(movement.position);
-      if (Cesium.defined(pickedObject)) {
-        if (pickedObject.id) {
-          dispatchClick(pickedObject.id.id);
-        }
-      }
-
-      // } else {
-      //   viewer.scene.screenSpaceCameraController.enableRotate = true; // lock the camera
-      // }
-      // }
-    }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
-
-    return handler;
-  }
-
-  function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft) {
-    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-
-    handler.setInputAction((click) => {
-      if (click.position) {
-        var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(click.position), viewer.scene);
-        if (cartesian) {
-          // increase height
-          cartesian.z += 100;
-          if (nft) {
-            // make sure the entity is not already in the viewer
-            entity = viewer.entities.getById(nft.NFTid);
-            var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
-
-            if (entity) {
-              var newCartesian = Cesium.Cartesian3.fromRadians(
-                newPosition.longitude,
-                newPosition.latitude,
-                newPosition.height
-              );
-
-              entity.position = newCartesian;
-              entity.orientation = Cesium.Transforms.headingPitchRollQuaternion(
-                cartesian,
-                new Cesium.HeadingPitchRoll(0, 0, 0)
-              );
-            } else {
-              var heading = Cesium.Math.toRadians(0);
-              var pitch = 0;
-              var roll = 0;
-              var scale = 100;
-              const newEntity = addModel(cartesian, heading, pitch, roll, scale, nft);
-              viewer.flyTo(newEntity);
-            }
-            nft.longitude = newPosition.longitude;
-            nft.latitude = newPosition.latitude;
-            nft.height = newPosition.height;
-            dispatchPlace(nft);
-          }
-        }
-      }
-    }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
-
-    var leftDownFlag = false;
-    // Select plane when mouse down
-    handler.setInputAction(function (movement) {
-      leftDownFlag = true;
-      var pickedObject = viewer.scene.pick(movement.position);
-      if (Cesium.defined(pickedObject)) {
-        if (pickedObject.id) {
-          dispatchClick(pickedObject.id.id);
-        }
-      }
-
-      //   viewer.scene.screenSpaceCameraController.enableRotate = true; // lock the camera
-    }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
-
-    // Update plane on mouse move
-    handler.setInputAction(function (movement) {
-      if (leftDownFlag === true && entity != null) {
-        var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.endPosition), viewer.scene);
-
-        // keep the height
-        var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
-        var newCartesian = Cesium.Cartesian3.fromRadians(
-          newPosition.longitude,
-          newPosition.latitude,
-          // newPosition.height,
-          Math.max(Cesium.Cartographic.fromCartesian(entity.position._value).height, newPosition.height)
-        );
-        if (nft) {
-          nft.longitude = newPosition.longitude;
-          nft.latitude = newPosition.latitude;
-          // nft.height = newPosition.height;
-          nft.height = Math.max(Cesium.Cartographic.fromCartesian(entity.position._value).height, newPosition.height);
-        }
-        entity.position = newCartesian;
-      }
-    }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-
-    // Release plane on mouse up
-    handler.setInputAction(function () {
-      leftDownFlag = false;
-      if (nft) {
-        if (nft.editing) {
-          dispatchUpdate(nft);
-        }
-      }
-      // viewer.scene.screenSpaceCameraController.enableRotate = true;
-    }, Cesium.ScreenSpaceEventType.LEFT_UP);
-
-    return handler;
-  }
-
-  // show squre on the map when the user move the mouse
-  function handleSpace(dispatch) {
-    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-
-    // show a square on the floor when the mouse move
-
-    handler.setInputAction(function (movement) {
-      const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.endPosition), viewer.scene);
-
-      if (cartesian) {
-        drawSpace(cartesian);
-      }
-    }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-
-    // select the space when the mouse click
-    handler.setInputAction(function (movement) {
-      const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.position), viewer.scene);
-      if (cartesian) {
-        const geocode = drawSpace(cartesian);
-        dispatch({ type: SPACE_PICKED });
-        dispatch({
-          type: SELECT_SPACE,
-          payload: {
-            geocode: geocode,
-          },
-        });
-      }
-    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
-    return handler;
-  }
-
-  // function to draw space
-  function drawSpace(cartesian) {
-    var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
-    const longitude = Cesium.Math.toDegrees(newPosition.longitude);
-    const latitude = Cesium.Math.toDegrees(newPosition.latitude);
-    const ground = newPosition.height;
-    const precision = 1;
-    const size = 0.1 ** precision;
-
-    // const size = size * Math.cos((latitude / 180) * Math.PI).toPrecision(precision);
-    const earth_radius = 6378137;
-    const heightUnit = ((earth_radius * size) / 180) * Math.PI;
-
-    const longitudeRounded = Math.floor(longitude / size) * size;
-    const latitudeRounded = Math.floor(latitude / size) * size;
-
-    const longitudePositive = (longitudeRounded + 180) * 10 ** precision;
-    const longitudeCode = longitudePositive
-      .toFixed(0)
-      .toString()
-      .padStart(3 + precision, "0");
-
-    const latitudePositive = (latitudeRounded + 90) * 10 ** precision;
-    const latitudeCode = latitudePositive
-      .toFixed(0)
-      .toString()
-      .padStart(3 + precision, "0");
-    const levelSign = ground + heightUnit > 0 ? "3" : "1";
-    const level = Math.round(ground / heightUnit);
-    const bottom = level * heightUnit - 50;
-    const top = (level + 1) * heightUnit - 50;
-
-    const levelCode = level ? Math.abs(level).toString() : "";
-    const geocode = levelCode + levelSign + latitudeCode + longitudeCode + precision.toString();
-
-    // find geocode in all_spaces
-    const spaceTaken = all_spaces.find((space) => space.geocode === geocode);
-    if (spaceTaken === undefined) {
-      if (current_space_entity === null) {
-        current_space_entity = viewer.entities.add({
-          name: "selected_space",
-          wall: {
-            positions: Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitudeRounded, latitudeRounded, size)),
-            minimumHeights: [bottom, bottom, bottom, bottom, bottom],
-            maximumHeights: [top, top, top, top, top],
-            material: Cesium.Color.fromBytes(8, 182, 190, 100),
-            outline: true,
-          },
-        });
-      } else {
-        current_space_entity.wall.minimumHeights = [bottom, bottom, bottom, bottom, bottom];
-        current_space_entity.wall.maximumHeights = [top, top, top, top, top];
-        current_space_entity.wall.positions = new Cesium.CallbackProperty(function () {
-          return Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitudeRounded, latitudeRounded, size));
-        }, false); // prevent flashing
-      }
-    }
-    return geocode;
-  }
-
-  // function to get the rectangle array
-  function rectangleArray(longitude, latitude, size) {
-    return [
-      longitude,
-      latitude,
-      longitude + size,
-      latitude,
-      longitude + size,
-      latitude + size,
-      longitude,
-      latitude + size,
-      longitude,
-      latitude,
-    ];
-  }
-
-  // function to parse the geocode
-  function parseGeocode(geocode) {
-    const l = geocode.length;
-    const precision = parseInt(geocode[l - 1]);
-    const longitude = parseFloat(geocode.substring(l - precision - 4, l - 1)) * 0.1 ** precision - 180;
-    const latitude = parseFloat(geocode.substring(l - 7 - 2 * precision, l - precision - 4)) * 0.1 ** precision - 90;
-    const levelSign = parseInt(geocode[l - 8 - 2 * precision]);
-    const levelRaw = parseInt(geocode.substring(0, l - 8 - 2 * precision)) * (levelSign - 2);
-    const level = levelRaw ? levelRaw : 0;
-    const size = 0.1 ** precision;
-
-    // console.log(longitude, latitude, levelSign, level);
-
-    const earth_radius = 6378137;
-    const heightUnit = ((earth_radius * size) / 180) * Math.PI;
-
-    const bottom = level * heightUnit - 50;
-    const top = (level + 1) * heightUnit - 50;
-
-    return {
-      precision: precision,
-      longitude: longitude,
-      latitude: latitude,
-      levelSign: levelSign,
-      level: level,
-      size: size,
-      bottom: bottom,
-      top: top,
-      heightUnit: heightUnit,
+  if (item.url) {
+    newEntity.model = {
+      uri: item.url,
+      minimumPixelSize: 0,
+      scale: scale,
+    };
+  } else {
+    newEntity.box = {
+      dimensions: new Cesium.Cartesian3(item.wide * item.scale, 0, item.tall * item.scale),
+      material: item.thumbnail,
     };
   }
 
-  return <div id="cesiumContainer" style={{ height: props.viewerHeight, width: props.viewerWidth }}></div>;
+  return newEntity;
+}
+
+function handleExplore(dispatchClick) {
+  const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+  handler.setInputAction(function (movement) {
+    var pickedObject = viewer.scene.pick(movement.position);
+    if (Cesium.defined(pickedObject)) {
+      if (pickedObject.id) {
+        dispatchClick(pickedObject.id.id);
+      }
+    }
+
+    // } else {
+    //   viewer.scene.screenSpaceCameraController.enableRotate = true; // lock the camera
+    // }
+    // }
+  }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+
+  return handler;
+}
+
+function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft) {
+  const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+  handler.setInputAction((click) => {
+    if (click.position) {
+      var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(click.position), viewer.scene);
+      if (cartesian) {
+        // increase height
+        cartesian.z += 100;
+        if (nft) {
+          // make sure the entity is not already in the viewer
+          entity = viewer.entities.getById(nft.NFTid);
+          var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
+
+          if (entity) {
+            var newCartesian = Cesium.Cartesian3.fromRadians(
+              newPosition.longitude,
+              newPosition.latitude,
+              newPosition.height
+            );
+
+            entity.position = newCartesian;
+            entity.orientation = Cesium.Transforms.headingPitchRollQuaternion(
+              cartesian,
+              new Cesium.HeadingPitchRoll(0, 0, 0)
+            );
+          } else {
+            var heading = Cesium.Math.toRadians(0);
+            var pitch = 0;
+            var roll = 0;
+            var scale = 100;
+            const newEntity = addModel(cartesian, heading, pitch, roll, scale, nft);
+            viewer.flyTo(newEntity);
+          }
+          nft.longitude = newPosition.longitude;
+          nft.latitude = newPosition.latitude;
+          nft.height = newPosition.height;
+          dispatchPlace(nft);
+        }
+      }
+    }
+  }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+
+  var leftDownFlag = false;
+  // Select plane when mouse down
+  handler.setInputAction(function (movement) {
+    leftDownFlag = true;
+    var pickedObject = viewer.scene.pick(movement.position);
+    if (Cesium.defined(pickedObject)) {
+      if (pickedObject.id) {
+        dispatchClick(pickedObject.id.id);
+      }
+    }
+
+    //   viewer.scene.screenSpaceCameraController.enableRotate = true; // lock the camera
+  }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+
+  // Update plane on mouse move
+  handler.setInputAction(function (movement) {
+    if (leftDownFlag === true && entity != null) {
+      var mouseCartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.endPosition), viewer.scene);
+
+      // keep the height
+      var newPosition = Cesium.Cartographic.fromCartesian(mouseCartesian);
+      var newHeight = Math.max(nft.height, newPosition.height);
+      var newCartesian = Cesium.Cartesian3.fromRadians(
+        newPosition.longitude,
+        newPosition.latitude,
+        // newPosition.height,
+        newHeight
+      );
+      if (nft) {
+        nft.longitude = newPosition.longitude;
+        nft.latitude = newPosition.latitude;
+        // nft.height = newPosition.height;
+        nft.height = newHeight;
+      }
+      entity.position = newCartesian;
+    }
+  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+  // Release plane on mouse up
+  handler.setInputAction(function () {
+    leftDownFlag = false;
+    if (nft) {
+      if (nft.editing) {
+        dispatchUpdate(nft);
+      }
+    }
+    // viewer.scene.screenSpaceCameraController.enableRotate = true;
+  }, Cesium.ScreenSpaceEventType.LEFT_UP);
+
+  return handler;
+}
+
+// show squre on the map when the user move the mouse
+function handleSpace(dispatch, all_spaces) {
+  const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+  // show a square on the floor when the mouse move
+
+  handler.setInputAction(function (movement) {
+    const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.endPosition), viewer.scene);
+
+    if (cartesian) {
+      drawSpace(cartesian, all_spaces);
+    }
+  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+  // select the space when the mouse click
+  handler.setInputAction(function (movement) {
+    const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.position), viewer.scene);
+    if (cartesian) {
+      const geocode = drawSpace(cartesian, all_spaces);
+      dispatch({ type: SPACE_PICKED });
+      dispatch({
+        type: SELECT_SPACE,
+        payload: {
+          geocode: geocode,
+        },
+      });
+    }
+  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+  return handler;
+}
+
+// function to draw space
+function drawSpace(cartesian, all_spaces) {
+  var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
+  const longitude = Cesium.Math.toDegrees(newPosition.longitude);
+  const latitude = Cesium.Math.toDegrees(newPosition.latitude);
+  const ground = newPosition.height;
+  const precision = 1;
+  const size = 0.1 ** precision;
+
+  // const size = size * Math.cos((latitude / 180) * Math.PI).toPrecision(precision);
+  const earth_radius = 6378137;
+  const heightUnit = ((earth_radius * size) / 180) * Math.PI;
+
+  const longitudeRounded = Math.floor(longitude / size) * size;
+  const latitudeRounded = Math.floor(latitude / size) * size;
+
+  const longitudePositive = (longitudeRounded + 180) * 10 ** precision;
+  const longitudeCode = longitudePositive
+    .toFixed(0)
+    .toString()
+    .padStart(3 + precision, "0");
+
+  const latitudePositive = (latitudeRounded + 90) * 10 ** precision;
+  const latitudeCode = latitudePositive
+    .toFixed(0)
+    .toString()
+    .padStart(3 + precision, "0");
+  const levelSign = ground + heightUnit > 0 ? "3" : "1";
+  const level = Math.round(ground / heightUnit);
+  const bottom = level * heightUnit - 50;
+  const top = (level + 1) * heightUnit - 50;
+
+  const levelCode = level ? Math.abs(level).toString() : "";
+  const geocode = levelCode + levelSign + latitudeCode + longitudeCode + precision.toString();
+
+  // find geocode in all_spaces
+  const spaceTaken = all_spaces.find((space) => space.geocode === geocode);
+  if (spaceTaken === undefined) {
+    if (current_space_entity === null) {
+      current_space_entity = viewer.entities.add({
+        name: "selected_space",
+        wall: {
+          positions: Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitudeRounded, latitudeRounded, size)),
+          minimumHeights: [bottom, bottom, bottom, bottom, bottom],
+          maximumHeights: [top, top, top, top, top],
+          material: Cesium.Color.fromBytes(8, 182, 190, 100),
+          outline: true,
+        },
+      });
+    } else {
+      current_space_entity.wall.minimumHeights = [bottom, bottom, bottom, bottom, bottom];
+      current_space_entity.wall.maximumHeights = [top, top, top, top, top];
+      current_space_entity.wall.positions = new Cesium.CallbackProperty(function () {
+        return Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitudeRounded, latitudeRounded, size));
+      }, false); // prevent flashing
+    }
+  }
+  return geocode;
+}
+
+// function to get the rectangle array
+function rectangleArray(longitude, latitude, size) {
+  return [
+    longitude,
+    latitude,
+    longitude + size,
+    latitude,
+    longitude + size,
+    latitude + size,
+    longitude,
+    latitude + size,
+    longitude,
+    latitude,
+  ];
+}
+
+// function to parse the geocode
+function parseGeocode(geocode) {
+  const l = geocode.length;
+  const precision = parseInt(geocode[l - 1]);
+  const longitude = parseFloat(geocode.substring(l - precision - 4, l - 1)) * 0.1 ** precision - 180;
+  const latitude = parseFloat(geocode.substring(l - 7 - 2 * precision, l - precision - 4)) * 0.1 ** precision - 90;
+  const levelSign = parseInt(geocode[l - 8 - 2 * precision]);
+  const levelRaw = parseInt(geocode.substring(0, l - 8 - 2 * precision)) * (levelSign - 2);
+  const level = levelRaw ? levelRaw : 0;
+  const size = 0.1 ** precision;
+
+  // console.log(longitude, latitude, levelSign, level);
+
+  const earth_radius = 6378137;
+  const heightUnit = ((earth_radius * size) / 180) * Math.PI;
+
+  const bottom = level * heightUnit - 50;
+  const top = (level + 1) * heightUnit - 50;
+
+  return {
+    precision: precision,
+    longitude: longitude,
+    latitude: latitude,
+    levelSign: levelSign,
+    level: level,
+    size: size,
+    bottom: bottom,
+    top: top,
+    heightUnit: heightUnit,
+  };
 }
