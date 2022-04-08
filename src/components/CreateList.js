@@ -101,7 +101,7 @@ export default function CreateList() {
     image.onload = () => {
       nft.wide = image.width;
       nft.tall = image.height;
-
+      nft.placed = true;
       dispatch({ type: LOOK, payload: nft });
       dispatch({ type: SELECT, payload: nft });
     };
@@ -168,9 +168,11 @@ export default function CreateList() {
                 {nft.placed ? (
                   nft.editing ? (
                     <div className="card card-body bg-dark">
-                      <div className="row justify-content-center">Click on the map to relocate</div>
+                      <div className="row justify-content-center">
+                        Double click on the map to place the NFT. Drag to relocate
+                      </div>
 
-                      <label className="form-label">Height</label>
+                      <label className="form-label mt-1">Height</label>
                       <input
                         type="range"
                         min="0"
@@ -236,7 +238,7 @@ export default function CreateList() {
                     <div className="card card-body bg-dark">
                       <div className="row justify-content-center">
                         <button type="button" className="  btn btn-light rounded" onClick={() => onEdit(nft)}>
-                          Edit
+                          Place
                         </button>
                       </div>
                     </div>
