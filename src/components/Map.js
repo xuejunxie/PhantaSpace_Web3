@@ -405,7 +405,7 @@ function addModel(cartesian, heading, pitch, roll, scale, item) {
   var orientation = Cesium.Transforms.headingPitchRollQuaternion(cartesian, hpr);
   const newEntity = viewer.entities.add({
     id: item.NFTid,
-    name: item.url,
+    // name: item.url,
     position: cartesian,
     orientation: orientation,
     availability: new Cesium.TimeIntervalCollection([
@@ -418,17 +418,24 @@ function addModel(cartesian, heading, pitch, roll, scale, item) {
     ]),
   });
 
-  if (item.url) {
+  if (item.model) {
     newEntity.model = {
-      uri: item.url,
+      uri: item.model,
       minimumPixelSize: 0,
       scale: scale,
     };
   } else {
-    newEntity.box = {
-      dimensions: new Cesium.Cartesian3(item.wide * item.scale, 0, item.tall * item.scale),
-      material: item.thumbnail,
-    };
+    if (item.video) {
+      newEntity.box = {
+        dimensions: new Cesium.Cartesian3(item.wide * item.scale, 0, item.tall * item.scale),
+        material: document.getElementById(item.NFTid + "-video"),
+      };
+    } else {
+      newEntity.box = {
+        dimensions: new Cesium.Cartesian3(item.wide * item.scale, 0, item.tall * item.scale),
+        material: item.image,
+      };
+    }
   }
 
   return newEntity;

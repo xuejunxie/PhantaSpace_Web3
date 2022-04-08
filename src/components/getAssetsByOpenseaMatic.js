@@ -42,15 +42,16 @@ export default async function getAssetsByOpenseaMatic(account, dispatch) {
 
         if (ownedNFTs.length > 0) {
           ownedNFTs.map((nft) => {
-            var url = null;
-            var thumbnail = null;
+            var model = null;
+            var image = null;
+            var video = null;
             // find the glb gltf URL in description of the NFT
             if (nft.description) {
               var urls = nft.description.match(urlRegex);
               if (urls) {
                 urls.map((resUrl) => {
                   if (resUrl.includes(".glb") || resUrl.includes(".gltf")) {
-                    url = resUrl;
+                    model = resUrl;
                   }
                 });
               }
@@ -59,27 +60,36 @@ export default async function getAssetsByOpenseaMatic(account, dispatch) {
             // find the glb gltf URL in animation_url of the NFT
             if (nft.animation_url) {
               if (nft.animation_url.includes(".glb") || nft.animation_url.includes(".gltf")) {
-                url = nft.animation_url;
+                model = nft.animation_url;
+              }
+
+              if (
+                nft.animation_url.includes(".mp4") ||
+                nft.animation_url.includes(".WEBM") ||
+                nft.animation_url.includes(".M4V")
+              ) {
+                video = nft.animation_url;
               }
             }
 
             if (nft.asset_contract.image_url) {
-              thumbnail = nft.asset_contract.image_url;
+              image = nft.asset_contract.image_url;
             }
 
             if (nft.image_thumbnail_url) {
-              thumbnail = nft.image_thumbnail_url;
+              image = nft.image_thumbnail_url;
             }
             if (nft.image_url) {
-              thumbnail = nft.image_url;
+              image = nft.image_url;
             }
 
             if (1) {
               const id = nft.token_id + "-" + nft.asset_contract.address;
               gltfNFTs.push({
                 metadata: nft,
-                url: url,
-                thumbnail: thumbnail,
+                model: model,
+                video: null,
+                image: image,
                 NFTid: id,
                 selected: false,
                 editing: false,
@@ -101,7 +111,7 @@ export default async function getAssetsByOpenseaMatic(account, dispatch) {
         dispatch({ type: LOAD_OWNED, payload: gltfNFTs });
 
         if (!reachEnd) {
-          return fetchData();
+          // return fetchData();
         }
       });
     // wash NFTs and add to redux

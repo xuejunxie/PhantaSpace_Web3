@@ -57,9 +57,9 @@ export default function ExploreList() {
                   aria-controls={"collapse" + nft.NFTid}
                   onClick={() => onSelect(nft)}
                 >
-                  {nft.thumbnail ? (
+                  {nft.image ? (
                     <div>
-                      <img className="img-thumbnail rounded-pill" src={nft.thumbnail} alt="nft" />
+                      <img className="img-thumbnail rounded-pill" src={nft.image} alt="nft" />
                       <h5 className="text-light">{nft.metadata.name}</h5>
                     </div>
                   ) : (

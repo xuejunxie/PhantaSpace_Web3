@@ -1,4 +1,4 @@
-import React, { useEffect, createRef } from "react";
+import React, { useEffect, createRef, useState } from "react";
 import "./CreateList.css";
 import { useDispatch, useSelector } from "react-redux";
 import Moralis from "moralis";
@@ -19,6 +19,7 @@ export default function CreateList() {
   const NFTs = useSelector((state) => state.map.owned);
   const loading = useSelector((state) => state.sidebar.loading);
   const click = useSelector((state) => state.map.click);
+  const [videoList, setVideoList] = useState([]);
 
   // var NFTs = [];
   useEffect(() => {
@@ -62,8 +63,9 @@ export default function CreateList() {
     }
     data.set({
       NFTid: nft.NFTid,
-      url: nft.url,
-      thumbnail: nft.thumbnail,
+      model: nft.model,
+      video: nft.video,
+      image: nft.image,
       metadata: nft.metadata,
       longitude: nft.longitude,
       latitude: nft.latitude,
@@ -97,13 +99,16 @@ export default function CreateList() {
 
   const onSelect = (nft) => {
     const image = new Image();
-    image.src = nft.thumbnail;
+    image.src = nft.image;
     image.onload = () => {
       nft.wide = image.width;
       nft.tall = image.height;
       nft.placed = true;
       dispatch({ type: LOOK, payload: nft });
       dispatch({ type: SELECT, payload: nft });
+      if (nft.video) {
+        setVideoList((videoList) => [...videoList, { NFTid: nft.NFTid, video: nft.video }]);
+      }
     };
   };
 
@@ -154,9 +159,9 @@ export default function CreateList() {
                   aria-controls={"collapse" + nft.NFTid}
                   onClick={() => onSelect(nft)}
                 >
-                  {nft.thumbnail ? (
+                  {nft.image ? (
                     <div>
-                      <img className="img-thumbnail rounded-pill" src={nft.thumbnail} alt="nft" />
+                      <img className="img-thumbnail rounded-pill" src={nft.image} alt="nft" />
                       <h5 className="text-light">{nft.metadata.name}</h5>
                     </div>
                   ) : (
@@ -280,6 +285,28 @@ export default function CreateList() {
           ) : null}
         </div>
       </div>
+      {videoList.map((item) => {
+        return (
+          <div
+            style={{ display: "none" }} // display none will stop the video from playing
+            key={item.NFTid}
+            dangerouslySetInnerHTML={{
+              __html: `
+          <video
+            id=${item.NFTid + "-video"}
+            muted 
+            autoplay
+            playsinline
+            loop 
+            crossorigin="anonymous"
+          >
+            <source src=${item.video} type="video/mp4" />
+          </video>
+          `,
+            }}
+          ></div>
+        );
+      })}
     </div>
   );
 }
