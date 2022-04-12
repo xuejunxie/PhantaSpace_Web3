@@ -117,7 +117,7 @@ export default function CreateList() {
   };
 
   const height = (value, nft) => {
-    nft.height = parseFloat(value, 10);
+    nft.height = Math.exp(parseFloat(value, 10));
     dispatch({ type: UPDATE, payload: nft });
   };
 
@@ -180,10 +180,10 @@ export default function CreateList() {
                       <label className="form-label mt-1">Height</label>
                       <input
                         type="range"
-                        min="0"
-                        max="10000"
+                        min="-1"
+                        max="11"
                         step="0.01"
-                        value={nft.height}
+                        value={Math.log(nft.height)}
                         className="custom-range"
                         id="Height"
                         onChange={(e) => height(e.target.value, nft)}
@@ -192,7 +192,7 @@ export default function CreateList() {
                       <input
                         type="range"
                         min="-5"
-                        max="5"
+                        max="7"
                         step="0.01"
                         value={Math.log(nft.scale)}
                         className="custom-range"
@@ -261,14 +261,10 @@ export default function CreateList() {
         <div className="card card-body bg-dark">
           <div className="row justify-content-center">
             {isAuthenticated ? (
-              <h5>
-                Hmmmmm...looks like you don't have NFTs in gltf or glb format in your wallet. We are working on a good
-                user experience for 2D arts.
-              </h5>
+              <h5>Hmmmmm...looks like you don't have NFTs in your wallet.</h5>
             ) : (
               <h5>
-                If you connect your wallet, your 3D NFTs will beautifully show up here. Then you can place NFT on the
-                map.
+                If you connect your wallet, your NFTs will beautifully show up here. Then you can place NFT on the map.
               </h5>
             )}
           </div>
@@ -280,7 +276,7 @@ export default function CreateList() {
             loading === "error" ? (
               <h5>Oops. We got some error on the server side. You may have too many NFTs. Refresh later.</h5>
             ) : (
-              <h5> Checking {loading} NFTs from your account for gltf or glb files</h5>
+              <h5> Checking {loading} NFTs from your account</h5>
             )
           ) : null}
         </div>

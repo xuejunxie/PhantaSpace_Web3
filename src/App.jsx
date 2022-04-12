@@ -71,12 +71,13 @@ export default function App() {
 
   useEffect(() => {
     if (user) {
-      // account = user.attributes.accounts[0];
+      account = user.attributes.accounts[0];
       // account = user.get("ethAddress");
 
-      account = "0x4A5577675951Cd448f5537F7Ed2828d6B09d66B0";
+      // account = "0x4A5577675951Cd448f5537F7Ed2828d6B09d66B0";
       // account = "0xe9956cf72cc8e49d903478142dc8dadb4ee328ff";
       // big account
+      // account = "0x8f00dD4Fa196D287f9E862dbB39d66D8C7Ef7364";
       // account = "0xcda72070e455bb31c7690a170224ce43623d0b6f";
       // account = "0x8b87e652922445bcac00887e637a07a31af47b02";
       // account = "0xce90a7949bb78892f159f428d0dc23a8e3584d75";

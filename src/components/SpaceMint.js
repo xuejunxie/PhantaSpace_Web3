@@ -174,7 +174,7 @@ export default function SpaceMint() {
               // style={{ font: "20px/1 Arial, sans-serif", font_weight: "700" }}
               onClick={() => onPick()}
             >
-              {selected_space ? "Pick a different Space" : "Pick a unclaimed Space"}
+              {selected_space ? "Pick a different Space" : "Pick an unclaimed Space"}
             </button>
           </div>
 

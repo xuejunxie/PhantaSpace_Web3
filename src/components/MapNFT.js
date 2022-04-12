@@ -131,6 +131,8 @@ export default function MapNFT(props) {
       infoBox: false,
       vrButton: false,
       showRenderLoopErrors: false,
+      imageryProvider: false,
+      baseLayerPicker: false,
     });
 
     // check if the map is loaded
@@ -154,7 +156,7 @@ export default function MapNFT(props) {
     // viewer.scene.fxaa = true;
 
     // use stamen map
-    viewer.imageryLayers.removeAll();
+    // viewer.imageryLayers.removeAll();
     const imageryProvider = new Cesium.OpenStreetMapImageryProvider({
       url: "https://stamen-tiles.a.ssl.fastly.net/watercolor/",
       fileExtension: "jpg",
@@ -190,11 +192,11 @@ export default function MapNFT(props) {
 
     // Load the OSM buildings tileset
 
-    viewer.scene.primitives.add(
-      new Cesium.Cesium3DTileset({
-        url: Cesium.IonResource.fromAssetId(96188),
-      })
-    );
+    // viewer.scene.primitives.add(
+    //   new Cesium.Cesium3DTileset({
+    //     url: Cesium.IonResource.fromAssetId(96188),
+    //   })
+    // );
 
     // viewer.scene.primitives.add(
     //   new Cesium.Cesium3DTileset({

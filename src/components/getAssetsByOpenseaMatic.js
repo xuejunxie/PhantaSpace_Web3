@@ -111,7 +111,7 @@ export default async function getAssetsByOpenseaMatic(account, dispatch) {
         dispatch({ type: LOAD_OWNED, payload: gltfNFTs });
 
         if (!reachEnd) {
-          // return fetchData();
+          return fetchData();
         }
       });
     // wash NFTs and add to redux

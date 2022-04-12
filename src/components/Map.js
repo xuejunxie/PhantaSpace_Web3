@@ -151,16 +151,49 @@ export default function Map(props) {
 
   // initialize the viewer
   useEffect(() => {
+    const imageryViewModels = [];
+    imageryViewModels.push(
+      new Cesium.ProviderViewModel({
+        name: "Watercolor",
+        iconUrl: Cesium.buildModuleUrl("Widgets/Images/ImageryProviders/stamenWatercolor.png"),
+        tooltip: "Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.",
+        creationFunction: function () {
+          return new Cesium.OpenStreetMapImageryProvider({
+            url: "https://stamen-tiles.a.ssl.fastly.net/watercolor/",
+          });
+        },
+      })
+    );
+
+    imageryViewModels.push(
+      new Cesium.ProviderViewModel({
+        name: "Real world",
+        iconUrl: Cesium.buildModuleUrl("Widgets/Images/ImageryProviders/bingAerial.png"),
+        tooltip: "Map tiles by Bing",
+        creationFunction: function () {
+          return new Cesium.BingMapsImageryProvider({
+            url: "https://dev.virtualearth.net",
+            key: process.env.REACT_APP_BING_API_KEY,
+            mapStyle: Cesium.BingMapsStyle.AERIAL,
+          });
+        },
+      })
+    );
+
     viewer = new Cesium.Viewer("cesiumContainer", {
       terrainProvider: Cesium.createWorldTerrain({
         // requestWaterMask: true,
         // requestVertexNormals: true,
       }),
+      imageryProviderViewModels: imageryViewModels,
+      selectedImageryProviderViewModel: imageryViewModels[0],
+      terrainProviderViewModels: [],
+
       shouldAnimate: true,
       animation: false,
       homeButton: false, // disable the default home button
-      geocoder: false, // disable the default search button
-      baseLayerPicker: false, // disable the default base layer button
+      geocoder: true, // disable the default search button
+      baseLayerPicker: true, // disable the default base layer button
       fullscreenButton: false, // disable the default full screen button
       timeline: false,
       sceneModePicker: false,
@@ -170,6 +203,8 @@ export default function Map(props) {
       infoBox: false,
       vrButton: false,
       showRenderLoopErrors: false,
+
+      imageryProvider: false,
     });
 
     // check if the map is loaded
@@ -193,19 +228,19 @@ export default function Map(props) {
     // viewer.scene.fxaa = true;
 
     // use stamen map
-    viewer.imageryLayers.removeAll();
-    const imageryProvider = new Cesium.OpenStreetMapImageryProvider({
-      url: "https://stamen-tiles.a.ssl.fastly.net/watercolor/",
-      fileExtension: "jpg",
-      credit: "Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.",
-    });
-    viewer.imageryLayers.addImageryProvider(imageryProvider);
+    // viewer.imageryLayers.removeAll();
+
+    // const imageryProvider = new Cesium.OpenStreetMapImageryProvider({
+    //   url: "https://stamen-tiles.a.ssl.fastly.net/watercolor/",
+    //   fileExtension: "jpg",
+    //   credit: "Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.",
+    // });
+    // viewer.imageryLayers.addImageryProvider(imageryProvider);
 
     // change saturation
     // var layer = viewer.imageryLayers.get(0);
     // layer.saturation = 0;
 
-    // Cesium.ImageryLayer(imageryProvider);
     viewer.scene.globe.depthTestAgainstTerrain = true;
     // disable single click green window pop up
     viewer.selectionIndicator.viewModel.selectionIndicatorElement.style.visibility = "hidden";
@@ -490,7 +525,7 @@ function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft) {
             var heading = Cesium.Math.toRadians(0);
             var pitch = 0;
             var roll = 0;
-            var scale = 100;
+            var scale = 10;
             const newEntity = addModel(cartesian, heading, pitch, roll, scale, nft);
             viewer.flyTo(newEntity);
           }
@@ -597,7 +632,7 @@ function drawSpace(cartesian, all_spaces) {
   const size = 0.1 ** precision;
 
   // const size = size * Math.cos((latitude / 180) * Math.PI).toPrecision(precision);
-  const earth_radius = 6378137;
+  const earth_radius = 6378137; // earth equatorial radius in meters
   const heightUnit = ((earth_radius * size) / 180) * Math.PI;
 
   const longitudeRounded = Math.floor(longitude / size) * size;
@@ -614,7 +649,7 @@ function drawSpace(cartesian, all_spaces) {
     .toFixed(0)
     .toString()
     .padStart(3 + precision, "0");
-  const levelSign = ground + heightUnit > 0 ? "3" : "1";
+  const levelSign = ground + 50 > 0 ? "3" : "1";
   const level = Math.round(ground / heightUnit);
   const bottom = level * heightUnit - 50;
   const top = (level + 1) * heightUnit - 50;
@@ -671,16 +706,18 @@ function parseGeocode(geocode) {
   const latitude = parseFloat(geocode.substring(l - 7 - 2 * precision, l - precision - 4)) * 0.1 ** precision - 90;
   const levelSign = parseInt(geocode[l - 8 - 2 * precision]);
   const levelRaw = parseInt(geocode.substring(0, l - 8 - 2 * precision)) * (levelSign - 2);
-  const level = levelRaw ? levelRaw : 0;
-  const size = 0.1 ** precision;
+  const level = levelRaw ? levelRaw : 0; //  In case level is 0 levelRaw is NaN
+  const size = 0.1 ** precision; // uint size in degree
 
   // console.log(longitude, latitude, levelSign, level);
 
-  const earth_radius = 6378137;
+  const earth_radius = 6378137; // earth equatorial radius in meters
   const heightUnit = ((earth_radius * size) / 180) * Math.PI;
 
-  const bottom = level * heightUnit - 50;
+  const bottom = level * heightUnit - 50; // -50 to make the land below the earth ellipsoid within the level 0
   const top = (level + 1) * heightUnit - 50;
+
+  console.log(longitude, latitude, levelSign, level);
 
   return {
     precision: precision,
@@ -689,8 +726,42 @@ function parseGeocode(geocode) {
     levelSign: levelSign,
     level: level,
     size: size,
-    bottom: bottom,
-    top: top,
+    bottom: bottom, // bottom height relative to the earth ellipsoid - 50 meters
+    top: top, // bottom height relative to the earth ellipsoid - 50 meters
+    heightUnit: heightUnit,
+  };
+}
+
+function decodeGeocode(geocode) {
+  const p = geocode % 10;
+
+  const longitude = parseFloat((((geocode / 10 ** (p + 1)) % 1000) - 180).toFixed(p));
+
+  const latitude = parseFloat((((geocode / 10 ** (2 * p + 4)) % 1000) - 90).toFixed(p));
+
+  const levelSign = parseInt((geocode / 10 ** (2 * p + 7)) % 10);
+
+  const level = parseInt(geocode / 10 ** (2 * p + 8)) * (levelSign - 2);
+
+  const size = 0.1 ** p; // uint size in degree
+
+  const earth_radius = 6378137; // earth equatorial radius in meters
+
+  const heightUnit = ((earth_radius * size) / 180) * Math.PI;
+
+  const bottom = level * heightUnit - 50; // -50 to make the land below the earth ellipsoid within the level 0
+
+  const top = (level + 1) * heightUnit - 50;
+
+  return {
+    precision: p,
+    longitude: longitude,
+    latitude: latitude,
+    levelSign: levelSign,
+    level: level,
+    size: size,
+    bottom: bottom, // bottom height relative to the earth ellipsoid - 50 meters
+    top: top, // bottom height relative to the earth ellipsoid - 50 meters
     heightUnit: heightUnit,
   };
 }

@@ -21,7 +21,7 @@ export default function Space() {
   // deal with time
 
   const [date, setDate] = useState(new Date());
-  const startTime = Date.parse("09 APR 2022 00:00:00 PST");
+  const startTime = Date.parse("16 APR 2022 18:00:00 PST");
 
   function refreshClock() {
     setDate(new Date());
@@ -108,7 +108,7 @@ export default function Space() {
   return (
     <div className="bg-dark text-light">
       {startTime > date ? (
-        <h2 className="mt-5"> Initial space offering counting down: {timeString((startTime - date) / 1000)} </h2>
+        <h2 className="mt-5"> Initial space offering on-chain auction in: {timeString((startTime - date) / 1000)} </h2>
       ) : (
         <Tabs id="controlled-tab-example" activeKey={key} onSelect={(k) => setKey(k)}>
           <Tab eventKey="mint" title="Mint" tabClassName="text-light ml-1">

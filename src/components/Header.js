@@ -29,7 +29,7 @@ export default function Header(props) {
         </div>
         <ul className="navbar-nav mr-3">
           <li className="nav-item">
-            <a href="https://discord.gg/8msWTCH5x8" target="_blank">
+            <a href="https://discord.gg/d4WPB2agUD" target="_blank">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
