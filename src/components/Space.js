@@ -36,7 +36,6 @@ export default function Space() {
 
     return (
       <div className="mt-3">
-        <h2> {days} days </h2>
         <h2> {hours} hours </h2>
         <h2> {minutes} minutes </h2>
         <h2> {seconds} seconds </h2>

@@ -103,8 +103,9 @@ export default function CreateList() {
     const image = new Image();
     image.src = nft.image;
     image.onload = () => {
-      newNft.wide = image.width;
-      newNft.tall = image.height;
+      newNft.wide = image.width / 100;
+      newNft.tall = image.height / 100;
+      newNft.height = newNft.tall * 2;
       newNft.placed = true;
       dispatch({ type: LOOK, payload: newNft });
       dispatch({ type: SELECT, payload: newNft });
