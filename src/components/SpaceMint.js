@@ -88,7 +88,6 @@ export default function SpaceMint() {
 
   useEffect(() => {
     const result = vendingContract.data;
-    console.log(result);
     var allGeocode = [];
     if (result) {
       const spaceMinted = result?.events?.SpaceMinted;

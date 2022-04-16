@@ -373,6 +373,19 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "auctionFloor",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -551,6 +564,11 @@
         },
         {
           "internalType": "uint256",
+          "name": "_auctionFloor",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
           "name": "_auctionDuration",
           "type": "uint256"
         },
@@ -671,14 +689,27 @@
         }
       ],
       "name": "ownerWithdraw",
-      "outputs": [
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
         {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
+          "internalType": "uint256",
+          "name": "geocode",
+          "type": "uint256"
         }
       ],
-      "stateMutability": "nonpayable",
+      "name": "parent",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "parentGeocode",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
       "type": "function"
     },
     {
@@ -903,6 +934,19 @@
     {
       "inputs": [
         {
+          "internalType": "uint256",
+          "name": "_auctionFloor",
+          "type": "uint256"
+        }
+      ],
+      "name": "setAuctionFloor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "string",
           "name": "_metadataURL",
           "type": "string"
@@ -1065,6 +1109,19 @@
     },
     {
       "inputs": [],
+      "name": "unWithdrawnFunds",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "unpause",
       "outputs": [],
       "stateMutability": "nonpayable",
@@ -1102,7 +1159,13 @@
       "type": "function"
     },
     {
-      "inputs": [],
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "vendingLevel",
+          "type": "uint256"
+        }
+      ],
       "name": "vending",
       "outputs": [],
       "stateMutability": "payable",

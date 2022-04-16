@@ -3,6 +3,7 @@ import { LOAD_OWNED, LOADING } from "redux/types";
 
 var offset = 0;
 const limit = 500;
+var reachEnd = false;
 
 const baseURL = "https://deep-index.moralis.io/api/v2/";
 
@@ -16,7 +17,6 @@ const ipfs_url = "https://ipfs.io/ipfs/";
 const urlRegex = /(\b(https?|ftp|file|ifps):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
 
 export default async function getAssetsByMoralis(account, dispatch) {
-  var reachEnd = false;
   dispatch({ type: LOADING, payload: true });
 
   const fetchData = async () => {

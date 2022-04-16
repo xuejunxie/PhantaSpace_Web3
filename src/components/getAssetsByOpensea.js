@@ -17,8 +17,9 @@ var reachEnd = false;
 
 export default async function getAssetsByOpensea(account, dispatch) {
   dispatch({ type: LOADING, payload: true });
+  var getURL = baseURL + account + "&limit=" + limit;
+
   const fetchData = async () => {
-    var getURL = baseURL + account + "&limit=" + limit + "&offset=" + offset;
     offset = offset + limit;
     dispatch({ type: LOADING, payload: offset });
     var ownedNFTs = [];
@@ -26,7 +27,15 @@ export default async function getAssetsByOpensea(account, dispatch) {
       .get(getURL, header)
       .then((res) => {
         ownedNFTs = res.data.assets;
-        console.log(ownedNFTs.length);
+        const cursor = res.data.next;
+
+        if (cursor) {
+          getURL = getURL + "&cursor=" + cursor;
+        } else {
+          reachEnd = true;
+          dispatch({ type: LOADING, payload: false });
+        }
+
         if (ownedNFTs.length == 0 || ownedNFTs.length < limit) {
           reachEnd = true;
           dispatch({ type: LOADING, payload: false });
@@ -39,13 +48,11 @@ export default async function getAssetsByOpensea(account, dispatch) {
       })
       .then((res) => {
         var gltfNFTs = [];
-        console.log(ownedNFTs.length);
         if (ownedNFTs.length > 0) {
           ownedNFTs.map((nft) => {
             var model = null;
             var image = null;
             var video = null;
-            console.log(nft);
             // find the glb gltf URL in description of the NFT
             if (nft.description) {
               var urls = nft.description.match(urlRegex);

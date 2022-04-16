@@ -523,7 +523,7 @@ function handleCreate(dispatch, nft) {
             var heading = Cesium.Math.toRadians(0);
             var pitch = 0;
             var roll = 0;
-            var scale = 10;
+            var scale = 1;
             const newEntity = addModel(cartesian, heading, pitch, roll, scale, nft);
             viewer.flyTo(newEntity);
           }

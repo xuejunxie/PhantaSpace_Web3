@@ -11,15 +11,18 @@ const header = {
 };
 const urlRegex = /(\b(https?|ftp|file|ifps):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
 
-var reachEnd = false;
-var offset = 0;
+// regular expression to find cursor in the response
+const cursorRegex = /cursor=([^&]*)/;
+
+var offset = 10000;
 const limit = 50;
+var reachEnd = false;
 
 export default async function getAssetsByOpenseaMatic(account, dispatch) {
   dispatch({ type: LOADING, payload: true });
+  var getURL = baseURL + account + "&limit=" + limit;
 
   const fetchData = async () => {
-    var getURL = baseURL + account + "&limit=" + limit + "&offset=" + offset;
     offset = offset + limit;
     dispatch({ type: LOADING, payload: offset });
     var ownedNFTs = [];
@@ -27,6 +30,15 @@ export default async function getAssetsByOpenseaMatic(account, dispatch) {
       .get(getURL, header)
       .then((res) => {
         ownedNFTs = res.data.results;
+        const next = res.data.next;
+        if (next) {
+          const cursor = next.match(cursorRegex)[1];
+          getURL = getURL + "&cursor=" + cursor;
+        } else {
+          reachEnd = true;
+          dispatch({ type: LOADING, payload: false });
+        }
+
         if (ownedNFTs.length === 0 || ownedNFTs.length < limit) {
           reachEnd = true;
           dispatch({ type: LOADING, payload: false });

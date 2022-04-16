@@ -44,7 +44,6 @@ export default function ExploreList() {
       {NFTs.slice(0)
         .reverse()
         .map((nft) => {
-          console.log(nft);
           refs[nft.NFTid] = createRef();
           return (
             <div className="card  bg-dark" key={nft.NFTid} ref={refs[nft.NFTid]}>
