@@ -2,6 +2,7 @@ import { useEffect, Fragment, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
+import { Button, Card, Modal } from "react-bootstrap";
 
 import Header from "./components/Header";
 
@@ -45,13 +46,14 @@ export default function App() {
     };
   }, []);
 
-  const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading, user } = useMoralis();
+  const { isWeb3Enabled, web3, enableWeb3, isAuthenticated, isWeb3EnableLoading, user } = useMoralis();
   const dispatch = useDispatch();
   const allNFTs = useSelector((state) => state.map.all);
   const ownedNFTs = useSelector((state) => state.map.owned);
   const loadingOwn = useSelector((state) => state.sidebar.loading);
   const loadingAll = useSelector((state) => state.sidebar.loadingAll);
   const connectorIdInStore = useSelector((state) => state.account.connectorId);
+  const [isNetWarningVisible, setIsNetWarningVisible] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) enableWeb3({ provider: connectorIdInStore });
@@ -73,7 +75,7 @@ export default function App() {
     if (user) {
       account = user.attributes.accounts[0];
       // account = user.get("ethAddress");
-
+      // account = "0x8b87E652922445BCaC00887e637A07A31af47B02";
       // account = "0x4A5577675951Cd448f5537F7Ed2828d6B09d66B0";
       // account = "0xe9956cf72cc8e49d903478142dc8dadb4ee328ff";
       // big account
@@ -84,8 +86,16 @@ export default function App() {
       // account = "0x5a501b42cfab342571f8ddf18e5e952a8a9bf60f";
       // get user owned NFTs
 
+      if (web3.eth.currentProvider) {
+        web3.eth.net.getId().then((networkId) => {
+          if (networkId != 1) {
+            setIsNetWarningVisible(true);
+          }
+        });
+      }
+
       getAssetsByOpensea(account, dispatch);
-      getAssetsByOpenseaMatic(account, dispatch);
+      // getAssetsByOpenseaMatic(account, dispatch);
       // getSpaceByOpensea(account, dispatch);
       // getAssetsByMoralis(account, dispatch);
     } else {
@@ -134,6 +144,12 @@ export default function App() {
           />
         </div>
       </div>
+
+      <Modal show={isNetWarningVisible} onHide={() => setIsNetWarningVisible(false)}>
+        <Modal.Header>
+          <Modal.Title>Please switch to Ethereum Mainnet</Modal.Title>
+        </Modal.Header>
+      </Modal>
     </Fragment>
   );
 }

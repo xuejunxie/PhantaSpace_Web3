@@ -36,6 +36,9 @@ export default function SpaceMint() {
   const [loadingMint, setLoadingMint] = useState(false);
   const [loadingAuction, setLoadingAuction] = useState(false);
   const userBids = useSelector((state) => state.space.userBids);
+  const [auctionAllowed, setAuctionAllowed] = useState(false);
+  const all_space = useSelector((state) => state.space.all);
+
   var BN = web3.utils.BN;
 
   const [decimal, setDecimal] = useState(0);
@@ -113,6 +116,20 @@ export default function SpaceMint() {
     dispatch({ type: PICK_A_SPACE });
   };
 
+  useEffect(() => {
+    if (selected_space && all_space.length > 0) {
+      const space_index = all_space.findIndex((space) => space.geocode == selected_space.geocode);
+      if (space_index === -1) {
+        setAuctionAllowed(true);
+      } else {
+        setAuctionAllowed(false);
+        if (all_space[space_index].auctionEndTime > Date.now() / 1000) {
+          dispatch({ SET_SPACE_TAB: "auction" });
+        }
+      }
+    }
+  }, [selected_space, all_space]);
+
   const auctionContract = useWeb3Contract({
     abi: abi.abi,
     contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
@@ -174,11 +191,11 @@ export default function SpaceMint() {
               // style={{ font: "20px/1 Arial, sans-serif", font_weight: "700" }}
               onClick={() => onPick()}
             >
-              {selected_space ? "Pick a different Space" : "Pick an unclaimed Space"}
+              {auctionAllowed ? "Pick a different Space" : "Pick an unclaimed Space"}
             </button>
           </div>
 
-          {selected_space ? (
+          {auctionAllowed ? (
             <div>
               <div className="row  justify-content-center mt-4 ">
                 <input
@@ -217,16 +234,15 @@ export default function SpaceMint() {
                   </div>
                 </button>
               </div>
-              <div className="row justify-content-center mt-3">
-                <h6>
-                  This is an on-chain auction with starting price of {vendingPrice * 25} ETH. Your first bid will
-                  initiate a 48-hour auction. Any bid in the last 10 minutes will extend the auction by 10 minutes. To
-                  prevent re-entrancy attach, you can only withdraw your bid after the auction.
-                </h6>
-              </div>
             </div>
           ) : null}
-
+          <div className="row justify-content-center mt-3">
+            <h6>
+              This is an on-chain auction with starting price of {vendingPrice * 25} ETH. Your first bid will initiate a
+              48-hour auction. Any bid in the last 10 minutes will extend the auction by 10 minutes. To prevent
+              re-entrancy attach, you can only withdraw your bid after the auction.
+            </h6>
+          </div>
           <p className="or-bar">
             <span>Or</span>
           </p>

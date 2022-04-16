@@ -41,7 +41,7 @@ export default function (state = initialState, action) {
     case CREATE:
       return {
         ...state,
-        create: true,
+        create: action.payload,
         explore: false,
         selected_space: null,
         show_all_spaces: false,

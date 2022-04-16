@@ -16,6 +16,7 @@ export default function Space() {
   const space_tab = useSelector((state) => state.sidebar.space_tab);
   const [key, setKey] = useState("mint");
   const { isAuthenticated, web3 } = useMoralis();
+  const all_space = useSelector((state) => state.space.all);
   const limit = 10000;
 
   // deal with time

@@ -26,7 +26,9 @@ export default function (state = initialState, action) {
         ...state,
         // set flag to selected
         owned: state.owned.map((nft) => {
-          return nft.NFTid === action.payload.NFTid ? { ...nft, selected: true } : { ...nft, selected: false };
+          return nft.NFTid === action.payload.NFTid
+            ? { ...action.payload, selected: true }
+            : { ...nft, selected: false };
         }),
       };
     case CLICK:

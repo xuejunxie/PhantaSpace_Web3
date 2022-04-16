@@ -109,6 +109,7 @@ export default function SpaceOwned() {
                         <button type="button" className="  btn btn-light rounded">
                           See it on Opensea
                         </button>
+                        <h6>More owner functions are coming</h6>
                       </a>
                     </div>
                   </div>

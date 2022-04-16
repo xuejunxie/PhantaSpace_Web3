@@ -23,7 +23,7 @@ export default function CreateList() {
 
   // var NFTs = [];
   useEffect(() => {
-    dispatch({ type: CREATE });
+    dispatch({ type: CREATE, payload: true });
   }, []);
 
   useEffect(() => {
@@ -98,16 +98,18 @@ export default function CreateList() {
   };
 
   const onSelect = (nft) => {
+    dispatch({ type: CREATE, payload: "select" });
+    var newNft = { ...nft };
     const image = new Image();
     image.src = nft.image;
     image.onload = () => {
-      nft.wide = image.width;
-      nft.tall = image.height;
-      nft.placed = true;
-      dispatch({ type: LOOK, payload: nft });
-      dispatch({ type: SELECT, payload: nft });
-      if (nft.video) {
-        setVideoList((videoList) => [...videoList, { NFTid: nft.NFTid, video: nft.video }]);
+      newNft.wide = image.width;
+      newNft.tall = image.height;
+      newNft.placed = true;
+      dispatch({ type: LOOK, payload: newNft });
+      dispatch({ type: SELECT, payload: newNft });
+      if (newNft.video) {
+        setVideoList((videoList) => [...videoList, { NFTid: newNft.NFTid, video: newNft.video }]);
       }
     };
   };

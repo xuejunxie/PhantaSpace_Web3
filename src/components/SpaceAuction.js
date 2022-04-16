@@ -206,12 +206,14 @@ export default function SpaceAuction() {
     return image_server_url + geocode + ".jpg";
   };
 
-  // useEffect(() => {
-  //   refs[selected_space.geocode].current.scrollIntoView({
-  //     behavior: "smooth",
-  //     block: "start",
-  //   });
-  // }, [selected_space]);
+  useEffect(() => {
+    if (selected_space && refs[selected_space.geocode]) {
+      refs[selected_space.geocode].current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [selected_space]);
 
   var refs = {};
 

@@ -11,10 +11,11 @@ const header = {
 };
 const urlRegex = /(\b(https?|ftp|file|ifps):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
 
+var offset = 0;
+const limit = 50;
+var reachEnd = false;
+
 export default async function getAssetsByOpensea(account, dispatch) {
-  var offset = 0;
-  const limit = 50;
-  var reachEnd = false;
   dispatch({ type: LOADING, payload: true });
   const fetchData = async () => {
     var getURL = baseURL + account + "&limit=" + limit + "&offset=" + offset;
@@ -25,7 +26,8 @@ export default async function getAssetsByOpensea(account, dispatch) {
       .get(getURL, header)
       .then((res) => {
         ownedNFTs = res.data.assets;
-        if (ownedNFTs.length === 0 || ownedNFTs.length < limit) {
+        console.log(ownedNFTs.length);
+        if (ownedNFTs.length == 0 || ownedNFTs.length < limit) {
           reachEnd = true;
           dispatch({ type: LOADING, payload: false });
         }
@@ -37,12 +39,13 @@ export default async function getAssetsByOpensea(account, dispatch) {
       })
       .then((res) => {
         var gltfNFTs = [];
-
+        console.log(ownedNFTs.length);
         if (ownedNFTs.length > 0) {
           ownedNFTs.map((nft) => {
             var model = null;
             var image = null;
             var video = null;
+            console.log(nft);
             // find the glb gltf URL in description of the NFT
             if (nft.description) {
               var urls = nft.description.match(urlRegex);
@@ -54,11 +57,10 @@ export default async function getAssetsByOpensea(account, dispatch) {
                 });
               }
             }
-
             // find the glb gltf URL in animation_url of the NFT
             if (nft.animation_url) {
               if (nft.animation_url.includes(".glb") || nft.animation_url.includes(".gltf")) {
-                model = nft.animation_url;
+                model = nft.animation_original_url;
               }
 
               if (
@@ -66,7 +68,7 @@ export default async function getAssetsByOpensea(account, dispatch) {
                 nft.animation_url.includes(".WEBM") ||
                 nft.animation_url.includes(".M4V")
               ) {
-                video = nft.animation_url;
+                video = nft.animation_original_url;
               }
             }
 

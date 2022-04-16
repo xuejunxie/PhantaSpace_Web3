@@ -181,9 +181,12 @@ export default function Map(props) {
     );
 
     viewer = new Cesium.Viewer("cesiumContainer", {
-      terrainProvider: Cesium.createWorldTerrain({
-        // requestWaterMask: true,
-        // requestVertexNormals: true,
+      // terrainProvider: Cesium.createWorldTerrain({
+      //   // requestWaterMask: true,
+      //   requestVertexNormals: true,
+      // }),
+      terrainProvider: new Cesium.CesiumTerrainProvider({
+        url: Cesium.IonResource.fromAssetId(3957),
       }),
       imageryProviderViewModels: imageryViewModels,
       selectedImageryProviderViewModel: imageryViewModels[0],
@@ -299,29 +302,14 @@ export default function Map(props) {
 
   // handle mouse events for explore page
   useEffect(() => {
-    const dispatchClick = (NFTid) => {
-      dispatch({ type: CLICK, payload: NFTid });
-    };
     if (explore) {
-      exploreHandler = handleExplore(dispatchClick);
+      exploreHandler = handleExplore(dispatch);
     } else {
       if (exploreHandler && !exploreHandler.isDestroyed()) {
         exploreHandler.destroy();
       }
     }
   }, [explore]);
-
-  const dispatchPlace = (nft) => {
-    dispatch({ type: PLACE, payload: nft });
-  };
-
-  const dispatchUpdate = (nft) => {
-    dispatch({ type: UPDATE, payload: nft });
-  };
-
-  const dispatchClick = (NFTid) => {
-    dispatch({ type: CLICK, payload: NFTid });
-  };
 
   // handle mouse events for space page
   useEffect(() => {
@@ -344,7 +332,9 @@ export default function Map(props) {
   // update the viewer when user edit the owned NFTs
   useEffect(() => {
     if (viewer) {
-      const nft = owned.find((nft) => nft.selected === true);
+      if (create == "select") {
+        var nft = owned.find((nft) => nft.selected === true);
+      }
 
       // handle mouse events for create page
       if (createHandler) {
@@ -353,7 +343,7 @@ export default function Map(props) {
         }
       }
       if (create) {
-        createHandler = handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft);
+        createHandler = handleCreate(dispatch, nft);
       }
 
       if (nft) {
@@ -409,6 +399,7 @@ export default function Map(props) {
         const clickedEndity = viewer.entities.getById(look.NFTid);
         if (clickedEndity) {
           viewer.flyTo(clickedEndity);
+          dispatch({ type: PLACE, payload: look });
         }
       }
     }
@@ -455,7 +446,14 @@ function addModel(cartesian, heading, pitch, roll, scale, item) {
 
   if (item.model) {
     newEntity.model = {
-      uri: item.model,
+      uri: item.metadata.animation_original_url,
+      // uri: item.model,
+      // uri: new Cesium.Resource({
+      //   url: item.metadata.animation_original_url,
+      //   headers: {
+      //     "X-API-KEY": process.env.REACT_APP_OPENSEA_X_API_KEY,
+      //   },
+      // }),
       minimumPixelSize: 0,
       scale: scale,
     };
@@ -476,13 +474,13 @@ function addModel(cartesian, heading, pitch, roll, scale, item) {
   return newEntity;
 }
 
-function handleExplore(dispatchClick) {
+function handleExplore(dispatch) {
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
   handler.setInputAction(function (movement) {
     var pickedObject = viewer.scene.pick(movement.position);
     if (Cesium.defined(pickedObject)) {
       if (pickedObject.id) {
-        dispatchClick(pickedObject.id.id);
+        dispatch({ type: CLICK, payload: pickedObject.id.id });
       }
     }
 
@@ -495,7 +493,7 @@ function handleExplore(dispatchClick) {
   return handler;
 }
 
-function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft) {
+function handleCreate(dispatch, nft) {
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
   handler.setInputAction((click) => {
@@ -532,7 +530,7 @@ function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft) {
           nft.longitude = newPosition.longitude;
           nft.latitude = newPosition.latitude;
           nft.height = newPosition.height;
-          dispatchPlace(nft);
+          dispatch({ type: PLACE, payload: nft });
         }
       }
     }
@@ -545,7 +543,7 @@ function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft) {
     var pickedObject = viewer.scene.pick(movement.position);
     if (Cesium.defined(pickedObject)) {
       if (pickedObject.id) {
-        dispatchClick(pickedObject.id.id);
+        dispatch({ type: CLICK, payload: pickedObject.id.id });
       }
     }
 
@@ -581,7 +579,7 @@ function handleCreate(dispatchPlace, dispatchUpdate, dispatchClick, nft) {
     leftDownFlag = false;
     if (nft) {
       if (nft.editing) {
-        dispatchUpdate(nft);
+        dispatch({ type: UPDATE, payload: nft });
       }
     }
     // viewer.scene.screenSpaceCameraController.enableRotate = true;
@@ -658,27 +656,27 @@ function drawSpace(cartesian, all_spaces) {
   const geocode = levelCode + levelSign + latitudeCode + longitudeCode + precision.toString();
 
   // find geocode in all_spaces
-  const spaceTaken = all_spaces.find((space) => space.geocode === geocode);
-  if (spaceTaken === undefined) {
-    if (current_space_entity === null) {
-      current_space_entity = viewer.entities.add({
-        name: "selected_space",
-        wall: {
-          positions: Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitudeRounded, latitudeRounded, size)),
-          minimumHeights: [bottom, bottom, bottom, bottom, bottom],
-          maximumHeights: [top, top, top, top, top],
-          material: Cesium.Color.fromBytes(8, 182, 190, 100),
-          outline: true,
-        },
-      });
-    } else {
-      current_space_entity.wall.minimumHeights = [bottom, bottom, bottom, bottom, bottom];
-      current_space_entity.wall.maximumHeights = [top, top, top, top, top];
-      current_space_entity.wall.positions = new Cesium.CallbackProperty(function () {
-        return Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitudeRounded, latitudeRounded, size));
-      }, false); // prevent flashing
-    }
+  // const spaceTaken = all_spaces.find((space) => space.geocode === geocode);
+  // if (spaceTaken === undefined) {
+  if (current_space_entity === null) {
+    current_space_entity = viewer.entities.add({
+      name: "selected_space",
+      wall: {
+        positions: Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitudeRounded, latitudeRounded, size)),
+        minimumHeights: [bottom, bottom, bottom, bottom, bottom],
+        maximumHeights: [top, top, top, top, top],
+        material: Cesium.Color.fromBytes(8, 182, 190, 100),
+        outline: true,
+      },
+    });
+  } else {
+    current_space_entity.wall.minimumHeights = [bottom, bottom, bottom, bottom, bottom];
+    current_space_entity.wall.maximumHeights = [top, top, top, top, top];
+    current_space_entity.wall.positions = new Cesium.CallbackProperty(function () {
+      return Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitudeRounded, latitudeRounded, size));
+    }, false); // prevent flashing
   }
+  // }
   return geocode;
 }
 
@@ -716,8 +714,6 @@ function parseGeocode(geocode) {
 
   const bottom = level * heightUnit - 50; // -50 to make the land below the earth ellipsoid within the level 0
   const top = (level + 1) * heightUnit - 50;
-
-  console.log(longitude, latitude, levelSign, level);
 
   return {
     precision: precision,
