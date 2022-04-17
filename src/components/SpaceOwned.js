@@ -29,7 +29,6 @@ export default function SpaceOwned() {
 
   useEffect(() => {
     dispatch({ type: CLEAN_OWNED_SPACE });
-    dispatch({ type: SET_SPACE_TAB, payload: "owned" });
   }, []);
 
   async function updateUserSpace() {

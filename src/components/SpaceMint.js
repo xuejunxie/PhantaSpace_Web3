@@ -72,10 +72,6 @@ export default function SpaceMint() {
     }
   }, [price_wei]);
 
-  useEffect(() => {
-    dispatch({ type: SET_SPACE_TAB, payload: "mint" });
-  }, []);
-
   const onMint = async () => {
     setLoadingMint(true);
     vendingContract.runContractFunction().then(async (res) => {

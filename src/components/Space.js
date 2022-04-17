@@ -22,7 +22,6 @@ export default function Space() {
   var spacePosition = useParams();
   const selected_space = useSelector((state) => state.sidebar.selected_space);
   const space_tab = useSelector((state) => state.sidebar.space_tab);
-  const [key, setKey] = useState("mint");
   const { isAuthenticated, web3 } = useMoralis();
   const all_space = useSelector((state) => state.space.all);
   const limit = 10000;
@@ -56,6 +55,10 @@ export default function Space() {
     return function cleanup() {
       clearInterval(timerId);
     };
+  }, []);
+
+  useEffect(() => {
+    dispatch({ type: SET_SPACE_TAB, payload: "mint" });
   }, []);
 
   // get live with space list
@@ -106,12 +109,6 @@ export default function Space() {
       window.history.pushState("", "", `#/space/${selected_space.geocode}`);
     }
   }, [selected_space]);
-
-  useEffect(() => {
-    if (space_tab) {
-      setKey(space_tab);
-    }
-  }, [space_tab]);
 
   return (
     <div className="bg-dark text-light">

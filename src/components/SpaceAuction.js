@@ -47,10 +47,6 @@ export default function SpaceAuction() {
     };
   }, []);
 
-  useEffect(() => {
-    dispatch({ type: SET_SPACE_TAB, payload: "auction" });
-  }, []);
-
   // deal with user
   useEffect(async () => {
     if (user) {
