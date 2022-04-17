@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { SPACE, PICK_A_SPACE, SELECT_SPACE, SHOW_SPACE, LOAD_ALL_SPACES, SHOW_ALL_SPACES } from "redux/types";
+import {
+  SPACE,
+  PICK_A_SPACE,
+  SELECT_SPACE,
+  SHOW_SPACE,
+  LOAD_ALL_SPACES,
+  SHOW_ALL_SPACES,
+  SET_SPACE_TAB,
+} from "redux/types";
 import { Tab, Tabs } from "react-bootstrap";
 import { useMoralis, useMoralisQuery } from "react-moralis";
 import "./Space.css";
@@ -110,7 +118,13 @@ export default function Space() {
       {startTime > date ? (
         <h2 className="mt-5"> Initial space offering on-chain auction in: {timeString((startTime - date) / 1000)} </h2>
       ) : (
-        <Tabs id="controlled-tab-example" activeKey={key} onSelect={(k) => setKey(k)}>
+        <Tabs
+          id="controlled-tab-example"
+          activeKey={space_tab}
+          onSelect={(k) => {
+            dispatch({ type: SET_SPACE_TAB, payload: k });
+          }}
+        >
           <Tab eventKey="mint" title="Mint" tabClassName="text-light ml-1">
             <SpaceMint />
           </Tab>

@@ -5,7 +5,7 @@ import { SHOW_SPACE, SELECT_SPACE, SET_SPACE_TAB, LOAD_USER_BIDS, ASK_USER_TO_CO
 import abi from "./abi.json";
 import { Tab, Tabs } from "react-bootstrap";
 
-const image_server_url = "http://phantaspace.com/thumbnails/";
+const image_server_url = "https://phantaspace.asuscomm.com/thumbnails/";
 
 var account;
 
@@ -45,6 +45,10 @@ export default function SpaceAuction() {
     return function cleanup() {
       clearInterval(timerId);
     };
+  }, []);
+
+  useEffect(() => {
+    dispatch({ type: SET_SPACE_TAB, payload: "auction" });
   }, []);
 
   // deal with user

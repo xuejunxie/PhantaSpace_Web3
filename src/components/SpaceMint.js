@@ -72,6 +72,10 @@ export default function SpaceMint() {
     }
   }, [price_wei]);
 
+  useEffect(() => {
+    dispatch({ type: SET_SPACE_TAB, payload: "mint" });
+  }, []);
+
   const onMint = async () => {
     setLoadingMint(true);
     vendingContract.runContractFunction().then(async (res) => {
@@ -126,7 +130,7 @@ export default function SpaceMint() {
       } else {
         setAuctionAllowed(false);
         if (all_space[space_index].auctionEndTime > Date.now() / 1000) {
-          dispatch({ SET_SPACE_TAB: "auction" });
+          dispatch({ type: SET_SPACE_TAB, payload: "auction" });
         }
       }
     }

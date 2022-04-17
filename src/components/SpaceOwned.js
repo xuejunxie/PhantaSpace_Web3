@@ -3,7 +3,7 @@ import React, { useEffect, createRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useMoralis } from "react-moralis";
 
-import { SHOW_SPACE, SELECT_SPACE, CLEAN_OWNED_SPACE, LOAD_OWNED_SPACE } from "redux/types";
+import { SHOW_SPACE, SELECT_SPACE, CLEAN_OWNED_SPACE, LOAD_OWNED_SPACE, SET_SPACE_TAB } from "redux/types";
 
 // const image_server_url = "http://phantaspace.com/thumbnails/";
 
@@ -29,6 +29,7 @@ export default function SpaceOwned() {
 
   useEffect(() => {
     dispatch({ type: CLEAN_OWNED_SPACE });
+    dispatch({ type: SET_SPACE_TAB, payload: "owned" });
   }, []);
 
   async function updateUserSpace() {
