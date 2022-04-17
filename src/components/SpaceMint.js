@@ -20,6 +20,8 @@ import axios from "axios";
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
 
+const opense_asset_url = "https://opensea.io/assets/";
+
 Moralis.initialize(appId);
 Moralis.serverURL = serverUrl;
 const auctionDatabase = Moralis.Object.extend("auction");
@@ -29,6 +31,8 @@ export default function SpaceMint() {
   const selected_space = useSelector((state) => state.sidebar.selected_space);
   const { isAuthenticated, web3, user, refetchUserData } = useMoralis();
   const [vendingPrice, setVendingPrice] = useState(0);
+  const [auctionFloor, setAuctionFloor] = useState(0);
+
   const [count, setCount] = useState(1);
   const [bidWarning, setBidWarning] = useState("");
   const [bid, setBid] = useState("1");
@@ -38,18 +42,26 @@ export default function SpaceMint() {
   const userBids = useSelector((state) => state.space.userBids);
   const [auctionAllowed, setAuctionAllowed] = useState(false);
   const all_space = useSelector((state) => state.space.all);
+  const [spaceIsTaken, setSpaceIsTaken] = useState(null);
 
   var BN = web3.utils.BN;
 
   const [decimal, setDecimal] = useState(0);
 
-  const getPriceContract = useWeb3Contract({
+  const getVendingPriceContract = useWeb3Contract({
     abi: abi.abi,
     contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
     functionName: "vendingPrice",
   });
 
-  const price_wei = getPriceContract.data;
+  const getAuctionFloorContract = useWeb3Contract({
+    abi: abi.abi,
+    contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
+    functionName: "auctionFloor",
+  });
+
+  const vendingPrice_wei = getVendingPriceContract.data;
+  const auctionFloor_wei = getAuctionFloorContract.data;
 
   const vendingContract = useWeb3Contract({
     abi: abi.abi,
@@ -62,15 +74,20 @@ export default function SpaceMint() {
   });
 
   useEffect(() => {
-    getPriceContract.runContractFunction();
+    getVendingPriceContract.runContractFunction();
+    getAuctionFloorContract.runContractFunction();
   }, [web3]);
 
   useEffect(() => {
-    if (price_wei) {
-      setVendingPrice(price_wei / 10 ** 18);
-      setDecimal(Math.max(19 - price_wei.toString().length + 1, 0));
+    if (vendingPrice_wei) {
+      setVendingPrice(vendingPrice_wei / 10 ** 18);
+      setDecimal(Math.max(19 - vendingPrice_wei.toString().length + 1, 0));
     }
-  }, [price_wei]);
+
+    if (auctionFloor_wei) {
+      setAuctionFloor(auctionFloor_wei / 10 ** 18);
+    }
+  }, [vendingPrice_wei, auctionFloor_wei]);
 
   const onMint = async () => {
     setLoadingMint(true);
@@ -118,7 +135,12 @@ export default function SpaceMint() {
     dispatch({ type: PICK_A_SPACE });
   };
 
+  const getPermalink = (geocode) => {
+    return opense_asset_url + process.env.REACT_APP_CONTRACT_ADDRESS + "/" + geocode;
+  };
+
   useEffect(() => {
+    setSpaceIsTaken(null);
     if (selected_space && all_space) {
       const space_index = all_space.findIndex((space) => space.geocode == selected_space.geocode);
       if (space_index === -1) {
@@ -127,6 +149,21 @@ export default function SpaceMint() {
         setAuctionAllowed(false);
         if (all_space[space_index].auctionEndTime > Date.now() / 1000) {
           dispatch({ type: SET_SPACE_TAB, payload: "auction" });
+        } else {
+          setSpaceIsTaken(
+            <Fragment>
+              <h6 className="mt-2"> Space is taken </h6>
+              <a
+                href={getPermalink(selected_space.geocode)}
+                className="text-light  justify-content-center"
+                target="_blank"
+              >
+                <button type="button" className="  btn btn-light rounded ">
+                  See it on Opensea
+                </button>
+              </a>
+            </Fragment>
+          );
         }
       }
     }
@@ -162,11 +199,11 @@ export default function SpaceMint() {
 
   useEffect(() => {
     if (isNumeric(bid)) {
-      if (bid >= vendingPrice * 25) {
+      if (bid >= auctionFloor) {
         setBidWarning(" ");
         setCleanBid(web3.utils.toWei(bid.toString(), "ether"));
       } else {
-        setBidWarning("Must be ≥ " + vendingPrice * 25);
+        setBidWarning("Must be ≥ " + auctionFloor);
       }
     } else {
       if (bid) {
@@ -196,7 +233,7 @@ export default function SpaceMint() {
               {auctionAllowed ? "Pick a different Space" : "Pick an unclaimed Space"}
             </button>
           </div>
-
+          {spaceIsTaken}
           {auctionAllowed ? (
             <div>
               <div className="row  justify-content-center mt-4 ">
@@ -240,11 +277,12 @@ export default function SpaceMint() {
           ) : null}
           <div className="row justify-content-center mt-3">
             <h6>
-              This is an on-chain auction with starting price of {vendingPrice * 25} ETH. Your first bid will initiate a
+              This is an on-chain auction with starting price of {auctionFloor} ETH. Your first bid will initiate a
               48-hour auction. Any bid in the last 10 minutes will extend the auction by 10 minutes. To prevent
               re-entrancy attach, you can only withdraw your bid after the auction.
             </h6>
           </div>
+
           <p className="or-bar">
             <span>Or</span>
           </p>
@@ -299,7 +337,7 @@ export default function SpaceMint() {
           <div className="row justify-content-center mt-3">
             <h6>
               Since there are only 4% of the earth's surface has human activity, the vending price is set to be 4% of
-              the auction starting price ({vendingPrice * 25} ETH). Good luck!
+              the auction starting price ({auctionFloor} ETH). Good luck!
             </h6>
           </div>
         </div>
