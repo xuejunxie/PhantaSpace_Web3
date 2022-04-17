@@ -22,7 +22,7 @@ export default function Space() {
   // deal with time
 
   const [date, setDate] = useState(new Date());
-  const startTime = Date.parse("16 APR 2022 18:00:00 PST");
+  const startTime = Date.parse("16 APR 2022 17:00:00 PST");
 
   function refreshClock() {
     setDate(new Date());

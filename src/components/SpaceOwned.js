@@ -5,9 +5,11 @@ import { useMoralis } from "react-moralis";
 
 import { SHOW_SPACE, SELECT_SPACE, CLEAN_OWNED_SPACE, LOAD_OWNED_SPACE } from "redux/types";
 
-const image_server_url = "http://phantaspace.com/thumbnails/";
+// const image_server_url = "http://phantaspace.com/thumbnails/";
 
-const opense_asset_url = "https://testnets.opensea.io/assets/";
+const image_server_url = "https://phantaspace.asuscomm.com/thumbnails/";
+
+const opense_asset_url = "https://opensea.io/assets/";
 
 const getThumbnail = (geocode) => {
   return image_server_url + geocode + ".jpg";
@@ -86,9 +88,6 @@ export default function SpaceOwned() {
                       <img
                         className="img-thumbnail rounded-pill"
                         src={getThumbnail(space.geocode)}
-                        onError={(e) => {
-                          e.target.src = "faviconS.gif";
-                        }}
                         onLoadStart={(e) => {
                           e.target.src = "faviconS.gif";
                         }}

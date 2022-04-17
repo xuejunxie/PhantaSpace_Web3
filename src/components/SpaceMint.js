@@ -56,6 +56,9 @@ export default function SpaceMint() {
     contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
     functionName: "vending",
     msgValue: web3.utils.toWei((vendingPrice * count).toFixed(decimal), "ether"),
+    params: {
+      vendingLevel: "03",
+    },
   });
 
   useEffect(() => {
@@ -116,7 +119,7 @@ export default function SpaceMint() {
   };
 
   useEffect(() => {
-    if (selected_space && all_space.length > 0) {
+    if (selected_space && all_space) {
       const space_index = all_space.findIndex((space) => space.geocode == selected_space.geocode);
       if (space_index === -1) {
         setAuctionAllowed(true);
