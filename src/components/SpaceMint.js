@@ -20,7 +20,7 @@ import axios from "axios";
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
 
-const opense_asset_url = "https://opensea.io/assets/";
+const opense_asset_url = process.env.REACT_APP_OPENSEA_URL + "/assets/";
 
 Moralis.initialize(appId);
 Moralis.serverURL = serverUrl;

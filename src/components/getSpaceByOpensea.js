@@ -1,7 +1,7 @@
 import axios from "axios";
 import { LOAD_OWNED_SPACE, LOADING_SPACE } from "redux/types";
 
-const baseURL = "https://api.opensea.io/api/v1/assets?owner=";
+const baseURL = process.env.REACT_APP_OPENSEA_API_URL + "/v1/assets?owner=";
 
 const header = {
   headers: {

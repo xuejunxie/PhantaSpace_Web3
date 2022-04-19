@@ -18,6 +18,7 @@ export default function Header(props) {
   const Explore = tag("Explore", "/explore");
   const Create = tag("Create", "/create");
   const Space = tag("Space", "/space");
+  const JumpIn = tag("Jump in!", "/jumpin");
 
   return (
     <nav className="navbar navbar-expand-sm navbar-dark bg-dark" style={{ height: props.headerHeight }}>
@@ -64,6 +65,7 @@ export default function Header(props) {
         {Explore}
         {Create}
         {Space}
+        {/* {JumpIn} */}
         <div className="mr-3" />
         <Account />
       </div>

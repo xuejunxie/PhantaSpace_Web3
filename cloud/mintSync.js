@@ -326,6 +326,7 @@ Moralis.Cloud.afterSave("Transfer", async (request) => {
   const userDatabase = Moralis.Object.extend(userDatabaseName);
   const spaceDatabase = Moralis.Object.extend("space");
   const zeroAddress = "0x0000000000000000000000000000000000000000";
+  var fromUser;
 
   // handle from user
   const fromUserAddress = request.object.get("from");
@@ -334,7 +335,7 @@ Moralis.Cloud.afterSave("Transfer", async (request) => {
     fromUserQuery.equalTo("ethAddress", request.object.get("to"));
     fromUserQuery.equalTo("ethAddress", fromUserAddress);
     const fromUserQueryResult = await fromUserQuery.find({ useMasterKey: true });
-    const fromUser = fromUserQueryResult[0];
+    fromUser = fromUserQueryResult[0];
   }
 
   // handle space
@@ -342,7 +343,7 @@ Moralis.Cloud.afterSave("Transfer", async (request) => {
   const spaceQuery = new Moralis.Query(spaceDatabase);
   spaceQuery.equalTo("geocode", geocode);
   const spaceQueryResult = await spaceQuery.find({ useMasterKey: true });
-  const space = spaceQueryResult[0];
+  var space = spaceQueryResult[0];
 
   // handle to user
   const toUserQuery = new Moralis.Query(userDatabase);
@@ -352,18 +353,36 @@ Moralis.Cloud.afterSave("Transfer", async (request) => {
 
   const confirmed = request.object.get("confirmed");
 
-  if (confirmed) {
-    if (toUser && space) {
-      if (fromUserAddress !== zeroAddress) {
-        fromUser.remove("space", geocode);
-        fromUser.save(null, { useMasterKey: true });
-      }
-      toUser.addUnique("space", geocode);
-      toUser.save(null, { useMasterKey: true });
-      space.set("owner", request.object.get("to"));
-      space.save(null, { useMasterKey: true });
-    }
+  // if (confirmed) {
+  if (space) {
+  } else {
+    // logger.info("space not found: " + geocode);
+    space = new spaceDatabase();
+    space.set("geocode", geocode);
+    space.set("owner", toUser);
+    space.set("confirmed", true);
+    space.save(null, { useMasterKey: true });
   }
+
+  if (fromUserAddress !== zeroAddress) {
+    fromUser.remove("space", geocode);
+    fromUser.save(null, { useMasterKey: true });
+  }
+
+  if (toUser) {
+    // logger.info("to user found: " + toUser.get("ethAddress"));
+    toUser.addUnique("space", geocode);
+    toUser.save(null, { useMasterKey: true });
+  } else {
+    // logger.info("to user not found: " + request.object.get("to"));
+    const newtoUser = new userDatabase();
+    newtoUser.set("ethAddress", request.object.get("to"));
+    newtoUser.addUnique("space", geocode);
+    newtoUser.save(null, { useMasterKey: true });
+  }
+  space.set("owner", request.object.get("to"));
+  space.save(null, { useMasterKey: true });
+  // }
 });
 
 Moralis.Cloud.define("test", async (request) => {
