@@ -19,6 +19,7 @@ import getAssetsByOpensea from "components/getAssetsByOpensea";
 import getAssetsByMoralis from "components/getAssetsByMoralis";
 import getAssetsByOpenseaMatic from "components/getAssetsByOpenseaMatic";
 import getSpaceByOpensea from "components/getSpaceByOpensea";
+import SpaceNFT from "components/SpaceNFT";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
@@ -30,7 +31,7 @@ const dataClass = Moralis.Object.extend("allNFT");
 
 var viewerWidth = "calc(100% - var(--listWidth))";
 const height = "calc(100vh - var(--navBarHeight))";
-const mobileWidth = 768;
+const mobileWidth = 600;
 
 export default function App() {
   // detect if mobile
@@ -128,18 +129,20 @@ export default function App() {
       {width > mobileWidth ? <Header headerHeight={"var(--navBarHeight)"} /> : null}
       <div className="container-fluid">
         <div className="row bg-dark">
-          {width > mobileWidth ? (
-            <div style={{ width: "var(--listWidth)", maxHeight: height }} className="overflow-auto">
-              <Routes>
-                <Route exact path="" element={<ExploreList />} />
-                <Route exact path="explore" element={<ExploreList />} />
-                <Route exact path="explore/:NFTid" element={<ExploreList />} />
-                <Route exact path="create" element={<CreateList />} />
-                <Route exact path="space" element={<Space />} />
-                <Route exact path="space/:geocode" element={<Space />} />
-              </Routes>
-            </div>
-          ) : null}
+          <div
+            style={{ width: "var(--listWidth)", maxHeight: height, display: width > mobileWidth ? "" : "none" }}
+            className="overflow-auto"
+          >
+            <Routes>
+              <Route exact path="" element={<ExploreList />} />
+              <Route exact path="explore" element={<ExploreList />} />
+              <Route exact path="explore/:NFTid" element={<ExploreList />} />
+              <Route exact path="create" element={<CreateList />} />
+              <Route exact path="space" element={<Space />} />
+              <Route exact path="space/:geocode" element={<Space />} />
+            </Routes>
+          </div>
+
           <Map
             viewerWidth={width > mobileWidth ? viewerWidth : "100vw"}
             viewerHeight={width > mobileWidth ? height : "100vh"}

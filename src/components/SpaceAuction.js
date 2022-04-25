@@ -7,6 +7,12 @@ import { Tab, Tabs } from "react-bootstrap";
 
 const image_server_url = "https://phantaspace.asuscomm.com/thumbnails/";
 
+const opense_asset_url = process.env.REACT_APP_OPENSEA_URL + "/assets/";
+
+const getPermalink = (geocode) => {
+  return opense_asset_url + process.env.REACT_APP_CONTRACT_ADDRESS + "/" + geocode;
+};
+
 var account;
 
 export default function SpaceAuction() {
@@ -82,7 +88,7 @@ export default function SpaceAuction() {
     const list = [];
     if (data) {
       data.map((auction) => {
-        list.push(auction.attributes); // attributes has auctionEndTime, geocode, highestBid, highestBidder, createdAT, updatedAT
+        list.push(auction.attributes); // attributes has auctionEndTime, geocode, highestBid, highestBidder, createdAT, updatedAT, claimed
       });
     }
     setAuctionList(list);
@@ -353,6 +359,13 @@ export default function SpaceAuction() {
                     )}
                   </button>
                 ))
+              )}
+              {auction.claimed && (
+                <a href={getPermalink(auction.geocode)} className="text-light  justify-content-center" target="_blank">
+                  <button type="button" className="  btn btn-light rounded">
+                    See it on Opensea
+                  </button>
+                </a>
               )}
             </div>
           </div>

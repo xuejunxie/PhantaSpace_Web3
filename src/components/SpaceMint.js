@@ -147,23 +147,32 @@ export default function SpaceMint() {
         setAuctionAllowed(true);
       } else {
         setAuctionAllowed(false);
+
         if (all_space[space_index].auctionEndTime > Date.now() / 1000) {
           dispatch({ type: SET_SPACE_TAB, payload: "auction" });
         } else {
-          setSpaceIsTaken(
-            <Fragment>
-              <h6 className="mt-2"> Space is taken </h6>
-              <a
-                href={getPermalink(selected_space.geocode)}
-                className="text-light  justify-content-center"
-                target="_blank"
-              >
-                <button type="button" className="  btn btn-light rounded ">
-                  See it on Opensea
-                </button>
-              </a>
-            </Fragment>
-          );
+          if (all_space[space_index].owner) {
+            setSpaceIsTaken(
+              <Fragment>
+                <h6 className="mt-2"> Space is taken </h6>
+                <a
+                  href={getPermalink(selected_space.geocode)}
+                  className="text-light  justify-content-center"
+                  target="_blank"
+                >
+                  <button type="button" className="  btn btn-light rounded ">
+                    See it on Opensea
+                  </button>
+                </a>
+              </Fragment>
+            );
+          } else {
+            setSpaceIsTaken(
+              <Fragment>
+                <h6 className="mt-2"> Space is taken </h6>
+              </Fragment>
+            );
+          }
         }
       }
     }
@@ -279,7 +288,7 @@ export default function SpaceMint() {
             <h6>
               This is an on-chain auction with starting price of {auctionFloor} ETH. Your first bid will initiate a
               48-hour auction. Any bid in the last 10 minutes will extend the auction by 10 minutes. To prevent
-              re-entrancy attach, you can only withdraw your bid after the auction.
+              re-entrancy attack, you can only withdraw your bid after the auction.
             </h6>
           </div>
 

@@ -283,6 +283,8 @@ Moralis.Cloud.afterSave("AuctionEnded", async (request) => {
     const auction = auctionQueryResult[0];
     if (auction) {
       // move auction to archieve
+      auction.set("claimed", true);
+      auction.save(null, { useMasterKey: true });
     }
   } else {
     // logger.info("confirmed");

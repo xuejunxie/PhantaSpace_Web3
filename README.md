@@ -6,11 +6,29 @@ core functions for space NFT:
 
 location -> tokenID ->
 
-- automatic 24 hour auction for unclaimed space
-- seller_fee_basis_points: 10%
-- auto list on opensea
-- on chain tokenURI and contractURI
-- support on chain NFT placement
+Space token utility:
+
+- 2D first
+- delete NFTs in their space
+- claim token
+- place unlimited block in their space
+- place a set of block without time limit in open space
+- other user, one p1 block every 256s, one p2 - 128s, p3 - 64s, p4 - 32s, p4 - 16s
+- other user can't overlap owner's block on owner's space
+- pay subscription to keep block
+- FPV move for 3D
+
+Token utility:
+
+- subscription for keeping the blocks
+- NFT display ranking
+- staking?
+- rent?
+
+tech debt:
+
+- create state management
+- tile server
 
 future features:
 
@@ -18,7 +36,7 @@ future features:
 
 - human scale navigation
 
-- support image, video, and music
+- support video, and music
 
 - space rental contract
 

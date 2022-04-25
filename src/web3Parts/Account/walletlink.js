@@ -3,7 +3,7 @@ import WalletLink from "walletlink";
 import Web3 from "web3";
 
 const APP_NAME = "PhantaSpace";
-const APP_LOGO_URL = "https://phanta.space/favicon.ico";
+const APP_LOGO_URL = "https://phanta.space/favicon.gif";
 const ETH_JSONRPC_URL = "https://speedy-nodes-nyc.moralis.io/916f9996703e890373b4fc5c/eth/mainnet";
 const CHAIN_ID = 1;
 
