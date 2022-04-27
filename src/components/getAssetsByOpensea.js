@@ -7,6 +7,7 @@ const header = {
   headers: {
     accept: "application/json",
     "X-API-KEY": process.env.REACT_APP_OPENSEA_X_API_KEY,
+    // "Acess-Control-Allow-Origin": "*",
   },
 };
 const urlRegex = /(\b(https?|ftp|file|ifps):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;

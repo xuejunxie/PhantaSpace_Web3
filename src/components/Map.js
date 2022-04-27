@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
 import * as Cesium from "cesium";
+import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { PLACE, UPDATE, CLICK, SELECT_SPACE, MAP_LOADED, SPACE_PICKED } from "../redux/types";
 import sha256 from "crypto-js/sha256";
+import AxisAlignedBoundingBox from "cesium/Source/Core/AxisAlignedBoundingBox";
 
 Cesium.Ion.defaultAccessToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjNmY0NjhmOS1iZGRjLTQ5ODgtYTQyOS0zNGFhZTQ3M2RlYzYiLCJpZCI6NzE5OTUsImlhdCI6MTYzNzIzODcyM30.C_x5USgZL8Gk2tZ7D3hd__1irF9-cyatRD-9GDaRBGc";
@@ -446,8 +448,9 @@ function addModel(cartesian, heading, pitch, roll, scale, item) {
 
   if (item.model) {
     newEntity.model = {
-      uri: item.metadata.animation_original_url,
-      // uri: item.model,
+      // uri: item.metadata.animation_original_url,
+      // uri: item.metadata.animation_url,
+      uri: item.model,
       // uri: new Cesium.Resource({
       //   url: item.metadata.animation_original_url,
       //   headers: {
@@ -497,6 +500,8 @@ function handleCreate(dispatch, nft) {
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
   handler.setInputAction((click) => {
+    console.log(nft);
+
     if (click.position) {
       var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(click.position), viewer.scene);
       if (cartesian) {

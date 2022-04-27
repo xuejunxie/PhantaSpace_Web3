@@ -77,9 +77,8 @@ export default function App() {
       account = user.attributes.accounts[0];
 
       // account = user.get("ethAddress");
-      // account = "0x8b87E652922445BCaC00887e637A07A31af47B02";
       // account = "0x4A5577675951Cd448f5537F7Ed2828d6B09d66B0";
-      // account = "0xe9956cf72cc8e49d903478142dc8dadb4ee328ff";
+      // account = "0xD7B60740E6663c6595e77dD686b07E0870Cb6bc7";
       // big account
       // account = "0x7cEd6E99BD19e923b2B756A1aBf6eA2D27dCf748";
       // account = "0x8f00dD4Fa196D287f9E862dbB39d66D8C7Ef7364";

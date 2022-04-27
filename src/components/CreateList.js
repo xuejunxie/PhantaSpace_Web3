@@ -1,5 +1,6 @@
 import React, { useEffect, createRef, useState } from "react";
 import "./CreateList.css";
+import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import Moralis from "moralis";
 import { useMoralis } from "react-moralis";
@@ -100,6 +101,18 @@ export default function CreateList() {
   const onSelect = (nft) => {
     dispatch({ type: CREATE, payload: "select" });
     var newNft = { ...nft };
+
+    // test if  the url works or not
+    axios.get(nft.model).then((response) => {
+      newNft.model = nft.model;
+    });
+    axios.get(nft.metadata.animation_original_url).then((response) => {
+      newNft.model = nft.metadata.animation_original_url;
+    });
+    axios.get(nft.metadata.animation_url).then((response) => {
+      newNft.model = nft.metadata.animation_url;
+    });
+
     const image = new Image();
     image.src = nft.image;
     image.onload = () => {
