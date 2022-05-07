@@ -500,8 +500,6 @@ function handleCreate(dispatch, nft) {
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
   handler.setInputAction((click) => {
-    console.log(nft);
-
     if (click.position) {
       var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(click.position), viewer.scene);
       if (cartesian) {

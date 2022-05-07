@@ -1,13 +1,15 @@
 {
-  "name": "Phanta Space",
+  "name": "PhantaSpace",
   "short_name": "PhantaSpace",
   "lang": "en-US",
   "start_url": "/",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "spacescape",
+  "background_color": "black",
+  "description": "Earth scale metaverse",
   "icons": [
     {
-      "src": "favicon.ico"
+      "src": "favicon.gif"
     }
   ]
 }

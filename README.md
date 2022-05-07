@@ -9,7 +9,9 @@ location -> tokenID ->
 Space token utility:
 
 - delete NFTs in their space
+- block other user's deployment for 1 year
 - claim phanton token
+- change cover picture
 
 Phanton Token utility:
 
@@ -34,6 +36,7 @@ tech debt:
 
 - create state management
 - tile server
+- cache the user NFT and pin ipfs
 
 future features:
 

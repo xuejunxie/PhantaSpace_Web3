@@ -35,7 +35,6 @@ export default function ExploreList() {
   }, [click]);
 
   const onSelect = (nft) => {
-    console.log(nft);
     dispatch({ type: LOOK, payload: { NFTid: nft.NFTid } });
     window.history.pushState("", "", `#/explore/${nft.NFTid}`);
   };

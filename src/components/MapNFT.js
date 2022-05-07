@@ -100,7 +100,7 @@ export default function MapNFT(props) {
       var pointOfInterest = Cesium.Cartographic.fromDegrees(
         longitude + size / 2,
         latitude + size / 2,
-        top + heightUnit * 1.5
+        top + heightUnit * 2
       );
 
       viewer.camera.flyTo({
