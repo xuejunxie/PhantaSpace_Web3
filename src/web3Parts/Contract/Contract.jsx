@@ -4,7 +4,6 @@ import Address from "web3Parts/Address/Address";
 import { useMoralis, useMoralisQuery } from "react-moralis";
 import { getEllipsisTxt } from "helpers/formatters";
 import ContractMethods from "./ContractMethods";
-import ContractResolver from "./ContractResolver";
 
 export default function Contract() {
   const { Moralis, chainId } = useMoralis();
@@ -59,8 +58,6 @@ export default function Contract() {
           borderRadius: "0.5rem",
         }}
       >
-        <ContractResolver setContract={setContract} contract={contract} />
-
         {isDeployedToActiveChain === true && (
           <Form.Provider
             onFormFinish={async (name, { forms }) => {

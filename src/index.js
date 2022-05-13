@@ -19,16 +19,21 @@ const Application = () => {
   if (!APP_ID || !SERVER_URL)
     throw new Error("Missing Moralis Application ID or Server URL. Make sure to set your .env file.");
   return (
-    <MoralisProvider appId={APP_ID} serverUrl={SERVER_URL}>
-      <Provider store={store}>
-        <Router>
-          <Routes>
-            <Route path="/*" element={<App isServerInfo={isServerInfo} />} />
-            <Route exact path="/NFT/space/:geocode" element={<SpaceNFT />} />
-          </Routes>
-        </Router>
-      </Provider>
-    </MoralisProvider>
+    <Provider store={store}>
+      <Router>
+        <Routes>
+          <Route
+            path="/*"
+            element={
+              <MoralisProvider appId={APP_ID} serverUrl={SERVER_URL}>
+                <App isServerInfo={isServerInfo} />
+              </MoralisProvider>
+            }
+          />
+          <Route exact path="/NFT/space/:geocode" element={<SpaceNFT />} />
+        </Routes>
+      </Router>
+    </Provider>
   );
 };
 
