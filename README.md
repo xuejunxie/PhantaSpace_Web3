@@ -2,22 +2,24 @@ Phanta.Space
 
 Tasks:
 
-core functions for space NFT:
+Market place:
 
-location -> tokenID ->
+- exchange contract deployment
+- NFT minting contract
+- buy and sell UI
 
 Space token utility:
 
-- delete NFTs in their space
-- block other user's deployment for 1 year
+- set rent % in their space
+- set phanton threshold
+- all effective for 1 year
 - claim phanton token
 - change cover picture
 
 Phanton Token utility:
 
 - NFT display ranking
-- staking?
-- rent?
+- rent
 
 marketing:
 
