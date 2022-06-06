@@ -50,11 +50,6 @@ future features:
 
 - space rental contract
 
-- space spliting including burning old space and mint new subspace
-- space spliting into different height
-  tokenURI: latitude1 longitude1 height1 - latitude2 longitude2 height2
-  defined grid size
-
 - space can have different channels
 - channel owner share the space sale profit
 - user can subscribe to channels

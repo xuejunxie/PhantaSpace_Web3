@@ -183,13 +183,13 @@ export default function Map(props) {
     );
 
     viewer = new Cesium.Viewer("cesiumContainer", {
-      // terrainProvider: Cesium.createWorldTerrain({
-      //   // requestWaterMask: true,
-      //   requestVertexNormals: true,
-      // }),
-      terrainProvider: new Cesium.CesiumTerrainProvider({
-        url: Cesium.IonResource.fromAssetId(3957),
+      terrainProvider: Cesium.createWorldTerrain({
+        // requestWaterMask: true,
+        // requestVertexNormals: true,
       }),
+      // terrainProvider: new Cesium.CesiumTerrainProvider({
+      //   url: Cesium.IonResource.fromAssetId(3957),
+      // }),
       imageryProviderViewModels: imageryViewModels,
       selectedImageryProviderViewModel: imageryViewModels[0],
       terrainProviderViewModels: [],
