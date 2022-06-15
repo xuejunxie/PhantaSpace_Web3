@@ -1,14 +1,15 @@
 import {
-  LOOK,
   EXPLORE,
-  SET_SPACE_TAB,
   CREATE,
+  SPACE,
+  JUMP_IN,
+  LOOK,
+  SET_SPACE_TAB,
   LOADING,
   SELECT_SPACE,
   PICK_A_SPACE,
   SPACE_PICKED,
   LOADING_ALL,
-  SPACE,
   SHOW_ALL_SPACES,
   ASK_USER_TO_CONNECT,
 } from "../types";
@@ -18,12 +19,13 @@ const initialState = {
   explore: false,
   create: false,
   space: false,
+  jump_in: false,
   show_all_spaces: false,
   loading: false,
   pick_a_space: false,
   space_picked: false,
   selected_space: null,
-  loadingAll: true,
+  loading_all: true,
   space_tab: "mint",
   ask_user_to_connect: 0,
 };
@@ -35,6 +37,7 @@ export default function (state = initialState, action) {
         ...state,
         explore: true,
         create: false,
+        jump_in: false,
         selected_space: null,
         show_all_spaces: false,
       };
@@ -43,6 +46,26 @@ export default function (state = initialState, action) {
         ...state,
         create: action.payload,
         explore: false,
+        jump_in: false,
+        selected_space: null,
+        show_all_spaces: false,
+      };
+
+    case SPACE:
+      return {
+        ...state,
+        space: true,
+        create: false,
+        explore: false,
+        jump_in: false,
+      };
+    case JUMP_IN:
+      return {
+        ...state,
+        space: false,
+        create: false,
+        explore: false,
+        jump_in: true,
         selected_space: null,
         show_all_spaces: false,
       };
@@ -57,13 +80,6 @@ export default function (state = initialState, action) {
         ask_user_to_connect: action.payload,
       };
 
-    case SPACE:
-      return {
-        ...state,
-        space: true,
-        create: false,
-        explore: false,
-      };
     case SELECT_SPACE:
       return {
         ...state,
@@ -78,7 +94,7 @@ export default function (state = initialState, action) {
     case LOADING_ALL:
       return {
         ...state,
-        loadingAll: action.payload,
+        loading_all: action.payload,
       };
 
     case PICK_A_SPACE:

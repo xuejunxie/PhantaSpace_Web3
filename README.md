@@ -39,6 +39,7 @@ tech debt:
 - create state management
 - tile server
 - cache the user NFT and pin ipfs
+- refactor Map.js
 
 future features:
 

@@ -1,7 +1,7 @@
 import React, { useEffect, createRef } from "react";
-import "./CreateList.css";
+import "../List.css";
 import { useDispatch, useSelector } from "react-redux";
-import { LOOK, EXPLORE } from "../redux/types";
+import { LOOK, EXPLORE } from "../../redux/types";
 import { useParams } from "react-router-dom";
 
 var refs = {};
@@ -11,17 +11,17 @@ export default function ExploreList() {
   const NFTid = useParams().NFTid;
   const NFTs = useSelector((state) => state.map.all);
   const click = useSelector((state) => state.map.click);
-  const loadingAll = useSelector((state) => state.sidebar.loadingAll);
+  const loading_all = useSelector((state) => state.sidebar.loading_all);
 
   useEffect(() => {
     dispatch({ type: EXPLORE });
   }, []);
 
   useEffect(() => {
-    if (NFTid && !loadingAll) {
+    if (NFTid && !loading_all) {
       dispatch({ type: LOOK, payload: { NFTid: NFTid } });
     }
-  }, [NFTid, loadingAll]);
+  }, [NFTid, loading_all]);
 
   useEffect(() => {
     if (click) {
@@ -49,7 +49,7 @@ export default function ExploreList() {
             <div className="card  bg-dark" key={nft.NFTid} ref={refs[nft.NFTid]}>
               <div className="card-body text-center ">
                 <a
-                  className="btn rounded-pill"
+                  className="btn rounded-pill col-12"
                   data-toggle="collapse"
                   href={"#collapse" + nft.NFTid}
                   role="button"

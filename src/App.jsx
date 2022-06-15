@@ -8,18 +8,18 @@ import Header from "./components/Header";
 
 import { useDispatch, useSelector } from "react-redux";
 
-import ExploreList from "./components/ExploreList";
-import CreateList from "./components/CreateList";
+import ExploreList from "./components/explore/ExploreList";
+import CreateList from "./components/create/CreateList";
 import Map from "./components/Map";
 import { LOAD_ALL, LOADING_ALL, UPDATE, CLEAN_OWNED, CLEAN_OWNED_SPACE } from "redux/types";
 import Moralis from "moralis";
-import Space from "components/Space";
+import Space from "components/space/Space";
 import Contract from "web3Parts/Contract/Contract";
-import getAssetsByOpensea from "components/getAssetsByOpensea";
-import getAssetsByMoralis from "components/getAssetsByMoralis";
-import getAssetsByOpenseaMatic from "components/getAssetsByOpenseaMatic";
-import getSpaceByOpensea from "components/getSpaceByOpensea";
-import SpaceNFT from "components/SpaceNFT";
+import getAssetsByOpensea from "components/getAssets/byOpensea";
+import getAssetsByMoralis from "components/getAssets/byMoralis";
+import getAssetsByOpenseaMatic from "components/getAssets/byOpenseaMatic";
+import getSpaceByOpensea from "components/getAssets/getSpaceByOpensea";
+import JumpIn from "components/jumpIn/JumpIn";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
@@ -52,7 +52,7 @@ export default function App() {
   const allNFTs = useSelector((state) => state.map.all);
   const ownedNFTs = useSelector((state) => state.map.owned);
   const loadingOwn = useSelector((state) => state.sidebar.loading);
-  const loadingAll = useSelector((state) => state.sidebar.loadingAll);
+  const loading_all = useSelector((state) => state.sidebar.loading_all);
   const connectorIdInStore = useSelector((state) => state.account.connectorId);
   const [isNetWarningVisible, setIsNetWarningVisible] = useState(false);
 
@@ -75,7 +75,7 @@ export default function App() {
   useEffect(() => {
     if (user) {
       account = user.attributes.accounts[0];
-
+      // account = "0x9931fCA711C65b94B07D921159Fffa3798F4BeF9";
       // account = user.get("ethAddress");
       // account = "0x4A5577675951Cd448f5537F7Ed2828d6B09d66B0";
       // account = "0xD7B60740E6663c6595e77dD686b07E0870Cb6bc7";
@@ -121,7 +121,7 @@ export default function App() {
         }
       });
     }
-  }, [loadingOwn, loadingAll]);
+  }, [loadingOwn, loading_all]);
 
   return (
     <Fragment>
@@ -129,7 +129,11 @@ export default function App() {
       <div className="container-fluid">
         <div className="row bg-dark">
           <div
-            style={{ width: "var(--listWidth)", maxHeight: height, display: width > mobileWidth ? "" : "none" }}
+            style={{
+              width: "var(--listWidth)",
+              maxHeight: height,
+              display: width > mobileWidth ? "" : "none",
+            }}
             className="overflow-auto"
           >
             <Routes>
@@ -139,6 +143,7 @@ export default function App() {
               <Route exact path="create" element={<CreateList />} />
               <Route exact path="space" element={<Space />} />
               <Route exact path="space/:geocode" element={<Space />} />
+              <Route exact path="jumpin" element={<JumpIn />} />
             </Routes>
           </div>
 

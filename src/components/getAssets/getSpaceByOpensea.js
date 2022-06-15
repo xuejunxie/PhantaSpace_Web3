@@ -1,5 +1,5 @@
 import axios from "axios";
-import { LOAD_OWNED_SPACE, LOADING_SPACE } from "redux/types";
+import { LOAD_OWNED_SPACE, LOADING_SPACE } from "../../redux/types";
 
 const baseURL = process.env.REACT_APP_OPENSEA_API_URL + "/v1/assets?owner=";
 

@@ -1,10 +1,10 @@
 import React, { useEffect, createRef, useState } from "react";
-import "./CreateList.css";
+import "../List.css";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import Moralis from "moralis";
 import { useMoralis } from "react-moralis";
-import { REMOVE, SELECT, UPDATE, PLACE, DONE, CREATE, LOOK } from "../redux/types";
+import { REMOVE, SELECT, UPDATE, PLACE, DONE, CREATE, LOOK } from "../../redux/types";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
@@ -103,22 +103,22 @@ export default function CreateList() {
     var newNft = { ...nft };
 
     // test if  the url works or not
-    axios.get(nft.model).then((response) => {
-      newNft.model = nft.model;
-    });
-    axios.get(nft.metadata.animation_original_url).then((response) => {
-      newNft.model = nft.metadata.animation_original_url;
-    });
-    axios.get(nft.metadata.animation_url).then((response) => {
-      newNft.model = nft.metadata.animation_url;
-    });
+    // axios.get(nft.model).then((response) => {
+    //   newNft.model = nft.model;
+    // });
+    // axios.get(nft.metadata.animation_original_url).then((response) => {
+    //   newNft.model = nft.metadata.animation_original_url;
+    // });
+    // axios.get(nft.metadata.animation_url).then((response) => {
+    //   newNft.model = nft.metadata.animation_url;
+    // });
 
     const image = new Image();
     image.src = nft.image;
     image.onload = () => {
       newNft.wide = image.width / 100;
       newNft.tall = image.height / 100;
-      newNft.height = newNft.tall * 2;
+      newNft.height = newNft.tall;
       newNft.placed = true;
       dispatch({ type: LOOK, payload: newNft });
       dispatch({ type: SELECT, payload: newNft });

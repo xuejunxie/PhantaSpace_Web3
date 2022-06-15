@@ -41,3 +41,6 @@ export const LOAD_ALL_SPACES = "LOAD_ALL_SPACES";
 // types for account operations
 export const SET_CONNECTOR_ID = "SET_CONNECTOR_ID";
 export const REMOVE_CONNECTOR_ID = "REMOVE_CONNECTOR_ID";
+
+// types for jumpIn operations
+export const JUMP_IN = "JUMP_IN";

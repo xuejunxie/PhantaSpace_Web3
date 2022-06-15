@@ -38,6 +38,8 @@ export default function Map(props) {
 
   const all_spaces = useSelector((state) => state.space.all);
   const show_all_spaces = useSelector((state) => state.sidebar.show_all_spaces);
+
+  const jump_in = useSelector((state) => state.sidebar.jump_in);
   // check if the map is loaded
   var loaded = false;
   var numTiles = 0;
@@ -187,6 +189,7 @@ export default function Map(props) {
         // requestWaterMask: true,
         // requestVertexNormals: true,
       }),
+
       // terrainProvider: new Cesium.CesiumTerrainProvider({
       //   url: Cesium.IonResource.fromAssetId(3957),
       // }),
@@ -394,6 +397,67 @@ export default function Map(props) {
     }
   }, [owned, create]);
 
+  // FPV camera
+  const onMouseMove = (event) => {
+    const camera = viewer.scene.camera;
+    const movementFactor = 0.001;
+    if (document.pointerLockElement === viewer.scene.canvas) {
+      const heading = camera.heading + event.movementX * movementFactor;
+      const pitch = camera.pitch - event.movementY * movementFactor;
+      camera.setView({
+        orientation: {
+          heading: heading,
+          pitch: pitch,
+        },
+      });
+    }
+  };
+
+  // FPV move
+  const onKeyDown = (event) => {
+    // const keyCode = event.keyCode;
+    // var direction = DIRECTION_NONE;
+    // switch (keyCode) {
+    //   case "W".charCodeAt(0):
+    //     direction = DIRECTION_FORWARD;
+    //     return;
+    //   case "S".charCodeAt(0):
+    //     direction = DIRECTION_BACKWARD;
+    //     return;
+    //   case "D".charCodeAt(0):
+    //     direction = DIRECTION_RIGHT;
+    //     return;
+    //   case "A".charCodeAt(0):
+    //     direction = DIRECTION_LEFT;
+    //     return;
+    //   default:
+    //     return;
+    // }
+  };
+
+  // click to disengage the FPV camera
+  const onClick = (event) => {
+    if (document.pointerLockElement === viewer.scene.canvas) {
+      document.exitPointerLock();
+    }
+  };
+
+  useEffect(() => {
+    const canvas = viewer.scene.canvas;
+    if (jump_in) {
+      // click to engage the FPV camera
+      canvas.onclick = () => {
+        canvas.requestPointerLock();
+      };
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("click", onClick);
+      document.addEventListener("keydown", onKeyDown);
+    } else {
+      canvas.onclick = null;
+      document.removeEventListener("mousemove", onMouseMove);
+    }
+  }, [jump_in]);
+
   // look at the entity when clicked on the list
   useEffect(() => {
     if (viewer) {
@@ -504,7 +568,8 @@ function handleCreate(dispatch, nft) {
       var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(click.position), viewer.scene);
       if (cartesian) {
         // increase height
-        cartesian.z += 100;
+
+        cartesian.z += nft.height * nft.scale;
         if (nft) {
           // make sure the entity is not already in the viewer
           entity = viewer.entities.getById(nft.NFTid);

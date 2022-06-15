@@ -1,24 +1,22 @@
 import axios from "axios";
-import { LOAD_OWNED, LOADING } from "redux/types";
+import { LOAD_OWNED, LOADING } from "../../redux/types";
 
-const baseURL = process.env.REACT_APP_OPENSEA_API_URL + "/v2/assets/matic?owner_address=";
+const baseURL = process.env.REACT_APP_OPENSEA_API_URL + "/v1/assets?owner=";
 
 const header = {
   headers: {
     accept: "application/json",
     "X-API-KEY": process.env.REACT_APP_OPENSEA_X_API_KEY,
+    // "Acess-Control-Allow-Origin": "*",
   },
 };
 const urlRegex = /(\b(https?|ftp|file|ifps):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
 
-// regular expression to find cursor in the response
-const cursorRegex = /cursor=([^&]*)/;
-
-var offset = 10000;
+var offset = 0;
 const limit = 50;
 var reachEnd = false;
 
-export default async function getAssetsByOpenseaMatic(account, dispatch) {
+export default async function getAssetsByOpensea(account, dispatch) {
   dispatch({ type: LOADING, payload: true });
   var getURL = baseURL + account + "&limit=" + limit;
 
@@ -29,17 +27,17 @@ export default async function getAssetsByOpenseaMatic(account, dispatch) {
     axios
       .get(getURL, header)
       .then((res) => {
-        ownedNFTs = res.data.results;
-        const next = res.data.next;
-        if (next) {
-          const cursor = next.match(cursorRegex)[1];
+        ownedNFTs = res.data.assets;
+        const cursor = res.data.next;
+
+        if (cursor) {
           getURL = getURL + "&cursor=" + cursor;
         } else {
           reachEnd = true;
           dispatch({ type: LOADING, payload: false });
         }
 
-        if (ownedNFTs.length === 0 || ownedNFTs.length < limit) {
+        if (ownedNFTs.length == 0 || ownedNFTs.length < limit) {
           reachEnd = true;
           dispatch({ type: LOADING, payload: false });
         }
@@ -51,7 +49,6 @@ export default async function getAssetsByOpenseaMatic(account, dispatch) {
       })
       .then((res) => {
         var gltfNFTs = [];
-
         if (ownedNFTs.length > 0) {
           ownedNFTs.map((nft) => {
             var model = null;
@@ -68,11 +65,10 @@ export default async function getAssetsByOpenseaMatic(account, dispatch) {
                 });
               }
             }
-
             // find the glb gltf URL in animation_url of the NFT
             if (nft.animation_url) {
               if (nft.animation_url.includes(".glb") || nft.animation_url.includes(".gltf")) {
-                model = nft.animation_url;
+                model = nft.animation_original_url;
               }
 
               if (
@@ -80,7 +76,7 @@ export default async function getAssetsByOpenseaMatic(account, dispatch) {
                 nft.animation_url.includes(".WEBM") ||
                 nft.animation_url.includes(".M4V")
               ) {
-                video = nft.animation_url;
+                video = nft.animation_original_url;
               }
             }
 

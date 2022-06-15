@@ -6,7 +6,7 @@ import "./index.css";
 import store from "./redux/store";
 import { Provider } from "react-redux";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
-import SpaceNFT from "components/SpaceNFT";
+import SpaceNFT from "components/spaceNFT/SpaceNFT";
 
 /** Get your free Moralis Account https://moralis.io/ */
 

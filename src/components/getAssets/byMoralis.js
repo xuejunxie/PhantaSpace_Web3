@@ -1,5 +1,5 @@
 import axios from "axios";
-import { LOAD_OWNED, LOADING } from "redux/types";
+import { LOAD_OWNED, LOADING } from "../../redux/types";
 
 var offset = 0;
 const limit = 500;
