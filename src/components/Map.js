@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import * as Cesium from "cesium";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { PLACE, UPDATE, CLICK, SELECT_SPACE, MAP_LOADED, SPACE_PICKED } from "../redux/types";
+import { PLACE, UPDATE, CLICK, SELECT_SPACE, MAP_LOADED, SPACE_PICKED, KEY_PRESSED } from "../redux/types";
 import sha256 from "crypto-js/sha256";
 import AxisAlignedBoundingBox from "cesium/Source/Core/AxisAlignedBoundingBox";
 
@@ -412,33 +412,79 @@ export default function Map(props) {
       });
     }
   };
+  var key_pressed = null;
 
   // FPV move
   const onKeyDown = (event) => {
-    // const keyCode = event.keyCode;
-    // var direction = DIRECTION_NONE;
-    // switch (keyCode) {
-    //   case "W".charCodeAt(0):
-    //     direction = DIRECTION_FORWARD;
-    //     return;
-    //   case "S".charCodeAt(0):
-    //     direction = DIRECTION_BACKWARD;
-    //     return;
-    //   case "D".charCodeAt(0):
-    //     direction = DIRECTION_RIGHT;
-    //     return;
-    //   case "A".charCodeAt(0):
-    //     direction = DIRECTION_LEFT;
-    //     return;
-    //   default:
-    //     return;
-    // }
+    const keyCode = event.keyCode;
+    switch (keyCode) {
+      case "W".charCodeAt(0):
+        dispatch({ type: KEY_PRESSED, payload: "forward" });
+        key_pressed = "forward";
+        return;
+      case "S".charCodeAt(0):
+        dispatch({ type: KEY_PRESSED, payload: "backward" });
+        key_pressed = "backward";
+        return;
+      case "D".charCodeAt(0):
+        dispatch({ type: KEY_PRESSED, payload: "right" });
+        key_pressed = "right";
+        return;
+      case "A".charCodeAt(0):
+        dispatch({ type: KEY_PRESSED, payload: "left" });
+        key_pressed = "left";
+        return;
+      default:
+        return;
+    }
+  };
+
+  const onKeyUp = (event) => {
+    dispatch({ type: KEY_PRESSED, payload: null });
+    key_pressed = null;
   };
 
   // click to disengage the FPV camera
   const onClick = (event) => {
     if (document.pointerLockElement === viewer.scene.canvas) {
       document.exitPointerLock();
+    }
+  };
+
+  // var key_pressed = useSelector((state) => state.jumpIn.key_pressed);
+  // handle the FPV camera movement
+  const onClockTik = (clock) => {
+    let dt = clock._clockStep;
+    if (key_pressed) {
+      if (key_pressed === "forward") {
+        viewer.scene.camera.moveForward(dt);
+      }
+      if (key_pressed === "backward") {
+        viewer.scene.camera.moveBackward(dt);
+      }
+      if (key_pressed === "right") {
+        viewer.scene.camera.moveRight(dt);
+      }
+      if (key_pressed === "left") {
+        viewer.scene.camera.moveLeft(dt);
+      }
+      // switch (key_pressed) {
+      //   case "forward":
+      //     console.log("forward");
+      //     viewer.scene.camera.moveForward(dt);
+      //     break;
+      //   case "backward":
+      //     viewer.scene.camera.moveBackward(dt);
+      //     break;
+      //   case "right":
+      //     viewer.scene.camera.moveRight(dt);
+      //     break;
+      //   case "left":
+      //     viewer.scene.camera.moveLeft(dt);
+      //     break;
+      //   default:
+      //     break;
+      // }
     }
   };
 
@@ -452,9 +498,15 @@ export default function Map(props) {
       document.addEventListener("mousemove", onMouseMove);
       document.addEventListener("click", onClick);
       document.addEventListener("keydown", onKeyDown);
+      document.addEventListener("keyup", onKeyUp);
+      viewer.clock.onTick.addEventListener(onClockTik);
     } else {
       canvas.onclick = null;
       document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("click", onClick);
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("keyup", onKeyUp);
+      viewer.clock.onTick.removeEventListener(onClockTik);
     }
   }, [jump_in]);
 

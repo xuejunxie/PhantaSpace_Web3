@@ -44,3 +44,4 @@ export const REMOVE_CONNECTOR_ID = "REMOVE_CONNECTOR_ID";
 
 // types for jumpIn operations
 export const JUMP_IN = "JUMP_IN";
+export const KEY_PRESSED = "KEY_PRESSED";
