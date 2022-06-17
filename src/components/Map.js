@@ -270,7 +270,8 @@ export default function Map(props) {
       endTransform: Cesium.Matrix4.IDENTITY,
     });
 
-    viewer.scene.skyBox.show = false;
+    // turn off stars
+    // viewer.scene.skyBox.show = false;
 
     // Load the OSM buildings tileset
 
@@ -419,13 +420,15 @@ export default function Map(props) {
   var key_down = false;
   var key_left = false;
   var key_right = false;
-  var move_speed = 10;
+  var high_speed = 50;
+  var low_speed = 2;
+  var move_speed = 2;
 
   // FPV move
   const onKeyDown = (event) => {
     const keyCode = event.keyCode;
     if (event.shiftKey) {
-      move_speed = 50;
+      move_speed = high_speed;
     }
     switch (keyCode) {
       case "W".charCodeAt(0):
@@ -448,7 +451,7 @@ export default function Map(props) {
   const onKeyUp = (event) => {
     const keyCode = event.keyCode;
     if (!event.shiftKey) {
-      move_speed = 10;
+      move_speed = low_speed;
     }
     switch (keyCode) {
       case "W".charCodeAt(0):

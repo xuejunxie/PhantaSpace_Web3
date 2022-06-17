@@ -8,5 +8,11 @@ export default function JumpIn() {
     dispatch({ type: JUMP_IN });
   }, []);
 
-  return <div className="text-light">jumpIn</div>;
+  return (
+    <div className="text-light">
+      <h5>Left click the map to play FPV.</h5>
+      <h5>Use W A S D to control, hold shift to speed up.</h5>
+      <h5>Left click again to exit the FPV.</h5>
+    </div>
+  );
 }
