@@ -412,27 +412,28 @@ export default function Map(props) {
       });
     }
   };
-  var key_pressed = null;
+
+  var key_up = false;
+  var key_down = false;
+  var key_left = false;
+  var key_right = false;
+  var move_speed = 10;
 
   // FPV move
   const onKeyDown = (event) => {
     const keyCode = event.keyCode;
     switch (keyCode) {
       case "W".charCodeAt(0):
-        dispatch({ type: KEY_PRESSED, payload: "forward" });
-        key_pressed = "forward";
+        key_up = true;
         return;
       case "S".charCodeAt(0):
-        dispatch({ type: KEY_PRESSED, payload: "backward" });
-        key_pressed = "backward";
+        key_down = true;
         return;
       case "D".charCodeAt(0):
-        dispatch({ type: KEY_PRESSED, payload: "right" });
-        key_pressed = "right";
+        key_right = true;
         return;
       case "A".charCodeAt(0):
-        dispatch({ type: KEY_PRESSED, payload: "left" });
-        key_pressed = "left";
+        key_left = true;
         return;
       default:
         return;
@@ -440,8 +441,23 @@ export default function Map(props) {
   };
 
   const onKeyUp = (event) => {
-    dispatch({ type: KEY_PRESSED, payload: null });
-    key_pressed = null;
+    const keyCode = event.keyCode;
+    switch (keyCode) {
+      case "W".charCodeAt(0):
+        key_up = false;
+        return;
+      case "S".charCodeAt(0):
+        key_down = false;
+        return;
+      case "D".charCodeAt(0):
+        key_right = false;
+        return;
+      case "A".charCodeAt(0):
+        key_left = false;
+        return;
+      default:
+        return;
+    }
   };
 
   // click to disengage the FPV camera
@@ -454,37 +470,18 @@ export default function Map(props) {
   // var key_pressed = useSelector((state) => state.jumpIn.key_pressed);
   // handle the FPV camera movement
   const onClockTik = (clock) => {
-    let dt = clock._clockStep;
-    if (key_pressed) {
-      if (key_pressed === "forward") {
-        viewer.scene.camera.moveForward(dt);
-      }
-      if (key_pressed === "backward") {
-        viewer.scene.camera.moveBackward(dt);
-      }
-      if (key_pressed === "right") {
-        viewer.scene.camera.moveRight(dt);
-      }
-      if (key_pressed === "left") {
-        viewer.scene.camera.moveLeft(dt);
-      }
-      // switch (key_pressed) {
-      //   case "forward":
-      //     console.log("forward");
-      //     viewer.scene.camera.moveForward(dt);
-      //     break;
-      //   case "backward":
-      //     viewer.scene.camera.moveBackward(dt);
-      //     break;
-      //   case "right":
-      //     viewer.scene.camera.moveRight(dt);
-      //     break;
-      //   case "left":
-      //     viewer.scene.camera.moveLeft(dt);
-      //     break;
-      //   default:
-      //     break;
-      // }
+    let dt = clock._clockStep * move_speed;
+    if (key_up) {
+      viewer.scene.camera.moveForward(dt);
+    }
+    if (key_down) {
+      viewer.scene.camera.moveBackward(dt);
+    }
+    if (key_right) {
+      viewer.scene.camera.moveRight(dt);
+    }
+    if (key_left) {
+      viewer.scene.camera.moveLeft(dt);
     }
   };
 
