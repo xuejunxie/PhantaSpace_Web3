@@ -270,6 +270,8 @@ export default function Map(props) {
       endTransform: Cesium.Matrix4.IDENTITY,
     });
 
+    viewer.scene.skyBox.show = false;
+
     // Load the OSM buildings tileset
 
     viewer.scene.primitives.add(
@@ -422,6 +424,9 @@ export default function Map(props) {
   // FPV move
   const onKeyDown = (event) => {
     const keyCode = event.keyCode;
+    if (event.shiftKey) {
+      move_speed = 50;
+    }
     switch (keyCode) {
       case "W".charCodeAt(0):
         key_up = true;
@@ -442,6 +447,9 @@ export default function Map(props) {
 
   const onKeyUp = (event) => {
     const keyCode = event.keyCode;
+    if (!event.shiftKey) {
+      move_speed = 10;
+    }
     switch (keyCode) {
       case "W".charCodeAt(0):
         key_up = false;
@@ -470,19 +478,63 @@ export default function Map(props) {
   // var key_pressed = useSelector((state) => state.jumpIn.key_pressed);
   // handle the FPV camera movement
   const onClockTik = (clock) => {
+    const camera = viewer.scene.camera;
+    const globe = viewer.scene.globe;
+    var destination = Cesium.Cartesian3.ZERO;
     let dt = clock._clockStep * move_speed;
     if (key_up) {
-      viewer.scene.camera.moveForward(dt);
+      destination = Cesium.Cartesian3.multiplyByScalar(camera.direction, dt, new Cesium.Cartesian3());
     }
     if (key_down) {
-      viewer.scene.camera.moveBackward(dt);
+      destination = Cesium.Cartesian3.add(
+        destination,
+        Cesium.Cartesian3.multiplyByScalar(camera.direction, -dt, new Cesium.Cartesian3()),
+        new Cesium.Cartesian3()
+      );
     }
     if (key_right) {
-      viewer.scene.camera.moveRight(dt);
+      destination = Cesium.Cartesian3.add(
+        destination,
+        Cesium.Cartesian3.multiplyByScalar(camera.right, dt, new Cesium.Cartesian3()),
+        new Cesium.Cartesian3()
+      );
     }
     if (key_left) {
-      viewer.scene.camera.moveLeft(dt);
+      destination = Cesium.Cartesian3.add(
+        destination,
+        Cesium.Cartesian3.multiplyByScalar(camera.right, -dt, new Cesium.Cartesian3()),
+        new Cesium.Cartesian3()
+      );
     }
+
+    if (key_up || key_down || key_left || key_right) {
+      destination = Cesium.Cartesian3.add(camera.position, destination, new Cesium.Cartesian3());
+
+      var destinationCartographic = globe.ellipsoid.cartesianToCartographic(destination);
+
+      var destination_height = globe.getHeight(destinationCartographic);
+
+      destinationCartographic.height = Math.max(destination_height + 1.6, destinationCartographic.height);
+      destination = globe.ellipsoid.cartographicToCartesian(destinationCartographic);
+
+      camera.setView({
+        destination: destination,
+        orientation: {
+          heading: camera.heading,
+          pitch: camera.pitch,
+          roll: camera.roll,
+        },
+        endTransform: Cesium.Matrix4.IDENTITY,
+      });
+    }
+
+    // var cameraCartographic = ellipsoid.cartesianToCartographic(camera.position);
+    // var height = cameraCartographic.height;
+    // if (height < 160) {
+    //   camera.setView({
+    //     destination: ellipsoid.cartographicToCartesian(cameraCartographic.longitude, cameraCartographic.latitude, 1.6),
+    //   });
+    // }
   };
 
   useEffect(() => {
@@ -492,6 +544,7 @@ export default function Map(props) {
       canvas.onclick = () => {
         canvas.requestPointerLock();
       };
+
       document.addEventListener("mousemove", onMouseMove);
       document.addEventListener("click", onClick);
       document.addEventListener("keydown", onKeyDown);
