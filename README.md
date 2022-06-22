@@ -26,7 +26,9 @@ marketing:
 block place
 
 - 2D first
-- FPV move for 3D
+
+* FPV move for 3D
+
 - space owner place unlimited block in their space
 - place a set of block without time limit in open space
 - other user, one p1 block every 256s, one p2 - 128s, p3 - 64s, p4 - 32s, p4 - 16s
@@ -45,7 +47,7 @@ future features:
 
 - mint NFT on site
 
-- human scale navigation
+* human scale navigation
 
 - support video, and music
 

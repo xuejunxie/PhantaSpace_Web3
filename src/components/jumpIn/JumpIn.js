@@ -9,10 +9,10 @@ export default function JumpIn() {
   }, []);
 
   return (
-    <div className="text-light">
-      <h5>Left click the map to play FPV.</h5>
+    <div className="text-light mt-5">
+      <h5>Left click the map to fly around.</h5>
       <h5>Use W A S D to control, hold shift to speed up.</h5>
-      <h5>Left click again to exit the FPV.</h5>
+      <h5>Left click again to exit the fly mode.</h5>
     </div>
   );
 }

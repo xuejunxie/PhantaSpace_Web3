@@ -486,7 +486,11 @@ export default function Map(props) {
     var destination = Cesium.Cartesian3.ZERO;
     let dt = clock._clockStep * move_speed;
     if (key_up) {
-      destination = Cesium.Cartesian3.multiplyByScalar(camera.direction, dt, new Cesium.Cartesian3());
+      destination = Cesium.Cartesian3.add(
+        destination,
+        Cesium.Cartesian3.multiplyByScalar(camera.direction, dt, new Cesium.Cartesian3()),
+        new Cesium.Cartesian3()
+      );
     }
     if (key_down) {
       destination = Cesium.Cartesian3.add(
