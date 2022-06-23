@@ -4,6 +4,7 @@ import sidebar from "./sidebar";
 import space from "./space";
 import account from "./account";
 import jumpIn from "./jumpIn";
+import phanton from "./phanton";
 
 export default combineReducers({
   map,
@@ -11,4 +12,5 @@ export default combineReducers({
   space,
   account,
   jumpIn,
+  phanton,
 });

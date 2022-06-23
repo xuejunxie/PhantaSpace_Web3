@@ -72,7 +72,7 @@ function Account() {
     return (
       <>
         <div onClick={() => setIsAuthModalVisible(true)}>
-          <p style={styles.account}>Connect wallet to create</p>
+          <p style={styles.account}>Connect wallet</p>
         </div>
         <Modal show={isAuthModalVisible} onHide={() => setIsAuthModalVisible(false)}>
           <Modal.Header>

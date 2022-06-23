@@ -12,6 +12,7 @@ import {
   LOADING_ALL,
   SHOW_ALL_SPACES,
   ASK_USER_TO_CONNECT,
+  PHANTON,
 } from "../types";
 
 const initialState = {
@@ -20,6 +21,7 @@ const initialState = {
   create: false,
   space: false,
   jump_in: false,
+  phanton: false,
   show_all_spaces: false,
   loading: false,
   pick_a_space: false,
@@ -38,6 +40,8 @@ export default function (state = initialState, action) {
         explore: true,
         create: false,
         jump_in: false,
+        phanton: false,
+
         selected_space: null,
         show_all_spaces: false,
       };
@@ -47,6 +51,8 @@ export default function (state = initialState, action) {
         create: action.payload,
         explore: false,
         jump_in: false,
+        phanton: false,
+
         selected_space: null,
         show_all_spaces: false,
       };
@@ -58,6 +64,7 @@ export default function (state = initialState, action) {
         create: false,
         explore: false,
         jump_in: false,
+        phanton: false,
       };
     case JUMP_IN:
       return {
@@ -66,6 +73,19 @@ export default function (state = initialState, action) {
         create: false,
         explore: false,
         jump_in: true,
+        phanton: false,
+
+        selected_space: null,
+        show_all_spaces: false,
+      };
+    case PHANTON:
+      return {
+        ...state,
+        space: false,
+        create: false,
+        explore: false,
+        jump_in: false,
+        phanton: true,
         selected_space: null,
         show_all_spaces: false,
       };

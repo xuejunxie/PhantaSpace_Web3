@@ -1,8 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { Tab, Tabs } from "react-bootstrap";
+import { PHANTON } from "redux/types";
 import PhantonBuy from "./PhantonBuy";
 
 export default function Phanton() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch({ type: PHANTON });
+  }, []);
   return (
     <div>
       <Tabs>
