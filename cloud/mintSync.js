@@ -387,20 +387,14 @@ Moralis.Cloud.afterSave("Transfer", async (request) => {
   // }
 });
 
-Moralis.Cloud.define("test", async (request) => {
-  return request;
-
-  // const logger = Moralis.Cloud.getLogger();
-  // logger.info(request);
-
-  // const userDatabase = Moralis.Object.extend("_User");
-  // const query = new Moralis.Query(userDatabase);
-  // query.equalTo("ethAddress", "0x88c6c24947ff5aaf019026c95d7853878e2517d3");
-  // const result = await query.find({ useMasterKey: true });
-  // const user = result[0];
-  // logger.info("user:" + user);
-  // if (user) {
-  //   user.addUnique("space", "123456781");
-  //   user.save(null, { useMasterKey: true });
-  // }
+Moralis.Cloud.afterSave("seedFund", async (request) => {
+  const userDatabase = Moralis.Object.extend(userDatabaseName);
+  const userQuery = new Moralis.Query(userDatabase);
+  userQuery.equalTo("ethAddress", request.object.get("from"));
+  const userQueryResult = await userQuery.find({ useMasterKey: true });
+  const user = userQueryResult[0];
+  if (user) {
+    user.add("seedFund", { fund: request.object.get("fund"), token: request.object.get("token") });
+    user.save(null, { useMasterKey: true });
+  }
 });

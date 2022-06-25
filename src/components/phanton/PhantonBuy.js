@@ -7,8 +7,6 @@ import { useSelector, useDispatch } from "react-redux";
 import "katex/dist/katex.min.css";
 import Latex from "react-latex-next";
 
-import { XYChart, BarSeries, CrossHair, XAxis, YAxis, LinearGradient } from "@data-ui/xy-chart";
-
 export default function PhantonBuy() {
   const dispatch = useDispatch();
   const [fund, setFund] = useState(1);
@@ -17,11 +15,14 @@ export default function PhantonBuy() {
   const [tokenYouGet, setTokenYouGet] = useState(0);
   const [totalSupply, setTotalSupply] = useState(1);
   const [valuation, setValuation] = useState(1);
+  const maximumSupply = 100000000;
 
   const fundInput = (value) => {
     const fundValue = Math.exp(parseFloat(value, 10)).toFixed(1);
     setFund(fundValue);
   };
+
+  useEffect(() => {}, [fundRaised, fund]);
 
   return (
     <div className="text-light col mt-5">
@@ -52,10 +53,14 @@ export default function PhantonBuy() {
         </div>
       </div>
       <div className="row  justify-content-center   mt-4 ">
-        <h5> The Phaton sale pool is governed by this equation: </h5>
+        <h5> The Phanton sale pool is governed by this equation: </h5>
       </div>
       <div className="row  justify-content-center  ">
-        <Latex>{String.raw`$ Phanton = \frac {10 \% * T_{total}} {ETH/800 + 1} $ `}</Latex>
+        <Latex>{String.raw`$ Phanton = \frac {10 \% * T_{max}} {ETH/800 + 1} $ `}</Latex>
+      </div>
+      <div className="row  justify-content-center  ">
+        <Latex>{String.raw`$ T_{max} = $ `}</Latex>
+        {maximumSupply}
       </div>
     </div>
   );
