@@ -132,13 +132,13 @@ export default function PhantonBuy() {
   }, [fundRaised, fund]);
 
   function phantonToken(x) {
-    return 10 / (x / 800 + 1);
+    return (10 / (x / 800 + 1)).toPrecision(3);
   }
 
   function generateData(min, max) {
     let data = [];
-    for (let i = min; i <= max; i += (max - min) / 20) {
-      data.push([i, phantonToken(i)]);
+    for (let i = min; i <= max; i += (max - min) / 50) {
+      data.push([i.toFixed(0), phantonToken(i)]);
     }
     return data;
   }
@@ -182,8 +182,14 @@ export default function PhantonBuy() {
         },
       },
     },
-
+    tooltip: {
+      trigger: "axis",
+      formatter: (params) => {
+        return `${params[0].value[1]}% left at<br/>${params[0].value[0]} ETH raised`;
+      },
+    },
     series: [
+      // blue line
       {
         data: generateData(0, Math.max(800, fundRaised + fund)),
         type: "line",
@@ -199,30 +205,48 @@ export default function PhantonBuy() {
               coord: [fundRaised.toString(), phantonToken(fundRaised).toString()],
             },
           ],
-
+          label: {
+            formatter: (params) => {
+              return "Left";
+            },
+          },
           itemStyle: {
             color: "#95D2EC",
           },
         },
+        animation: false,
       },
+      // red line
       {
+        name: "%",
+
         data: generateData(fundRaised, fund),
+
         type: "line",
         showSymbol: false,
         lineStyle: {
           color: "#FF4242",
         },
         markPoint: {
+          symbolRotate: 180,
           data: [
             {
               name: "your position",
               coord: [(fundRaised + fund).toString(), phantonToken(fundRaised + fund).toString()],
             },
           ],
+          label: {
+            formatter: (params) => {
+              return "Buy";
+            },
+            offset: [0, 12],
+          },
           itemStyle: {
             color: "#FF4242",
           },
+          animation: false,
         },
+        animation: false,
       },
     ],
   };
@@ -263,7 +287,7 @@ export default function PhantonBuy() {
       </div>
 
       <div className="row  justify-content-center  ">
-        <h5> = {((tokenYouGet / maximumSupply) * 100).toFixed(5)} % X</h5>
+        <h5> = {((tokenYouGet / maximumSupply) * 100).toFixed(5)} % x</h5>
       </div>
 
       <div className="row  justify-content-center  ">
@@ -275,7 +299,7 @@ export default function PhantonBuy() {
       </div>
 
       <div className="row justify-content-center  ">
-        <h5>{((fund / tokenYouGet) * maximumSupply).toLocaleString(undefined, { maximumFractionDigits: 2 })} ETH</h5>
+        <h5>{((fund / tokenYouGet) * maximumSupply).toLocaleString(undefined, { maximumFractionDigits: 0 })} ETH</h5>
       </div>
 
       <div className="row  justify-content-center ">

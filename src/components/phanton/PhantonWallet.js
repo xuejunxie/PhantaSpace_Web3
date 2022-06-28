@@ -59,7 +59,7 @@ export default function PhantonWallet() {
   };
 
   return (
-    <div>
+    <div className="col">
       <div className="row text-light justify-content-center mt-4 ">
         <h5>Balance: </h5>
       </div>
