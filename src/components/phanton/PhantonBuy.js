@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import MailchimpSubscribe from "react-mailchimp-subscribe";
 import { useSelector, useDispatch } from "react-redux";
-import { useMoralisQuery, useMoralis, useWeb3Contract } from "react-moralis";
+import { useMoralisQuery, useMoralis, useWeb3Contract, useMoralisSubscription } from "react-moralis";
 import abi from "./abi.json";
 import "../List.css";
 
@@ -41,10 +41,14 @@ export default function PhantonBuy() {
     functionName: "seedFundRaised",
   });
 
-  useEffect(() => {
+  const fetchFundInfo = () => {
     getMaximumSupply.runContractFunction();
     getTokenSold.runContractFunction();
     getFundRaised.runContractFunction();
+  };
+
+  useEffect(() => {
+    fetchFundInfo();
   }, [web3, isAuthenticated]);
 
   const getMaximumSupplyData = getMaximumSupply.data;
@@ -66,12 +70,12 @@ export default function PhantonBuy() {
   }, [getMaximumSupplyData, getTokenSoldData, getFundRaisedData]);
 
   // get live fund raised data
-  const limit = 1;
+  const limit = 5;
   const { data, error, isLoading } = useMoralisQuery(
     "seedFundIncreased",
     (query) =>
       // query all
-      query.limit(limit),
+      query.descending("block_number"),
     [limit],
     {
       live: true,
@@ -79,16 +83,13 @@ export default function PhantonBuy() {
       onLiveCreate: (entity, all) => [...all, entity],
       onLiveDelete: (entity, all) => all.filter((e) => e.id !== entity.id),
       onLiveLeave: (entity, all) => all.filter((e) => e.id !== entity.id),
-      onLiveUpdate: (entity, all) => all.map((e) => (e.id === entity.id ? entity : e)),
+      onLiveUpdate: (entity, all) => [...all, entity],
     }
   );
 
   useEffect(async () => {
-    if (data && data.length > 0) {
-      console.log(data);
-
-      setFundRaised(data[0].attributes.seedFundIncreased);
-    }
+    fetchFundInfo();
+    // Moralis live query can not get synced data, so we need to fetch data manually
   }, [data]);
 
   const fundInput = (value) => {
@@ -109,13 +110,13 @@ export default function PhantonBuy() {
 
   const [loadingBuy, setLoadingBuy] = useState(false);
   const onBuy = async () => {
-    console.log(process.env.REACT_APP_PHANTON_ADDRESS);
     setLoadingBuy(true);
     buyContract.runContractFunction().then(async (result) => {
       console.log(buyContract.data);
 
       if (result === undefined) {
         setLoadingBuy(false);
+        fetchFundInfo();
         return;
       }
     });
