@@ -1,7 +1,8 @@
-import { SET_CONNECTOR_ID, REMOVE_CONNECTOR_ID } from "../types";
+import { SET_CONNECTOR_ID, REMOVE_CONNECTOR_ID, SET_ACCOUNT } from "../types";
 
 const initialState = {
   connectorId: "injected",
+  account: "",
 };
 
 export default function (state = initialState, action) {
@@ -15,6 +16,11 @@ export default function (state = initialState, action) {
       return {
         ...state,
         connectorId: "injected",
+      };
+    case SET_ACCOUNT:
+      return {
+        ...state,
+        account: action.payload,
       };
 
     default:

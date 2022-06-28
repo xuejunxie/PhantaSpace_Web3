@@ -1,30 +1,12 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import {
-  SPACE,
-  PICK_A_SPACE,
-  SELECT_SPACE,
-  SHOW_SPACE,
-  LOAD_OWNED_SPACE,
-  ADD_OWNED_SPACE,
-  SET_SPACE_TAB,
-  LOAD_USER_BIDS,
-} from "redux/types";
-import { useMoralis, useWeb3Contract, useMoralisQuery } from "react-moralis";
-import Moralis from "moralis";
+import { PICK_A_SPACE, ADD_OWNED_SPACE, SET_SPACE_TAB, LOAD_USER_BIDS } from "redux/types";
+import { useMoralis, useWeb3Contract } from "react-moralis";
 import abi from "./abi.json";
 import "./Space.css";
 import axios from "axios";
 
-const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
-const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
-
 const opense_asset_url = process.env.REACT_APP_OPENSEA_URL + "/assets/";
-
-Moralis.initialize(appId);
-Moralis.serverURL = serverUrl;
-const auctionDatabase = Moralis.Object.extend("auction");
 
 export default function SpaceMint() {
   const dispatch = useDispatch();

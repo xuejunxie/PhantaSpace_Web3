@@ -9,7 +9,7 @@ import { connectors } from "./config";
 import { customEnable } from "./walletlink";
 import coinbaseIcon from "./WalletIcons/coinbase.svg";
 import { useDispatch, useSelector } from "react-redux";
-import { DISCONNECT, REMOVE_CONNECTOR_ID, SET_CONNECTOR_ID } from "redux/types";
+import { DISCONNECT, REMOVE_CONNECTOR_ID, SET_ACCOUNT, SET_CONNECTOR_ID } from "redux/types";
 
 const styles = {
   account: {
@@ -165,6 +165,7 @@ function Account() {
               dispatch({ type: REMOVE_CONNECTOR_ID });
               setIsModalVisible(false);
               dispatch({ type: DISCONNECT });
+              dispatch({ type: SET_ACCOUNT, payload: "" });
             }}
           >
             Disconnect Wallet

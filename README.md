@@ -42,6 +42,7 @@ tech debt:
 - tile server
 - cache the user NFT and pin ipfs
 - refactor Map.js
+- upgrade from web3.js to ethers.js
 
 future features:
 

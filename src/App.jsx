@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ExploreList from "./components/explore/ExploreList";
 import CreateList from "./components/create/CreateList";
 import Map from "./components/Map";
-import { LOAD_ALL, LOADING_ALL, UPDATE, CLEAN_OWNED, CLEAN_OWNED_SPACE } from "redux/types";
+import { LOAD_ALL, LOADING_ALL, UPDATE, CLEAN_OWNED, CLEAN_OWNED_SPACE, SET_ACCOUNT } from "redux/types";
 import Moralis from "moralis";
 import Space from "components/space/Space";
 import Contract from "web3Parts/Contract/Contract";
@@ -76,6 +76,7 @@ export default function App() {
   useEffect(() => {
     if (user) {
       account = user.attributes.accounts[0];
+      dispatch({ type: SET_ACCOUNT, payload: account });
       // account = "0x9931fCA711C65b94B07D921159Fffa3798F4BeF9";
       // account = user.get("ethAddress");
       // account = "0x4A5577675951Cd448f5537F7Ed2828d6B09d66B0";
