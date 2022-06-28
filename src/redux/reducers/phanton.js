@@ -1,7 +1,8 @@
-import { UPDATE_FUND } from "../types";
+import { PHANTON_TAB, UPDATE_FUND } from "../types";
 
 const initialState = {
   fund: 1,
+  phanton_tab: "buy",
 };
 
 export default function (state = initialState, action) {
@@ -10,6 +11,11 @@ export default function (state = initialState, action) {
       return {
         ...state,
         fund: action.payload,
+      };
+    case PHANTON_TAB:
+      return {
+        ...state,
+        phanton_tab: action.payload,
       };
 
     default:

@@ -9,6 +9,7 @@ export default function PhantonWallet() {
   const [balance, setBalance] = useState(0);
   const account = useSelector((state) => state.account.account);
   const { isAuthenticated, web3, user, refetchUserData } = useMoralis();
+  const phanton_tab = useSelector((state) => state.phanton.phanton_tab);
 
   const getBalance = useWeb3Contract({
     abi: abi.abi,
@@ -21,7 +22,7 @@ export default function PhantonWallet() {
 
   useEffect(() => {
     getBalance.runContractFunction();
-  }, [web3, isAuthenticated]);
+  }, [web3, isAuthenticated, phanton_tab]);
 
   const getBalanceData = getBalance.data;
 
@@ -60,7 +61,10 @@ export default function PhantonWallet() {
   return (
     <div>
       <div className="row text-light justify-content-center mt-4 ">
-        <h6>Balance: {balance.toLocaleString(undefined, { maximumFractionDigits: 5 })} Phanton</h6>
+        <h5>Balance: </h5>
+      </div>
+      <div className="row text-light justify-content-center">
+        <h5>{balance.toLocaleString(undefined, { maximumFractionDigits: 5 })} Phanton</h5>
       </div>
       <div className="row justify-content-center mt-4">
         <button

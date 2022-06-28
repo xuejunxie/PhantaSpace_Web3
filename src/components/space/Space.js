@@ -28,34 +28,34 @@ export default function Space() {
 
   // deal with time
 
-  const [date, setDate] = useState(new Date());
-  const startTime = Date.parse("16 APR 2022 17:00:00 PST");
+  // const [date, setDate] = useState(new Date());
+  // const startTime = Date.parse("16 APR 2022 17:00:00 PST");
 
-  function refreshClock() {
-    setDate(new Date());
-  }
+  // function refreshClock() {
+  //   setDate(new Date());
+  // }
 
-  function timeString(time) {
-    const seconds = Math.floor(time % 60);
-    const minutes = Math.floor((time / 60) % 60);
-    const hours = Math.floor(time / 60 / 60) % 24;
-    const days = Math.floor(time / 60 / 60 / 24);
+  // function timeString(time) {
+  //   const seconds = Math.floor(time % 60);
+  //   const minutes = Math.floor((time / 60) % 60);
+  //   const hours = Math.floor(time / 60 / 60) % 24;
+  //   const days = Math.floor(time / 60 / 60 / 24);
 
-    return (
-      <div className="mt-3">
-        <h2> {hours} hours </h2>
-        <h2> {minutes} minutes </h2>
-        <h2> {seconds} seconds </h2>
-      </div>
-    );
-  }
+  //   return (
+  //     <div className="mt-3">
+  //       <h2> {hours} hours </h2>
+  //       <h2> {minutes} minutes </h2>
+  //       <h2> {seconds} seconds </h2>
+  //     </div>
+  //   );
+  // }
 
-  useEffect(() => {
-    const timerId = setInterval(refreshClock, 1000);
-    return function cleanup() {
-      clearInterval(timerId);
-    };
-  }, []);
+  // useEffect(() => {
+  //   const timerId = setInterval(refreshClock, 1000);
+  //   return function cleanup() {
+  //     clearInterval(timerId);
+  //   };
+  // }, []);
 
   useEffect(() => {
     dispatch({ type: SET_SPACE_TAB, payload: "mint" });
@@ -91,9 +91,7 @@ export default function Space() {
   useEffect(() => {
     dispatch({ type: SPACE });
     dispatch({ type: SELECT_SPACE, payload: null });
-  }, []);
 
-  useEffect(() => {
     if (spacePosition.geocode) {
       const space = {
         geocode: spacePosition.geocode,
@@ -112,30 +110,26 @@ export default function Space() {
 
   return (
     <div className="bg-dark text-light">
-      {startTime > date ? (
-        <h2 className="mt-5"> Initial space offering on-chain auction in: {timeString((startTime - date) / 1000)} </h2>
-      ) : (
-        <Tabs
-          id="controlled-tab-example"
-          activeKey={space_tab}
-          onSelect={(k) => {
-            dispatch({ type: SET_SPACE_TAB, payload: k });
-          }}
-        >
-          <Tab eventKey="mint" title="Mint" tabClassName="text-light ml-1">
-            <SpaceMint />
-          </Tab>
+      <Tabs
+        id="controlled-tab-example"
+        activeKey={space_tab}
+        onSelect={(k) => {
+          dispatch({ type: SET_SPACE_TAB, payload: k });
+        }}
+      >
+        <Tab eventKey="mint" title="Mint" tabClassName="text-light ml-1">
+          <SpaceMint />
+        </Tab>
 
-          {isAuthenticated ? (
-            <Tab eventKey="owned" title="Owned" tabClassName="text-light">
-              <SpaceOwned />
-            </Tab>
-          ) : null}
-          <Tab eventKey="auction" title="Auction" tabClassName="text-light">
-            <SpaceAuction />
+        {isAuthenticated ? (
+          <Tab eventKey="owned" title="Owned" tabClassName="text-light">
+            <SpaceOwned />
           </Tab>
-        </Tabs>
-      )}
+        ) : null}
+        <Tab eventKey="auction" title="Auction" tabClassName="text-light">
+          <SpaceAuction />
+        </Tab>
+      </Tabs>
     </div>
   );
 }

@@ -50,3 +50,4 @@ export const KEY_PRESSED = "KEY_PRESSED";
 // types for phanton
 export const PHANTON = "PHANTON";
 export const UPDATE_FUND = "UPDATE_FUND";
+export const PHANTON_TAB = "PHANTON_TAB";

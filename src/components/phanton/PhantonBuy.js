@@ -9,6 +9,10 @@ import "../List.css";
 
 import "katex/dist/katex.min.css";
 import Latex from "react-latex-next";
+import { PHANTON_TAB } from "redux/types";
+
+import ReactECharts from "echarts-for-react";
+import Item from "antd/lib/list/Item";
 
 const showDecimals = 5;
 
@@ -117,6 +121,7 @@ export default function PhantonBuy() {
       if (result === undefined) {
         setLoadingBuy(false);
         fetchFundInfo();
+        dispatch({ type: PHANTON_TAB, payload: "wallet" });
         return;
       }
     });
@@ -126,22 +131,118 @@ export default function PhantonBuy() {
     setTokenYouGet(0.1 * maximumSupply * (1 / (fundRaised / 800 + 1) - 1 / ((fund + fundRaised) / 800 + 1)));
   }, [fundRaised, fund]);
 
+  function phantonToken(x) {
+    return 10 / (x / 800 + 1);
+  }
+
+  function generateData(min, max) {
+    let data = [];
+    for (let i = min; i <= max; i += (max - min) / 20) {
+      data.push([i, phantonToken(i)]);
+    }
+    return data;
+  }
+
+  const options = {
+    darkMode: true,
+    backgroundColor: "#373a3c",
+    xAxis: {
+      type: "value",
+      axisLabel: {
+        color: "#fff",
+      },
+      axisLine: {
+        lineStyle: {
+          color: "#fff",
+        },
+      },
+      splitLine: {
+        show: true,
+        lineStyle: {
+          color: "#fff",
+          type: "dotted",
+        },
+      },
+    },
+    yAxis: {
+      type: "value",
+      axisLabel: {
+        color: "#fff",
+      },
+      axisLine: {
+        lineStyle: {
+          color: "#fff",
+        },
+      },
+      splitLine: {
+        show: true,
+        lineStyle: {
+          color: "#fff",
+          type: "dotted",
+        },
+      },
+    },
+
+    series: [
+      {
+        data: generateData(0, Math.max(800, fundRaised + fund)),
+        type: "line",
+        showSymbol: false,
+        lineStyle: {
+          color: "#95D2EC",
+        },
+        markPoint: {
+          symbol: "pin",
+          data: [
+            {
+              name: "current position",
+              coord: [fundRaised.toString(), phantonToken(fundRaised).toString()],
+            },
+          ],
+
+          itemStyle: {
+            color: "#95D2EC",
+          },
+        },
+      },
+      {
+        data: generateData(fundRaised, fund),
+        type: "line",
+        showSymbol: false,
+        lineStyle: {
+          color: "#FF4242",
+        },
+        markPoint: {
+          data: [
+            {
+              name: "your position",
+              coord: [(fundRaised + fund).toString(), phantonToken(fundRaised + fund).toString()],
+            },
+          ],
+          itemStyle: {
+            color: "#FF4242",
+          },
+        },
+      },
+    ],
+  };
+
   return (
-    <div className="text-light col mt-5">
-      <h5>Slide or type in the ETH amount you like to invest</h5>
-      <div className="row  justify-content-center mt-4 ml-2 mr-2">
+    <div className="bg-dark text-light col">
+      <h5 className="mt-2">Slide or type in the ETH amount you like to invest</h5>
+      <div className="row  justify-content-center mt-2 ml-2 mr-2">
         <input
           type="range"
           min="-2"
-          max="20"
-          step="0.0001"
+          max="10"
+          step="0.001"
           value={Math.log(fund)}
           className="custom-range "
           id="slide"
           onChange={(e) => fundInput(e.target.value)}
         />
       </div>
-      <div className="row  justify-content-center mt-3  ">
+      <div className="row  justify-content-center mt-2  ">
         <input
           type="number"
           className="form-control col-6 rounded"
@@ -154,36 +255,34 @@ export default function PhantonBuy() {
           <h5> ETH </h5>
         </div>
       </div>
-      <div className="row  mt-3 ">
-        <h6>you will get:</h6>
+      <div className="row  mt-2 ml-1">
+        <h5>you will get:</h5>
       </div>
       <div className="row  justify-content-center  ">
-        <h6>{tokenYouGet.toLocaleString(undefined, { maximumFractionDigits: 5 })} Phanton</h6>
-      </div>
-
-      <div className="row">
-        <h6>The maximum supply is capped at:</h6>
+        <h5>{tokenYouGet.toLocaleString(undefined, { maximumFractionDigits: 5 })} Phanton</h5>
       </div>
 
       <div className="row  justify-content-center  ">
-        <h6>{maximumSupply.toLocaleString(undefined, { maximumFractionDigits: 0 })} Phanton</h6>
+        <h5> = {((tokenYouGet / maximumSupply) * 100).toFixed(5)} % X</h5>
       </div>
+
       <div className="row  justify-content-center  ">
-        <h6>
-          That's {((tokenYouGet / maximumSupply) * 100).toFixed(5)} % maximum supply at market cap of{" "}
-          {((fund / tokenYouGet) * maximumSupply).toLocaleString(undefined, { maximumFractionDigits: 2 })} ETH
-        </h6>
+        <h5>{maximumSupply.toLocaleString(undefined, { maximumFractionDigits: 0 })} (maximum)</h5>
       </div>
+
+      <div className="row justify-content-center  ">
+        <h5>with a market cap of</h5>
+      </div>
+
+      <div className="row justify-content-center  ">
+        <h5>{((fund / tokenYouGet) * maximumSupply).toLocaleString(undefined, { maximumFractionDigits: 2 })} ETH</h5>
+      </div>
+
       <div className="row  justify-content-center ">
-        <button
-          type="button"
-          className="btn btn-light rounded"
-          // style={{ font: "20px/1 Arial, sans-serif", font_weight: "700" }}
-          onClick={() => onBuy()}
-        >
+        <button type="button" className="btn btn-light rounded" onClick={() => onBuy()}>
           {loadingBuy ? (
             <div className="row">
-              <div className="spinner-border spinner-border-sm ml-2 mt-1" role="status">
+              <div className="spinner-border spinner-border-sm ml-2 mt-2" role="status">
                 <span className="sr-only">Loading...</span>
               </div>
               <div className="ml-2 mr-2">Buying</div>
@@ -193,30 +292,16 @@ export default function PhantonBuy() {
           )}
         </button>
       </div>
-      <div className="row  justify-content-center   mt-4 ">
-        <h5> The Phanton sale pool is governed by this equation: </h5>
+      <div className="row  justify-content-center   mt-2 ">
+        <h5>Phanton seed sale pool is governed by this plot: </h5>
+      </div>
+
+      <ReactECharts option={options} />
+      <div className="row  justify-content-center  ">
+        <h5> Formulated as: </h5>
       </div>
       <div className="row  justify-content-center  ">
         <Latex>{String.raw`$ Phanton = \frac {10 \% * T_{max}} {ETH/800 + 1} $ `}</Latex>
-      </div>
-      <div className="row  justify-content-center  ">
-        <Latex>{String.raw`$ T_{max} = $ `}</Latex>
-        {maximumSupply.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-      </div>
-
-      <div className="row  mt-3">
-        <h6>Token sold: </h6>
-      </div>
-
-      <div className="row  justify-content-center  ">
-        <h6>{tokenSold.toLocaleString(undefined, { maximumFractionDigits: 5 })} Phanton</h6>
-      </div>
-      <div className="row  ">
-        <h6>Fund raised:</h6>
-      </div>
-
-      <div className="row  justify-content-center  ">
-        <h6>{fundRaised} ETH</h6>
       </div>
     </div>
   );
