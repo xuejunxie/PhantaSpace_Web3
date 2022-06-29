@@ -1,3 +1,3 @@
-![](../build/faviconL.gif)
+![](images/faviconL.gif)
 
 PhantaSpace is an earth scale metaverse.
