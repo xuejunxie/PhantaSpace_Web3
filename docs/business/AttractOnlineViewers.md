@@ -1,2 +1,2 @@
-# 🥳  Attract online viewsers
+# Attract online viewsers
 
