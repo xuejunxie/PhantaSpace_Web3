@@ -1,3 +1,3 @@
 # Table of contents
 
-- [What is PhantaSpace?](WhatIs.md)
+- [Welcome to PhantaSpace](welcome.md)
