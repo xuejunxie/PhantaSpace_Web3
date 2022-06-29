@@ -1,3 +1,2 @@
 # 🗿 Digital renaissance
 
-The PhantaSpace builder is still working on this section.
