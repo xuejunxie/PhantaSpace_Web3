@@ -207,6 +207,7 @@ export default function PhantonBuy() {
           ],
           label: {
             formatter: (params) => {
+              console.log(params);
               return "Left";
             },
           },
