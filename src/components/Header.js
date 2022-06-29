@@ -18,7 +18,6 @@ export default function Header(props) {
   const Explore = tag("Explore", "/explore");
   const Create = tag("Create", "/create");
   const Space = tag("Space", "/space");
-  const place = tag("Place", "/place");
   const JumpIn = tag("Jump in!", "/jumpin");
   const Phanton = tag("Phanton", "/phanton");
 
@@ -68,8 +67,14 @@ export default function Header(props) {
         {Create}
         {Space}
         {JumpIn}
+        <ul className="navbar-nav ">
+          <li className="nav-item">
+            <a href="https://whitepaper.phanta.space" className="nav-link" target="_blank">
+              Whitepaper
+            </a>
+          </li>
+        </ul>
         {/* {Phanton} */}
-        {/* {place} */}
         <div className="mr-3" />
         <Account />
       </div>
