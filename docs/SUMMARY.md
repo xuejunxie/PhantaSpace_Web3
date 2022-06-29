@@ -20,6 +20,8 @@
 ## Explorer guide
 
 * [💸 Check-in-to-earn](user/check-in-to-earn.md)
+  - [online](user/online.md)
+  - [real-world](user/real-world.md)
 
 ## Token owner guide
 
