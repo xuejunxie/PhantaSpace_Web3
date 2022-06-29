@@ -4,14 +4,16 @@
 
 ## NFT owner guide
 
-- [How to display your NFT](business/template.md)
+- [Display your NFT](business/DisplayYourNFT.md)
+- [Attract online viewsers](business/AttractOnlineViewers.md)
+- [Attract real world visitors](business/AttractRealWorldVisotor.md)
 
 ## Explorer guide
 
-- [How to check-in to earn](user/template.md)
+- [Check-in to earn](user/checkInToEarn.md)
 
 ## Investor guide
 
-- [Phanton](investor/template.md)
-- [Space NFT](investor/template.md)
-- [Tokenomics](investor/template.md)
+- [Phanton](investor/Phanton.md)
+- [Space NFT](investor/SpaceNFT.md)
+- [Tokenomics](investor/Tokenomics.md)
