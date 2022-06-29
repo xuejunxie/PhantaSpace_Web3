@@ -1,0 +1,2 @@
+# 💸  Check-in-to-earn
+
