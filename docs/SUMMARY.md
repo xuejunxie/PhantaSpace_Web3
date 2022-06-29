@@ -12,6 +12,6 @@
 
 ## Investor guide
 
-- [Phanton](user/template.md)
-- [Space NFT](user/template.md)
-- [Tokenomics](user/template.md)
+- [Phanton](investor/template.md)
+- [Space NFT](investor/template.md)
+- [Tokenomics](investor/template.md)
