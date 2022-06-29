@@ -13,6 +13,8 @@
 ## Explorer guide
 
 * [💸  Check-in-to-earn](user/checkInToEarn.md)
+* [💸  Check-in-to-earn](user/checkInToEarn.md)
+
 
 ## Investor guide
 
