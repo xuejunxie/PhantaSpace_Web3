@@ -52,9 +52,11 @@ function Account() {
   const dispatch = useDispatch();
   const { authenticate, isAuthenticated, chainId, logout, Moralis, user } = useMoralis();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isEmailModalVisible, setIsEmailModalVisible] = useState(false);
   const [isAuthModalVisible, setIsAuthModalVisible] = useState(false);
   const connectorIdInStore = useSelector((state) => state.account.connectorId);
   const ask_user_to_connect = useSelector((state) => state.sidebar.ask_user_to_connect);
+  const ask_user_for_email = useSelector((state) => state.sidebar.ask_user_for_email);
 
   useEffect(() => {
     if (ask_user_to_connect) {
@@ -62,11 +64,22 @@ function Account() {
     }
   }, [ask_user_to_connect]);
 
+  useEffect(() => {
+    if (ask_user_for_email) {
+      setIsEmailModalVisible(true);
+    }
+  }, [ask_user_for_email]);
+
   var account = "";
   if (user) {
     // account = user.attributes.accounts[0];
     account = user.get("ethAddress");
   }
+
+  const submitEmail = (event) => {
+    event.preventDefault();
+    console.log(event.target);
+  };
 
   if (!isAuthenticated || !account) {
     return (
@@ -171,6 +184,44 @@ function Account() {
             Disconnect Wallet
           </Button>
         </Modal.Footer>
+      </Modal>
+      <Modal show={isEmailModalVisible} onHide={() => setIsEmailModalVisible(false)}>
+        <Modal.Header>
+          <Modal.Title>Subscribe to receive our latest news</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form>
+            <div class="form-group">
+              <div class="form-row">
+                <div class="col">
+                  <input type="text" class="form-control" id="InputFirstName" placeholder="First Name" />
+                </div>
+                <div class="col">
+                  <input type="text" class="form-control" id="InputLastName" placeholder="Last Name" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" id="InputInsittute" placeholder="Institute" />
+            </div>
+            <div class="form-group">
+              <input
+                type="email"
+                class="form-control"
+                id="InputEmail"
+                aria-describedby="emailHelp"
+                placeholder="Email"
+              />
+              <small id="emailHelp" class="form-text text-muted">
+                We'll never share your email with anyone else.
+              </small>
+            </div>
+
+            <button type="submit" class="btn btn-primary" onClick={(e) => submitEmail(e)}>
+              Subscribe
+            </button>
+          </form>
+        </Modal.Body>
       </Modal>
     </>
   );

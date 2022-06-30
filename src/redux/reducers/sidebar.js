@@ -13,6 +13,7 @@ import {
   SHOW_ALL_SPACES,
   ASK_USER_TO_CONNECT,
   PHANTON,
+  ASK_USER_FOR_EMAIL,
 } from "../types";
 
 const initialState = {
@@ -30,6 +31,7 @@ const initialState = {
   loading_all: true,
   space_tab: "mint",
   ask_user_to_connect: 0,
+  ask_user_for_email: 0,
 };
 
 export default function (state = initialState, action) {
@@ -99,7 +101,11 @@ export default function (state = initialState, action) {
         ...state,
         ask_user_to_connect: action.payload,
       };
-
+    case ASK_USER_FOR_EMAIL:
+      return {
+        ...state,
+        ask_user_for_email: action.payload,
+      };
     case SELECT_SPACE:
       return {
         ...state,

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Tab, Tabs } from "react-bootstrap";
-import { PHANTON, PHANTON_TAB } from "redux/types";
+import { ASK_USER_FOR_EMAIL, PHANTON, PHANTON_TAB } from "redux/types";
 import PhantonBuy from "./PhantonBuy";
 import PhantonWallet from "./PhantonWallet";
 import { useMoralis } from "react-moralis";
@@ -13,7 +13,9 @@ export default function Phanton() {
 
   useEffect(() => {
     dispatch({ type: PHANTON });
+    dispatch({ type: ASK_USER_FOR_EMAIL, payload: true });
   }, []);
+
   return (
     <div>
       {isAuthenticated ? (

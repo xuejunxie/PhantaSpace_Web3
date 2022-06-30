@@ -9,7 +9,7 @@ import "../List.css";
 
 import "katex/dist/katex.min.css";
 import Latex from "react-latex-next";
-import { PHANTON_TAB } from "redux/types";
+import { PHANTON_TAB, ASK_USER_FOR_EMAIL } from "redux/types";
 
 import ReactECharts from "echarts-for-react";
 import Item from "antd/lib/list/Item";
@@ -122,6 +122,8 @@ export default function PhantonBuy() {
         setLoadingBuy(false);
         fetchFundInfo();
         dispatch({ type: PHANTON_TAB, payload: "wallet" });
+        dispatch({ type: ASK_USER_FOR_EMAIL, payload: true });
+
         return;
       }
     });
@@ -207,7 +209,6 @@ export default function PhantonBuy() {
           ],
           label: {
             formatter: (params) => {
-              console.log(params);
               return "Left";
             },
           },
