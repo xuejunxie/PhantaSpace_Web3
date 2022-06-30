@@ -9,7 +9,8 @@ import { connectors } from "./config";
 import { customEnable } from "./walletlink";
 import coinbaseIcon from "./WalletIcons/coinbase.svg";
 import { useDispatch, useSelector } from "react-redux";
-import { DISCONNECT, REMOVE_CONNECTOR_ID, SET_ACCOUNT, SET_CONNECTOR_ID } from "redux/types";
+import { DISCONNECT, REMOVE_CONNECTOR_ID, SET_ACCOUNT, SET_CONNECTOR_ID, ASK_USER_FOR_EMAIL } from "redux/types";
+import MailchimpSubscribe from "react-mailchimp-subscribe";
 
 const styles = {
   account: {
@@ -76,9 +77,34 @@ function Account() {
     account = user.get("ethAddress");
   }
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      const email = user.get("email");
+      const firstName = user.get("firstName");
+      const lastName = user.get("lastName");
+      const organization = user.get("organization");
+      setUserData({ email, firstName, lastName, organization });
+      if (!email) {
+        dispatch({ type: ASK_USER_FOR_EMAIL, payload: true });
+      }
+    }
+  }, [isAuthenticated]);
+
+  const [userData, setUserData] = useState({
+    email: "",
+    firstName: "",
+    lastName: "",
+    organization: "",
+  });
+
   const submitEmail = (event) => {
     event.preventDefault();
-    console.log(event.target);
+    user.set("email", userData.email);
+    user.set("firstName", userData.firstName);
+    user.set("lastName", userData.lastName);
+    user.set("organization", userData.organization);
+    user.save();
+    setIsEmailModalVisible(false);
   };
 
   if (!isAuthenticated || !account) {
@@ -164,9 +190,21 @@ function Account() {
         <Modal.Body>
           <Card>
             <Address avatar="left" size={6} copyable style={{ fontSize: "20px" }} />
-            <div style={{ marginTop: "10px", padding: "0 10px" }}>
+            {/* <div style={{ marginTop: "10px", padding: "0 10px" }}>
               <a href={`${getExplorer(chainId)}/address/${account}`} target="_blank" rel="noreferrer">
                 View on Explorer
+              </a>
+            </div> */}
+            <div style={{ marginTop: "10px", padding: "0 10px" }}>
+              <a
+                className="link-primary"
+                role="button"
+                onClick={() => {
+                  setIsModalVisible(false);
+                  setIsEmailModalVisible(true);
+                }}
+              >
+                Edit personal info
               </a>
             </div>
           </Card>
@@ -187,40 +225,82 @@ function Account() {
       </Modal>
       <Modal show={isEmailModalVisible} onHide={() => setIsEmailModalVisible(false)}>
         <Modal.Header>
-          <Modal.Title>Subscribe to receive our latest news</Modal.Title>
+          <Modal.Title>Set your info to receive our latest news</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <form>
-            <div class="form-group">
-              <div class="form-row">
-                <div class="col">
-                  <input type="text" class="form-control" id="InputFirstName" placeholder="First Name" />
-                </div>
-                <div class="col">
-                  <input type="text" class="form-control" id="InputLastName" placeholder="Last Name" />
-                </div>
-              </div>
-            </div>
-            <div class="form-group">
-              <input type="text" class="form-control" id="InputInsittute" placeholder="Institute" />
-            </div>
-            <div class="form-group">
-              <input
-                type="email"
-                class="form-control"
-                id="InputEmail"
-                aria-describedby="emailHelp"
-                placeholder="Email"
-              />
-              <small id="emailHelp" class="form-text text-muted">
-                We'll never share your email with anyone else.
-              </small>
-            </div>
+          <MailchimpSubscribe
+            url="https://space.us19.list-manage.com/subscribe/post?u=3217736d20c95c35083874d01&id=8db5993d80"
+            render={({ subscribe, status, message }) => (
+              <div>
+                <form>
+                  <div className="form-group">
+                    <div className="form-row">
+                      <div className="col">
+                        <input
+                          type="text"
+                          value={userData.firstName}
+                          onChange={(e) => setUserData({ ...userData, firstName: e.target.value })}
+                          className="form-control"
+                          id="InputFirstName"
+                          placeholder="First Name"
+                        />
+                      </div>
+                      <div className="col">
+                        <input
+                          type="text"
+                          value={userData.lastName}
+                          onChange={(e) => setUserData({ ...userData, lastName: e.target.value })}
+                          className="form-control"
+                          id="InputLastName"
+                          placeholder="Last Name"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <input
+                      type="text"
+                      value={userData.organization}
+                      onChange={(e) => setUserData({ ...userData, organization: e.target.value })}
+                      className="form-control"
+                      id="InputInsittute"
+                      placeholder="Organization"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <input
+                      type="email"
+                      value={userData.email}
+                      onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                      className="form-control"
+                      id="InputEmail"
+                      aria-describedby="emailHelp"
+                      placeholder="Email"
+                    />
+                    <small id="emailHelp" className="form-text text-muted">
+                      We'll never share your email with anyone else.
+                    </small>
+                  </div>
 
-            <button type="submit" class="btn btn-primary" onClick={(e) => submitEmail(e)}>
-              Subscribe
-            </button>
-          </form>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    onClick={(e) => {
+                      submitEmail(e);
+                      subscribe({
+                        FN: userData.firstName,
+                        LN: userData.lastName,
+                        ORG: userData.organization,
+                        EMAIL: userData.email,
+                      });
+                    }}
+                  >
+                    Submit
+                  </button>
+                </form>
+              </div>
+            )}
+          />
         </Modal.Body>
       </Modal>
     </>

@@ -122,7 +122,6 @@ export default function PhantonBuy() {
         setLoadingBuy(false);
         fetchFundInfo();
         dispatch({ type: PHANTON_TAB, payload: "wallet" });
-        dispatch({ type: ASK_USER_FOR_EMAIL, payload: true });
 
         return;
       }

@@ -9,11 +9,10 @@ import { useMoralis } from "react-moralis";
 export default function Phanton() {
   const dispatch = useDispatch();
   const phanton_tab = useSelector((state) => state.phanton.phanton_tab);
-  const { isAuthenticated, web3 } = useMoralis();
+  const { isAuthenticated, web3, user } = useMoralis();
 
   useEffect(() => {
     dispatch({ type: PHANTON });
-    dispatch({ type: ASK_USER_FOR_EMAIL, payload: true });
   }, []);
 
   return (
