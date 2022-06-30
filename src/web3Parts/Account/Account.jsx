@@ -229,7 +229,7 @@ function Account() {
         </Modal.Header>
         <Modal.Body>
           <MailchimpSubscribe
-            url="https://space.us19.list-manage.com/subscribe/post?u=3217736d20c95c35083874d01&id=8db5993d80"
+            url={process.env.REACT_APP_MAILCHIMP_URL}
             render={({ subscribe, status, message }) => (
               <div>
                 <form>
