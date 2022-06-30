@@ -16,20 +16,14 @@ Another utility of Phanton is to be used as a measure of the importance of the N
 
 ## Distribution
 
-| seed Sale | 10% |
-| --------- | --- |
-| Advisors  | 5%  |
-|           |     |
-|           |     |
-|           |     |
-
-    Phanton distribution
-    "Seed Sale" : 10
-    "Advisors" : 5
-    "Foundation" : 15
-    "Strategic Sale" : 10
-    "Founder & team" : 25
-    "In circulation" : 35
+| Role           | Ratio |
+| -------------- | ----- |
+| Advisors       | 5%    |
+| Seed Sale      | 10%   |
+| Foundation     | 15%   |
+| Strategic Sale | 10%   |
+| Founder & team | 25%   |
+| Community      | 35%   |
 
 ## Supply
 
