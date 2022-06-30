@@ -6,6 +6,44 @@ PhantaSpace utility token is named "Phanton" which is derived from the light par
 
 ## Utility
 
+$$
+f(x) = x * e^{2 pi i \xi x}
+$$
+
+|   |   |   |
+| - | - | - |
+|   |   |   |
+|   |   |   |
+|   |   |   |
+
+{% tabs %}
+{% tab title="First Tab" %}
+
+{% endtab %}
+
+{% tab title="Second Tab" %}
+
+{% endtab %}
+{% endtabs %}
+
+<details>
+
+<summary></summary>
+
+
+
+</details>
+
+{% content-ref url="https://app.gitbook.com/s/TozMG99B8qNoitypVmUu/" %}
+[Product Docs](https://app.gitbook.com/s/TozMG99B8qNoitypVmUu/)
+{% endcontent-ref %}
+
+{% swagger method="get" path="" baseUrl="" summary="" %}
+{% swagger-description %}
+
+{% endswagger-description %}
+{% endswagger %}
+
 ### Check-in to earn
 
 One of the utility of Phanton is to be used as a currency in check-in-to-earn mechanism. For example, if the owner of a space want to attract users to visit the space, he/she can use Phanton to reward the visitor. With more visitor, the NFTs in the space will have more exposure. The more exposure, the more value of the NFTs. Another example, if the owner of a real-world space, like a restaurant/shopping mall/theme park, want to attract users to visit the space, he/she can use Phanton to reward the visitor/shoppers.
