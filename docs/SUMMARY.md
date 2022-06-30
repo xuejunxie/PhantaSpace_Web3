@@ -10,18 +10,18 @@
 
 ## NFT owner guide
 
-- [🖼 Display your NFT](business/display-your-NFT.md)
-- [🥳 Attract online viewers](business/attract-online-viewer.md)
-- [🤲 Attract real world visitors](business/attract-real-world-viewer.md)
+- [🖼 Display your NFT](NFT-owner-guide/display-your-NFT.md)
+- [🥳 Attract online viewers](NFT-owner-guide/attract-online-viewer.md)
+- [🤲 Attract real world visitors](NFT-owner-guide/attract-real-world-viewer.md)
 
 ## Explorer guide
 
-- [💸 Check-in-to-earn](user/check-in-to-earn.md)
-  - [Online](user/online.md)
-  - [Real-world](user/real-world.md)
+- [💸 Check-in-to-earn](explorer-guide/check-in-to-earn.md)
+  - [Online](explorer-guide/online.md)
+  - [Real-world](explorer-guide/real-world.md)
 
 ## Token owner guide
 
 - [🚀 Phanton](token-owner-guide/phanton.md)
-- [🌍 Space NFT](investor/space-NFT.md)
+- [🌍 Space NFT](token-owner-guide/space-NFT.md)
 - [📈 Tokenomics](token-owner-guide/tokenomics.md)
