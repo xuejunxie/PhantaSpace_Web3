@@ -16,11 +16,12 @@ Another utility of Phanton is to be used as a measure of the importance of the N
 
 ## Distribution
 
-| seed Sale | 10% |  
-|Advisors | 5% |
-| | |  
-| | |  
-| | |
+| seed Sale | 10% |
+| --------- | --- |
+| Advisors  | 5%  |
+|           |     |
+|           |     |
+|           |     |
 
     Phanton distribution
     "Seed Sale" : 10
