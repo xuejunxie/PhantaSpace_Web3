@@ -16,8 +16,6 @@ Another utility of Phanton is to be used as a measure of the importance of the N
 
 ## Distribution
 
-```mermaid
-pie
     Phanton distribution
     "Seed Sale" : 10
     "Advisors" : 5
@@ -25,4 +23,7 @@ pie
     "Strategic Sale" : 10
     "Founder & team" : 25
     "In circulation" : 35
-```
+
+## Supply
+
+The maximum supply of Phanton is $10^{10}$ GeV. The total supply of Phanton will change over time to approach the maximum supply.
