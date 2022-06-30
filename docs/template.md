@@ -69,3 +69,39 @@ Learn the fundamentals of MyProduct to get a deeper understanding of our main fe
 {% hint style="info" %}
 **Good to know:** Splitting your product into fundamental concepts, objects, or areas can be a great way to let readers deep dive into the concepts that matter most to them. Combine guides with this approach to 'fundamentals' and you're well on your way to great documentation!
 {% endhint %}
+
+$$
+f(x) = x * e^{2 pi i \xi x}
+$$
+
+|     |     |     |
+| --- | --- | --- |
+|     |     |     |
+|     |     |     |
+|     |     |     |
+
+{% tabs %}
+{% tab title="First Tab" %}
+
+{% endtab %}
+
+{% tab title="Second Tab" %}
+
+{% endtab %}
+{% endtabs %}
+
+<details>
+
+<summary></summary>
+
+</details>
+
+{% content-ref url="https://app.gitbook.com/s/TozMG99B8qNoitypVmUu/" %}
+[Product Docs](https://app.gitbook.com/s/TozMG99B8qNoitypVmUu/)
+{% endcontent-ref %}
+
+{% swagger method="get" path="" baseUrl="" summary="" %}
+{% swagger-description %}
+
+{% endswagger-description %}
+{% endswagger %}

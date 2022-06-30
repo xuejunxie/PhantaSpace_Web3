@@ -2,47 +2,9 @@
 
 ## Origin
 
-PhantaSpace utility token is named "Phanton" which is derived from the light particle, photon. The basic unit of Phanton is "eV". 1 Phanton = $10^9$ eV = 1 GeV.
+PhantaSpace utility token is named "Phanton" which is derived from the light particle, photon. The basic unit of Phanton is "eV". 1 Phanton = $$10^9$$ eV = 1 GeV.
 
 ## Utility
-
-$$
-f(x) = x * e^{2 pi i \xi x}
-$$
-
-|   |   |   |
-| - | - | - |
-|   |   |   |
-|   |   |   |
-|   |   |   |
-
-{% tabs %}
-{% tab title="First Tab" %}
-
-{% endtab %}
-
-{% tab title="Second Tab" %}
-
-{% endtab %}
-{% endtabs %}
-
-<details>
-
-<summary></summary>
-
-
-
-</details>
-
-{% content-ref url="https://app.gitbook.com/s/TozMG99B8qNoitypVmUu/" %}
-[Product Docs](https://app.gitbook.com/s/TozMG99B8qNoitypVmUu/)
-{% endcontent-ref %}
-
-{% swagger method="get" path="" baseUrl="" summary="" %}
-{% swagger-description %}
-
-{% endswagger-description %}
-{% endswagger %}
 
 ### Check-in to earn
 
@@ -54,6 +16,12 @@ Another utility of Phanton is to be used as a measure of the importance of the N
 
 ## Distribution
 
+| seed Sale | 10% |  
+|Advisors | 5% |
+| | |  
+| | |  
+| | |
+
     Phanton distribution
     "Seed Sale" : 10
     "Advisors" : 5
@@ -64,4 +32,4 @@ Another utility of Phanton is to be used as a measure of the importance of the N
 
 ## Supply
 
-The maximum supply of Phanton is $10^{10}$ GeV. The total supply of Phanton will change over time to approach the maximum supply.
+The maximum supply of Phanton is $$10^{10}$$ GeV. The total supply of Phanton will change over time to approach the maximum supply.
