@@ -8,6 +8,12 @@
 - [♾ Multiverse](worldview/multiverse.md)
 - [🗿 Digital renaissance](worldview/digital-renaissance.md)
 
+## Token owner guide
+
+- [🌍 Space NFT](token-owner-guide/space-NFT.md)
+- [🚀 Phanton](token-owner-guide/phanton.md)
+- [📈 Tokenomics](token-owner-guide/tokenomics.md)
+
 ## NFT owner guide
 
 - [🖼 Display your NFT](NFT-owner-guide/display-your-NFT.md)
@@ -19,9 +25,3 @@
 - [💸 Check-in-to-earn](explorer-guide/check-in-to-earn.md)
   - [Online](explorer-guide/online.md)
   - [Real-world](explorer-guide/real-world.md)
-
-## Token owner guide
-
-- [🚀 Phanton](token-owner-guide/phanton.md)
-- [🌍 Space NFT](token-owner-guide/space-NFT.md)
-- [📈 Tokenomics](token-owner-guide/tokenomics.md)

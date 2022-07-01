@@ -3,9 +3,13 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useMoralisQuery, useMoralis, useWeb3Contract } from "react-moralis";
+import { ASK_USER_FOR_EMAIL } from "redux/types";
+
 import abi from "./abi.json";
 
 export default function PhantonWallet() {
+  const dispatch = useDispatch();
+
   const [balance, setBalance] = useState(0);
   const account = useSelector((state) => state.account.account);
   const { isAuthenticated, web3, user, refetchUserData } = useMoralis();
@@ -58,6 +62,8 @@ export default function PhantonWallet() {
     }
   };
 
+  const ask_user_for_email = useSelector((state) => state.sidebar.ask_user_for_email);
+
   return (
     <div className="col">
       <div className="row text-light justify-content-center mt-4 ">
@@ -74,6 +80,18 @@ export default function PhantonWallet() {
           onClick={() => onAdd()}
         >
           Add Phanton to your wallet
+        </button>
+      </div>
+      <div className="row justify-content-center mt-4">
+        <button
+          type="button"
+          className="btn btn-light rounded"
+          // style={{ font: "20px/1 Arial, sans-serif", font_weight: "700" }}
+          onClick={() => {
+            dispatch({ type: ASK_USER_FOR_EMAIL, payload: ask_user_for_email + 1 });
+          }}
+        >
+          Update your info to recive news
         </button>
       </div>
     </div>

@@ -6,6 +6,8 @@ PhantaSpace utility token is named "Phanton" which is derived from the light par
 
 ## Utility
 
+![](../images/phanton-utility.png)
+
 ### Check-in to earn
 
 One of the utility of Phanton is to be used as a currency in check-in-to-earn mechanism. For example, if the owner of a space want to attract users to visit the space, he/she can use Phanton to reward the visitor. With more visitor, the NFTs in the space will have more exposure. The more exposure, the more value of the NFTs. Another example, if the owner of a real-world space, like a restaurant/shopping mall/theme park, want to attract users to visit the space, he/she can use Phanton to reward the visitor/shoppers.
