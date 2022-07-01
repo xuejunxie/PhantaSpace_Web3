@@ -2,7 +2,7 @@
 
 ## 3D geocode
 
-The space NFT is a dynamic NFT that defines the ownership of the space in PhantaSpace. Each space has a unique 3D geocode first introduced by PhantaSpace. The geocode consists of \[vertical level + longitude + latitude + precision]. The last digit is precision with a digit from 1\~9. The longitude and latitude are in degrees with the decimal digit number equal to the precision. This way, the world is divided into grids with different precision. In order to record longitude and latitude in Ethereum smart contract, the numbers are + 90 and + 180, respectively, to offset the negative value. The level is divided by the unit height. The unit height is calculated with $$R\_{earth} _ 0.1^{precision} _ \pi / 180$$. This way, the space can be roughly divided into cuboids with reasonable shapes. This way, the world space can be addressed by the geocode with a size from kilometers to micrometers.
+The space NFT is a dynamic NFT that defines the ownership of the space in PhantaSpace. Each space has a unique 3D geocode first introduced by PhantaSpace. The geocode consists of \[vertical level + longitude + latitude + precision]. The last digit is precision with a digit from 1\~9. The longitude and latitude are in degrees with the decimal digit number equal to the precision. This way, the world is divided into grids with different precision. In order to record longitude and latitude in Ethereum smart contract, the numbers are + 90 and + 180, respectively, to offset the negative value. The level is divided by the unit height. The unit height is calculated with $$R_{earth} * 0.1^{precision} * \pi / 180$$. This way, the space can be roughly divided into cuboids with reasonable shapes. This way, the world space can be addressed by the geocode with a size from kilometers to micrometers.
 
 ## Minting a space NFT
 
@@ -14,4 +14,4 @@ On-chain auction is an innovation introduced by PhantaSpace. Due to the vast amo
 
 ### Random vending
 
-For anyone who just wants to get the space as soon as possible,  random vending is the way to go. Since there are only 4% of the earth's surface has human activity, the random vending price is only 4% of the starting price of on-chain auction.
+For anyone who just wants to get the space as soon as possible, random vending is the way to go. Since there are only 4% of the earth's surface has human activity, the random vending price is only 4% of the starting price of on-chain auction.
