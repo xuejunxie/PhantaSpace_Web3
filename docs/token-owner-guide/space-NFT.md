@@ -2,11 +2,13 @@
 
 ## 3D geocode
 
-The space NFT is a dynamic NFT that defines the ownership of the space in PhantaSpace. Each space has a unique 3D geocode first introduced by PhantaSpace. The geocode consists of \[vertical level + longitude + latitude + precision]. The last digit is precision with a digit from 1\~9. The longitude and latitude are in degrees with the decimal digit number equal to the precision. This way, the world is divided into grids with different precision. In order to record longitude and latitude in Ethereum smart contract, the numbers are + 90 and + 180, respectively, to offset the negative value. The level is divided by the unit height. The unit height is calculated with $$R_{earth} * 0.1^{precision} * \pi / 180$$. This way, the space can be roughly divided into cuboids with reasonable shapes. This way, the world space can be addressed by the geocode with a size from kilometers to micrometers.
+The space NFT is a dynamic NFT that defines the ownership of the space in PhantaSpace. Each space has a unique 3D geocode first introduced by PhantaSpace. The geocode consists of \[vertical level + longitude + latitude + precision]. The last digit is precision with a digit from 1\~9. The longitude and latitude are in degrees with the decimal digit number equal to the precision. This way, the world is divided into grids with different precision. In order to record longitude and latitude in Ethereum smart contract, the numbers are + 90 and + 180, respectively, to offset the negative value. The level is divided by the unit height. The unit height is calculated with $$R_{earth} * 0.1^{precision} * \pi / 180$$. This way, the space can be roughly divided into cuboids with reasonable shapes. This way, world space in different 3D locations with sizes from kilometers to micrometers can be addressed by our 3D geocodes.
 
 ## Minting a space NFT
 
-To mint a space NFT, go to the [space page](https://phanta.space/#/space). The initial space offering is conducted on precision = 1. This means early adopters will own a huge space. Each space can be split into 10x10x10 subspaces later for fine-grain ownership. Any space owner can mint their subspace and sell it as space NFT. There are two ways to mint space NFT. One is on-chain auction, the other is random vending.
+To mint a space NFT, go to the [space page](https://phanta.space/#/space). The initial space offering is conducted on precision = 1. This means early adopters will own a huge space. Each space can be split into 10x10x10 subspaces later for fine-grain ownership. Any space owner can mint their subspace and sell it as space NFT. There are two ways to mint space NFT. One is on-chain auction, the other is random vending. Check out our space NFT collection on Opeansea:
+
+{% embed url="https://opensea.io/collection/phantaspace" %}
 
 ### On-chain auction
 
