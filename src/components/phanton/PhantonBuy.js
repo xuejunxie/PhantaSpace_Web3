@@ -254,6 +254,9 @@ export default function PhantonBuy() {
 
   return (
     <div className="bg-dark text-light col">
+      <a href="https://whitepaper.phanta.space" className="nav-link mt-2" target="_blank">
+        Check out our whitepaper
+      </a>
       <h5 className="mt-2">Slide or type in the ETH amount you like to invest</h5>
       <div className="row  justify-content-center mt-2 ml-2 mr-2">
         <input
