@@ -1,3 +1,3 @@
 # 🤲 Attract real world visitors
 
-The PhantaSpace builder is still working on this section.
+Real-world retailers will be able to attract customers with our mobile app. It's coming soon.

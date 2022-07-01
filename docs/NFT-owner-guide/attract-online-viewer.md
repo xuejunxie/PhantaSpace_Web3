@@ -1,3 +1,3 @@
-# 🥳 Attract online viewsers
+# 🥳 Attract online viewers
 
-The PhantaSpace builder is still working on this section.
+You can attract users through our check-in-to-earn mechanism. It's coming soon.

@@ -6,6 +6,6 @@ The PhantaSpace is an open metaverse built on top of a 3D earth map. This enable
 
 ## PhantaField AR glasses
 
-In parallel with PhantaSpace, our team is working on the PhantaField AR glasses. PhantaField AR glasses are consumer-grade AR glasses that are built with our proprietary van der Waals semiconductor (i.e. 2D semiconductor) technology. Our state-of-the-art semiconductor technology will be able to integrate microLED and logic circuits into the glasses. It will have a form factor close to the Ironman glasses and provide a large field of view (FOV) and retina resolution pixel per degree (PPD).
+In parallel with PhantaSpace, our team is working on the PhantaField AR glasses. PhantaField AR glasses are consumer-grade AR glasses with our proprietary van der Waals semiconductor (i.e. 2D semiconductor) technology. Our state-of-the-art semiconductor technology will be able to integrate microLED and logic circuits on top of the lens. It will have a form factor close to the Ironman glasses and provide a large field of view (FOV) and retina resolution pixel per degree (PPD).
 
 {% embed url="https://youtu.be/F98v1lnaQMA" %}
