@@ -280,7 +280,7 @@ export default function PhantonBuy() {
 
   return (
     <div className="bg-dark text-light col">
-      <a href="https://whitepaper.phanta.space">
+      <a href="https://whitepaper.phanta.space" target="_blank">
         <h5 className="mt-3"> Check out our whitepaper</h5>
       </a>
       <h5 className="mt-2">Slide or type in the ETH amount you like to invest</h5>
