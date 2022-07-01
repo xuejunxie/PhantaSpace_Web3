@@ -26,6 +26,7 @@ export default function PhantonBuy() {
   const [valuation, setValuation] = useState(1);
   const [maximumSupply, setMaximumSupply] = useState(10000000000);
   const { isAuthenticated, web3, user, refetchUserData } = useMoralis();
+  const [inputWarning, setInputWarning] = useState("");
 
   const getMaximumSupply = useWeb3Contract({
     abi: abi.abi,
@@ -96,28 +97,53 @@ export default function PhantonBuy() {
     // Moralis live query can not get synced data, so we need to fetch data manually
   }, [data]);
 
-  const fundInput = (value) => {
-    const fundValue = parseFloat(Math.exp(parseFloat(value, 10)).toFixed(1));
+  const [boxInput, setBoxInput] = useState("1");
+  const [slideInput, setSlideInput] = useState(0);
+  const [contractFund, setContractFund] = useState("0");
+
+  useEffect(() => {
+    const fundValue = parseFloat(Math.exp(slideInput).toFixed(1));
     setFund(fundValue);
-  };
+    setBoxInput(fundValue.toString());
+    setContractFund(fundValue.toString());
+  }, [slideInput]);
+
+  useEffect(() => {
+    if (isNumeric(boxInput)) {
+      const parsedValue = parseFloat(boxInput);
+      if (parsedValue > 0) {
+        setFund(parsedValue);
+        setContractFund(boxInput);
+        if (parsedValue >= 0.1) {
+          setSlideInput(Math.log(parsedValue));
+        }
+      }
+    } else {
+      if (boxInput) {
+        setInputWarning("Invalid number");
+        return;
+      }
+    }
+    if (boxInput) {
+      setInputWarning("");
+    }
+  }, [boxInput]);
+
+  function isNumeric(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n) && n.match(/^[0-9]*\.?[0-9]*$/); // '1e2' like number will not pass this test
+  }
 
   const buyContract = useWeb3Contract({
     abi: abi.abi,
     contractAddress: process.env.REACT_APP_PHANTON_ADDRESS,
     functionName: "seedSale",
-    msgValue: web3.utils.toWei(fund.toString(), "ether"),
+    msgValue: web3.utils.toWei(contractFund, "ether"),
   });
-
-  useEffect(() => {
-    console.log(buyContract.data, buyContract.error);
-  }, [buyContract.data, buyContract.error]);
 
   const [loadingBuy, setLoadingBuy] = useState(false);
   const onBuy = async () => {
     setLoadingBuy(true);
     buyContract.runContractFunction().then(async (result) => {
-      console.log(buyContract.data);
-
       if (result === undefined) {
         setLoadingBuy(false);
         fetchFundInfo();
@@ -221,7 +247,7 @@ export default function PhantonBuy() {
       {
         name: "%",
 
-        data: generateData(fundRaised, fund),
+        data: generateData(fundRaised, fundRaised + fund),
 
         type: "line",
         showSymbol: false,
@@ -254,8 +280,8 @@ export default function PhantonBuy() {
 
   return (
     <div className="bg-dark text-light col">
-      <a href="https://whitepaper.phanta.space" className="nav-link mt-2" target="_blank">
-        Check out our whitepaper
+      <a href="https://whitepaper.phanta.space">
+        <h5 className="mt-3"> Check out our whitepaper</h5>
       </a>
       <h5 className="mt-2">Slide or type in the ETH amount you like to invest</h5>
       <div className="row  justify-content-center mt-2 ml-2 mr-2">
@@ -264,10 +290,10 @@ export default function PhantonBuy() {
           min="-2"
           max="10"
           step="0.001"
-          value={Math.log(fund)}
+          value={slideInput}
           className="custom-range "
           id="slide"
-          onChange={(e) => fundInput(e.target.value)}
+          onChange={(e) => setSlideInput(e.target.value)}
         />
       </div>
       <div className="row  justify-content-center mt-2  ">
@@ -276,12 +302,17 @@ export default function PhantonBuy() {
           className="form-control col-6 rounded"
           id="input"
           placeholder="Enter your ETH"
-          value={fund}
-          onChange={(e) => setFund(parseFloat(e.target.value))}
+          value={boxInput}
+          onChange={(e) => {
+            setBoxInput(e.target.value);
+          }}
         />
         <div type="number" className=" col bg-dark col-3  align-self-end ">
           <h5> ETH </h5>
         </div>
+      </div>
+      <div className=" row justify-content-start bg-dark mt-1">
+        <div className="col-9 justify-content-center">{inputWarning}</div>
       </div>
       <div className="row  mt-2 ml-1">
         <h5>you will get:</h5>

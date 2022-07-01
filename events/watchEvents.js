@@ -170,14 +170,14 @@ const main = async () => {
   // Moralis.Cloud.run("unwatchContractEvent", { tableName: "AuctionEnded" }, { useMasterKey: true });
   // Moralis.Cloud.run("unwatchContractEvent", { tableName: "HighestBidIncreased" }, { useMasterKey: true });
 
-  Moralis.Cloud.run("watchContractEvent", SpaceMinted, { useMasterKey: true });
-  Moralis.Cloud.run("watchContractEvent", AuctionStarted, { useMasterKey: true });
-  Moralis.Cloud.run("watchContractEvent", AuctionExtended, { useMasterKey: true });
-  Moralis.Cloud.run("watchContractEvent", AuctionEnded, { useMasterKey: true });
-  Moralis.Cloud.run("watchContractEvent", HighestBidIncreased, { useMasterKey: true });
-  Moralis.Cloud.run("watchContractEvent", SubSpaceAuctionAllowed, { useMasterKey: true });
-  Moralis.Cloud.run("watchContractEvent", Transfer, { useMasterKey: true });
-  Moralis.Cloud.run("watchContractEvent", withDrawalRequested, { useMasterKey: true });
+  // Moralis.Cloud.run("watchContractEvent", SpaceMinted, { useMasterKey: true });
+  // Moralis.Cloud.run("watchContractEvent", AuctionStarted, { useMasterKey: true });
+  // Moralis.Cloud.run("watchContractEvent", AuctionExtended, { useMasterKey: true });
+  // Moralis.Cloud.run("watchContractEvent", AuctionEnded, { useMasterKey: true });
+  // Moralis.Cloud.run("watchContractEvent", HighestBidIncreased, { useMasterKey: true });
+  // Moralis.Cloud.run("watchContractEvent", SubSpaceAuctionAllowed, { useMasterKey: true });
+  // Moralis.Cloud.run("watchContractEvent", Transfer, { useMasterKey: true });
+  // Moralis.Cloud.run("watchContractEvent", withDrawalRequested, { useMasterKey: true });
 
   Moralis.Cloud.run("watchContractEvent", seedFund, { useMasterKey: true });
   Moralis.Cloud.run("watchContractEvent", tokenMinted, { useMasterKey: true });
