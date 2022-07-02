@@ -55,7 +55,6 @@ export default function App() {
   const loadingOwn = useSelector((state) => state.sidebar.loading);
   const loading_all = useSelector((state) => state.sidebar.loading_all);
   const connectorIdInStore = useSelector((state) => state.account.connectorId);
-  const [isNetWarningVisible, setIsNetWarningVisible] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) enableWeb3({ provider: connectorIdInStore });
@@ -73,7 +72,7 @@ export default function App() {
 
   var account = "";
 
-  useEffect(() => {
+  useEffect(async () => {
     if (user) {
       account = user.attributes.accounts[0];
       dispatch({ type: SET_ACCOUNT, payload: account });
@@ -90,12 +89,30 @@ export default function App() {
       // account = "0x5a501b42cfab342571f8ddf18e5e952a8a9bf60f";
       // get user owned NFTs
 
-      if (web3.eth.currentProvider) {
-        web3.eth.net.getId().then((networkId) => {
-          if (networkId != 1) {
-            setIsNetWarningVisible(true);
-          }
-        });
+      const chainId = 1; // Ethereum Mainnet
+
+      if (window.ethereum.networkVersion !== chainId) {
+        try {
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: web3.utils.toHex(chainId) }],
+          });
+        } catch (err) {
+          // This error code indicates that the chain has not been added to MetaMask
+          // if (err.code === 4902) {
+          //   await window.ethereum.request({
+          //     method: "wallet_addEthereumChain",
+          //     params: [
+          //       {
+          //         chainName: "Polygon Mainnet",
+          //         chainId: web3.utils.toHex(chainId),
+          //         nativeCurrency: { name: "MATIC", decimals: 18, symbol: "MATIC" },
+          //         rpcUrls: ["https://polygon-rpc.com/"],
+          //       },
+          //     ],
+          //   });
+          // }
+        }
       }
 
       getAssetsByOpensea(account, dispatch);
@@ -156,12 +173,6 @@ export default function App() {
           />
         </div>
       </div>
-
-      <Modal show={isNetWarningVisible} onHide={() => setIsNetWarningVisible(false)}>
-        <Modal.Header>
-          <Modal.Title>Please switch to Ethereum Mainnet</Modal.Title>
-        </Modal.Header>
-      </Modal>
     </Fragment>
   );
 }

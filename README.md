@@ -20,6 +20,8 @@ Phanton Token utility:
 
 - NFT display ranking
 - rent
+- check-in-to-earn
+- reward for place, sell, buy,
 
 marketing:
 
@@ -27,7 +29,7 @@ block place
 
 - 2D first
 
-* FPV move for 3D
+[x] FPV move for 3D
 
 - space owner place unlimited block in their space
 - place a set of block without time limit in open space
@@ -48,11 +50,9 @@ future features:
 
 - mint NFT on site
 
-* human scale navigation
+[x] human scale navigation
 
 - support video, and music
-
-- space rental contract
 
 - space can have different channels
 - channel owner share the space sale profit
