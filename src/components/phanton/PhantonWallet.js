@@ -72,7 +72,10 @@ export default function PhantonWallet() {
       <div className="row text-light justify-content-center">
         <h5>{balance.toLocaleString(undefined, { maximumFractionDigits: 5 })} Phanton</h5>
       </div>
-      <div className="row justify-content-center mt-4">
+      <div className="row text-light justify-content-center mt-4">
+        <h5>Don't see Phanton in your wallet?</h5>
+      </div>
+      <div className="row justify-content-center ">
         <button
           type="button"
           className="btn btn-light rounded"
@@ -91,7 +94,7 @@ export default function PhantonWallet() {
             dispatch({ type: ASK_USER_FOR_EMAIL, payload: ask_user_for_email + 1 });
           }}
         >
-          Update your info to recive news
+          Update your info to receive news
         </button>
       </div>
     </div>
