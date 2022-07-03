@@ -3,6 +3,7 @@ import "../List.css";
 import { useDispatch, useSelector } from "react-redux";
 import { LOOK, EXPLORE } from "../../redux/types";
 import { useParams } from "react-router-dom";
+import { Modal } from "react-bootstrap";
 
 var refs = {};
 
@@ -39,6 +40,32 @@ export default function ExploreList() {
     window.history.pushState("", "", `#/explore/${nft.NFTid}`);
   };
 
+  function copyToClipboard(textToCopy) {
+    // navigator clipboard api needs a secure context (https)
+    if (navigator.clipboard && window.isSecureContext) {
+      // navigator clipboard api method'
+      return navigator.clipboard.writeText(textToCopy);
+    } else {
+      // text area method
+      let textArea = document.createElement("textarea");
+      textArea.value = textToCopy;
+      // make the textarea out of viewport
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      return new Promise((res, rej) => {
+        // here the magic happens
+        document.execCommand("copy") ? res() : rej();
+        textArea.remove();
+      });
+    }
+  }
+
+  const [copied, setCopied] = React.useState(false);
+
   return (
     <div className="bg-dark text-light" id="ExploreListAccordion">
       {NFTs.slice(0)
@@ -48,6 +75,27 @@ export default function ExploreList() {
           return (
             <div className="card  bg-dark" key={nft.NFTid} ref={refs[nft.NFTid]}>
               <div className="card-body text-center ">
+                <span data-toggle="tooltip" title="Copy shareable link">
+                  <img
+                    src="shareIcon.png"
+                    style={{
+                      cursor: "pointer",
+                      display: "block",
+                      float: "right",
+                      z_index: "3",
+                      position: "absolute",
+                      right: "5px",
+                      top: "5px",
+                      width: "25px",
+                      height: "25px",
+                    }}
+                    onClick={() => {
+                      copyToClipboard(`https://phanta.space/#/explore/${nft.NFTid}`);
+                      setCopied(true);
+                    }}
+                  ></img>
+                </span>
+
                 <a
                   className="btn rounded-pill col-12"
                   data-toggle="collapse"
@@ -66,7 +114,8 @@ export default function ExploreList() {
                     <h5 className="text-light">{nft.metadata.name}</h5>
                   )}
                 </a>
-                <h5 className="text-center ">{nft.name}</h5>
+
+                <h5 className="text-center">{nft.name}</h5>
               </div>
               <div className="collapse" id={"collapse" + nft.NFTid} data-parent="#ExploreListAccordion">
                 <a href={nft.metadata.permalink} className="text-light  justify-content-center" target="_blank">
@@ -76,6 +125,14 @@ export default function ExploreList() {
             </div>
           );
         })}
+      <Modal show={copied} onHide={() => setCopied(false)}>
+        <Modal.Header className=" justify-content-center">
+          <Modal.Title>
+            <p>Link copied to the clipboard successfully.</p>
+            <p>Go amaze your friend now!</p>
+          </Modal.Title>
+        </Modal.Header>
+      </Modal>
     </div>
   );
 }

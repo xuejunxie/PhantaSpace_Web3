@@ -678,7 +678,7 @@ function handleCreate(dispatch, nft) {
       if (cartesian) {
         // increase height
 
-        cartesian.z += nft.height * nft.scale;
+        // cartesian.z = nft.height * nft.scale;
         if (nft) {
           // make sure the entity is not already in the viewer
           entity = viewer.entities.getById(nft.NFTid);
