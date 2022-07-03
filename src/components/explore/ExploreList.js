@@ -129,7 +129,7 @@ export default function ExploreList() {
         <Modal.Header className="justify-content-center">
           <Modal.Title>
             <p>Link copied to the clipboard successfully.</p>
-            <p>Go amaze your friend now!</p>
+            <p>Go amaze your friends now!</p>
           </Modal.Title>
         </Modal.Header>
       </Modal>

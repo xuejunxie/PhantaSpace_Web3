@@ -328,9 +328,15 @@ export default function PhantonBuy() {
       <div className="row  justify-content-center  ">
         <h5>{maximumSupply.toLocaleString(undefined, { maximumFractionDigits: 0 })} (maximum)</h5>
       </div>
+      <div className="row justify-content-center  ">
+        <h5>with a price of</h5>
+      </div>
 
       <div className="row justify-content-center  ">
-        <h5>with a market cap of</h5>
+        <h5>{(tokenYouGet / fund).toLocaleString(undefined, { maximumFractionDigits: 0 })} Phanton per ETH</h5>
+      </div>
+      <div className="row justify-content-center  ">
+        <h5>at a market cap of</h5>
       </div>
 
       <div className="row justify-content-center  ">

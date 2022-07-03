@@ -2,7 +2,7 @@ import { useEffect, Fragment, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
-import { Button, Card, Modal } from "react-bootstrap";
+import { ProgressBar } from "react-bootstrap";
 
 import Header from "./components/Header";
 
@@ -143,6 +143,16 @@ export default function App() {
   }, [loadingOwn, loading_all]);
 
   const map_loading = useSelector((state) => state.map.map_loading);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      setProgress((prev) => prev + 1);
+    }, 1);
+    return function cleanup() {
+      clearInterval(timerId);
+    };
+  }, []);
 
   return (
     <Fragment>
@@ -163,10 +173,11 @@ export default function App() {
               backgroundColor: "#000000",
               zIndex: "199",
             }}
-            className="d-flex justify-content-center align-items-center"
+            className="d-flex flex-column justify-content-center align-items-center"
           >
             <img
-              id="loading-image"
+              id="loading-image p-2"
+              className="row"
               style={{
                 zIndex: "200",
                 width: "200px",
@@ -175,14 +186,23 @@ export default function App() {
               src="favicon.png"
               alt="Loading..."
             />
-            <h1
+
+            <div
+              className="p-2 mt-4"
               style={{
-                position: "absolute",
-                zIndex: "201",
+                zIndex: "200",
+                width: "200px",
               }}
             >
-              Loading ......
-            </h1>
+              <ProgressBar
+                variant="light"
+                style={{
+                  backgroundColor: "gray",
+                }}
+                className="rounded"
+                now={progress}
+              />
+            </div>
           </div>
         )}
         <div className="row bg-dark">
