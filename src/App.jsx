@@ -177,13 +177,13 @@ export default function App() {
           >
             <img
               id="loading-image p-2"
-              className="row"
+              className="row rounded-circle"
               style={{
                 zIndex: "200",
                 width: "200px",
                 height: "200px",
               }}
-              src="favicon.png"
+              src="favicon.gif"
               alt="Loading..."
             />
 
