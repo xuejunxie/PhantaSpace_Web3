@@ -142,10 +142,49 @@ export default function App() {
     }
   }, [loadingOwn, loading_all]);
 
+  const map_loading = useSelector((state) => state.map.map_loading);
+
   return (
     <Fragment>
       {width > mobileWidth ? <Header headerHeight={"var(--navBarHeight)"} /> : null}
       <div className="container-fluid">
+        {map_loading && (
+          <div
+            id="loading"
+            style={{
+              position: "fixed",
+              display: "block",
+              width: "100%",
+              height: "100%",
+              top: "0",
+              left: "0",
+              text_align: "center",
+              opacity: "1",
+              backgroundColor: "#000000",
+              zIndex: "199",
+            }}
+            className="d-flex justify-content-center align-items-center"
+          >
+            <img
+              id="loading-image"
+              style={{
+                zIndex: "200",
+                width: "200px",
+                height: "200px",
+              }}
+              src="favicon.png"
+              alt="Loading..."
+            />
+            <h1
+              style={{
+                position: "absolute",
+                zIndex: "201",
+              }}
+            >
+              Loading ......
+            </h1>
+          </div>
+        )}
         <div className="row bg-dark">
           <div
             style={{

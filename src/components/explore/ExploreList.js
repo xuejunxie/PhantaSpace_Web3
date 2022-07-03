@@ -126,7 +126,7 @@ export default function ExploreList() {
           );
         })}
       <Modal show={copied} onHide={() => setCopied(false)}>
-        <Modal.Header className=" justify-content-center">
+        <Modal.Header className="justify-content-center">
           <Modal.Title>
             <p>Link copied to the clipboard successfully.</p>
             <p>Go amaze your friend now!</p>
