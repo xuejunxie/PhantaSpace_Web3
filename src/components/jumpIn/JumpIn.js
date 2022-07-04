@@ -12,6 +12,7 @@ export default function JumpIn() {
     <div className="text-light mt-5">
       <h5>Left click the map to fly around.</h5>
       <h5>Use W A S D to control, hold shift to speed up.</h5>
+      <h5>Use Space to fly higher</h5>
       <h5>Left click again to exit the fly mode.</h5>
     </div>
   );

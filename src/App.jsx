@@ -142,7 +142,7 @@ export default function App() {
     }
   }, [loadingOwn, loading_all]);
 
-  const map_loading = useSelector((state) => state.map.map_loading);
+  const map_loaded = useSelector((state) => state.map.map_loading);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -158,7 +158,7 @@ export default function App() {
     <Fragment>
       {width > mobileWidth ? <Header headerHeight={"var(--navBarHeight)"} /> : null}
       <div className="container-fluid">
-        {map_loading && (
+        {map_loaded && (
           <div
             id="loading"
             style={{
@@ -183,7 +183,7 @@ export default function App() {
                 width: "200px",
                 height: "200px",
               }}
-              src="favicon.gif"
+              src="favicon.png"
               alt="Loading..."
             />
 

@@ -416,10 +416,11 @@ export default function Map(props) {
     }
   };
 
-  var key_up = false;
-  var key_down = false;
-  var key_left = false;
-  var key_right = false;
+  var move_forward = false;
+  var move_back = false;
+  var move_left = false;
+  var move_right = false;
+  var move_up = false;
   var high_speed = 50;
   var low_speed = 2;
   var move_speed = 2;
@@ -432,16 +433,19 @@ export default function Map(props) {
     }
     switch (keyCode) {
       case "W".charCodeAt(0):
-        key_up = true;
+        move_forward = true;
         return;
       case "S".charCodeAt(0):
-        key_down = true;
+        move_back = true;
         return;
       case "D".charCodeAt(0):
-        key_right = true;
+        move_right = true;
         return;
       case "A".charCodeAt(0):
-        key_left = true;
+        move_left = true;
+        return;
+      case 32: // space
+        move_up = true;
         return;
       default:
         return;
@@ -455,17 +459,19 @@ export default function Map(props) {
     }
     switch (keyCode) {
       case "W".charCodeAt(0):
-        key_up = false;
+        move_forward = false;
         return;
       case "S".charCodeAt(0):
-        key_down = false;
+        move_back = false;
         return;
       case "D".charCodeAt(0):
-        key_right = false;
+        move_right = false;
         return;
       case "A".charCodeAt(0):
-        key_left = false;
+        move_left = false;
         return;
+      case 32: // space
+        move_up = false;
       default:
         return;
     }
@@ -485,36 +491,43 @@ export default function Map(props) {
     const globe = viewer.scene.globe;
     var destination = Cesium.Cartesian3.ZERO;
     let dt = clock._clockStep * move_speed;
-    if (key_up) {
+    if (move_forward) {
       destination = Cesium.Cartesian3.add(
         destination,
         Cesium.Cartesian3.multiplyByScalar(camera.direction, dt, new Cesium.Cartesian3()),
         new Cesium.Cartesian3()
       );
     }
-    if (key_down) {
+    if (move_back) {
       destination = Cesium.Cartesian3.add(
         destination,
         Cesium.Cartesian3.multiplyByScalar(camera.direction, -dt, new Cesium.Cartesian3()),
         new Cesium.Cartesian3()
       );
     }
-    if (key_right) {
+    if (move_right) {
       destination = Cesium.Cartesian3.add(
         destination,
         Cesium.Cartesian3.multiplyByScalar(camera.right, dt, new Cesium.Cartesian3()),
         new Cesium.Cartesian3()
       );
     }
-    if (key_left) {
+    if (move_left) {
       destination = Cesium.Cartesian3.add(
         destination,
         Cesium.Cartesian3.multiplyByScalar(camera.right, -dt, new Cesium.Cartesian3()),
         new Cesium.Cartesian3()
       );
     }
+    if (move_up) {
+      destination = Cesium.Cartesian3.add(
+        destination,
+        Cesium.Cartesian3.multiplyByScalar(camera.up, dt, new Cesium.Cartesian3()),
+        new Cesium.Cartesian3()
+      );
+    }
 
-    if (key_up || key_down || key_left || key_right) {
+    if (move_forward || move_back || move_left || move_right || move_up) {
       destination = Cesium.Cartesian3.add(camera.position, destination, new Cesium.Cartesian3());
 
       var destinationCartographic = globe.ellipsoid.cartesianToCartographic(destination);

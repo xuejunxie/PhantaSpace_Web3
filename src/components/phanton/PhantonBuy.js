@@ -7,8 +7,6 @@ import { useMoralisQuery, useMoralis, useWeb3Contract, useMoralisSubscription } 
 import abi from "./abi.json";
 import "../List.css";
 
-import "katex/dist/katex.min.css";
-import Latex from "react-latex-next";
 import { PHANTON_TAB, ASK_USER_FOR_EMAIL } from "redux/types";
 
 import ReactECharts from "echarts-for-react";
@@ -358,7 +356,7 @@ export default function PhantonBuy() {
         </button>
       </div>
       <div className="row  justify-content-center   mt-2 ">
-        <h5>Phanton seed sale pool is governed by this plot: </h5>
+        <h5>Phanton sale is governed by this bonding curve: </h5>
       </div>
 
       <ReactECharts option={options} />
@@ -366,7 +364,7 @@ export default function PhantonBuy() {
         <h5> Formulated as: </h5>
       </div>
       <div className="row  justify-content-center  ">
-        <Latex>{String.raw`$ Phanton = \frac {10 \% * T_{max}} {ETH/800 + 1} $ `}</Latex>
+        <h6>Phanton = 10% max supply / (ETH raised / 800 + 1) </h6>
       </div>
     </div>
   );
