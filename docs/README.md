@@ -4,7 +4,7 @@
 
 ## What's PhantaSpace?
 
-PhantaSpace is something new. It's very hard to catagorize it. You can say it's Roblox for the real-world, pokemon go for NFTs, the skyline of ghost in the shell, a marketplace with the world as your storefront, or an app store for AR contents.
+PhantaSpace is something new. It's very hard to categorize it. You can say it's Roblox for the real-world, pokemon go for NFTs, the skyline of ghost in the shell, a marketplace with the world as your storefront, or an app store for AR contents.
 
 
 
@@ -16,4 +16,4 @@ Next up, we will turn the real world into games. You can pick up an NFT on your 
 
 
 
-Eventually, PhantaSpace will be a multiverse, an app store for AR contents, and a fantasy for infinity metaverse.
+Eventually, PhantaSpace will be a multiverse, an app store for AR contents, and a fantasy of infinity metaverse.
