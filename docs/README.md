@@ -1,14 +1,20 @@
+---
+description: Earth-scale mixed reality metaverse
+---
+
 # Welcome to PhantaSpace
 
 ![](images/banner.png)
 
 ## What's PhantaSpace?
 
+
+
 PhantaSpace is something new. It's very hard to categorize it. You can say it's Roblox for the real-world, pokemon go for NFTs, the skyline of ghost in the shell, a marketplace with the world as your storefront, or an app store for AR contents.
 
 
 
-Right now, PhantaSpace is a showplace for NFTs. NFT artist or collectors can place their artworks in our earth-scale metaverse 1:1 to the 3D world map. The fun part is that users can see those arts in the real world with AR devices including a mobile AR app or AR glasses in the future. In order to make it decentralized, we created space NFT where users can own the space in our metaverse. Our unique 3D geocode system enables the user to split the space into any scale for flexible ownership. Our first-of-the-kind on-chain auction smart contract enables flexible pricing for the space NFT minting. In order to bootstrap the community, we created a check-in-to-earn mechanism with our Phanton utility token. Space owners and NFT promotors can attract viewers by staking Phanton and rewarding visitors. NFT promotors can stake Phanton to hold a space for NFT gallery. Soon we will let users buy NFTs directly on PhantaSpace. Space owners can collect rent from stacked Phanton on the NFT in their space. Real-world retailers can attract visitors by stacking Phanton or profit from their traffic by owning the space.&#x20;
+Right now, for NFT collectors and artists that want to promote and sell their NFTs or a business owner to promote a physical location in an immersive mixed reality (MR) experience, we are a metaverse that provides MR tech stacks and a check-in-to-earn mechanism to attract users. PhantaSpace is a showplace for NFTs. NFT artist or collectors can place their artworks in our earth-scale metaverse 1:1 to the 3D world map. The fun part is that users can see those arts in the real world with AR devices including a mobile AR app or AR glasses in the future. In order to make it decentralized, we created space NFT where users can own the space in our metaverse. Our unique 3D geocode system enables the user to split the space into any scale for flexible ownership. Our first-of-the-kind on-chain auction smart contract enables flexible pricing for the space NFT minting. In order to bootstrap the community, we created a check-in-to-earn mechanism with our Phanton utility token. Space owners and NFT promotors can attract viewers by staking Phanton and rewarding visitors. NFT promotors can stake Phanton to hold a space for NFT gallery. Soon we will let users buy NFTs directly on PhantaSpace. Space owners can collect rent from stacked Phanton on the NFT in their space. Real-world retailers can attract visitors by stacking Phanton or profit from their traffic by owning the space.&#x20;
 
 
 
