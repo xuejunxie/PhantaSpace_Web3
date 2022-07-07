@@ -67,13 +67,13 @@ export default function Header(props) {
         {Create}
         {Space}
         {JumpIn}
-        {/* <ul className="navbar-nav ">
+        <ul className="navbar-nav ">
           <li className="nav-item">
             <a href="https://whitepaper.phanta.space" className="nav-link" target="_blank">
               Whitepaper
             </a>
           </li>
-        </ul> */}
+        </ul>
         {/* {Phanton} */}
         <div className="mr-3" />
         <Account />
