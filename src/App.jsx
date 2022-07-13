@@ -148,7 +148,8 @@ export default function App() {
     setProgress((prev) => {
       return Math.min(prev + 1, 850);
     });
-  }, 0);
+  }, 1);
+  // not sure why it works. Looks like react rerenders many times and triggers setTimeout
   useEffect(() => {
     if (map_loaded) {
       clearTimeout(timerId);
