@@ -144,15 +144,16 @@ export default function App() {
 
   const map_loaded = useSelector((state) => state.map.map_loading);
   const [progress, setProgress] = useState(0);
-
+  const timerId = setTimeout(() => {
+    setProgress((prev) => {
+      return Math.min(prev + 1, 850);
+    });
+  }, 0);
   useEffect(() => {
-    const timerId = setInterval(() => {
-      setProgress((prev) => prev + 1);
-    }, 1);
-    return function cleanup() {
-      clearInterval(timerId);
-    };
-  }, []);
+    if (map_loaded) {
+      clearTimeout(timerId);
+    }
+  }, [map_loaded]);
 
   return (
     <Fragment>
@@ -200,7 +201,7 @@ export default function App() {
                   backgroundColor: "gray",
                 }}
                 className="rounded"
-                now={progress}
+                now={progress / 10}
               />
             </div>
           </div>
