@@ -64,8 +64,12 @@ export default function ExploreList() {
     }
   }
 
-  const [copied, setCopied] = React.useState(false);
+  const onMakeOffer = (nft) => {
+    setMakeOfferModalShow(true);
+  };
 
+  const [copied, setCopied] = React.useState(false);
+  const [makeOfferModalShow, setMakeOfferModalShow] = React.useState(false);
   return (
     <div className="bg-dark text-light" id="ExploreListAccordion">
       {NFTs.slice(0)
@@ -75,6 +79,32 @@ export default function ExploreList() {
           return (
             <div className="card  bg-dark" key={nft.NFTid} ref={refs[nft.NFTid]}>
               <div className="card-body text-center ">
+                <a
+                  className="btn rounded-pill col-12"
+                  data-toggle="collapse"
+                  href={"#collapse" + nft.NFTid}
+                  role="button"
+                  aria-expanded="false"
+                  aria-controls={"collapse" + nft.NFTid}
+                  onClick={() => onSelect(nft)}
+                >
+                  {nft.image ? (
+                    <div>
+                      <img className="img-thumbnail rounded-pill" src={nft.image} alt="nft" />
+                    </div>
+                  ) : (
+                    <h5 className="text-light">{nft.metadata.name}</h5>
+                  )}
+                </a>
+              </div>
+              <div
+                className="collapse col justify-content-center"
+                id={"collapse" + nft.NFTid}
+                data-parent="#ExploreListAccordion"
+              >
+                <button type="button" className="row btn btn-light rounded" onClick={() => onMakeOffer(nft)}>
+                  Make an offer
+                </button>
                 <span data-toggle="tooltip" title="Copy shareable link">
                   <img
                     src="shareIcon.png"
@@ -95,30 +125,7 @@ export default function ExploreList() {
                     }}
                   ></img>
                 </span>
-
-                <a
-                  className="btn rounded-pill col-12"
-                  data-toggle="collapse"
-                  href={"#collapse" + nft.NFTid}
-                  role="button"
-                  aria-expanded="false"
-                  aria-controls={"collapse" + nft.NFTid}
-                  onClick={() => onSelect(nft)}
-                >
-                  {nft.image ? (
-                    <div>
-                      <img className="img-thumbnail rounded-pill" src={nft.image} alt="nft" />
-                      <h5 className="text-light">{nft.metadata.name}</h5>
-                    </div>
-                  ) : (
-                    <h5 className="text-light">{nft.metadata.name}</h5>
-                  )}
-                </a>
-
-                <h5 className="text-center">{nft.name}</h5>
-              </div>
-              <div className="collapse" id={"collapse" + nft.NFTid} data-parent="#ExploreListAccordion">
-                <a href={nft.metadata.permalink} className="text-light  justify-content-center" target="_blank">
+                <a href={nft.metadata.permalink} className="row text-light justify-content-center" target="_blank">
                   {nft.metadata.description ? nft.metadata.description : "Check out the source for description"}
                 </a>
               </div>
@@ -129,7 +136,14 @@ export default function ExploreList() {
         <Modal.Header className="justify-content-center">
           <Modal.Title>
             <p>Link copied to the clipboard successfully.</p>
-            <p>Go amaze your friends now!</p>
+          </Modal.Title>
+        </Modal.Header>
+      </Modal>
+
+      <Modal show={makeOfferModalShow} onHide={() => setMakeOfferModalShow(false)}>
+        <Modal.Header className="justify-content-center">
+          <Modal.Title>
+            <p>Make offer function is coming</p>
           </Modal.Title>
         </Modal.Header>
       </Modal>
