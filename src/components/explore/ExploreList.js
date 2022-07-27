@@ -78,9 +78,9 @@ export default function ExploreList() {
           refs[nft.NFTid] = createRef();
           return (
             <div className="card  bg-dark" key={nft.NFTid} ref={refs[nft.NFTid]}>
-              <div className="card-body text-center ">
+              <div className="card-body text-center justify-content-center">
                 <a
-                  className="btn rounded-pill col-12"
+                  className="btn rounded-pill"
                   data-toggle="collapse"
                   href={"#collapse" + nft.NFTid}
                   role="button"
@@ -90,7 +90,7 @@ export default function ExploreList() {
                 >
                   {nft.image ? (
                     <div>
-                      <img className="img-thumbnail rounded-pill" src={nft.image} alt="nft" />
+                      <img className="img-thumbnail rounded-pill " src={nft.image} alt="nft" />
                     </div>
                   ) : (
                     <h5 className="text-light">{nft.metadata.name}</h5>

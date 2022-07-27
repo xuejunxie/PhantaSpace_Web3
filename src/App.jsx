@@ -161,49 +161,67 @@ export default function App() {
       {width > mobileWidth ? <Header headerHeight={"var(--navBarHeight)"} /> : null}
       <div className="container-fluid">
         {map_loaded && (
-          <div
-            id="loading"
-            style={{
-              position: "fixed",
-              display: "block",
-              width: "100%",
-              height: "100%",
-              top: "0",
-              left: "0",
-              text_align: "center",
-              opacity: "1",
-              backgroundColor: "#000000",
-              zIndex: "199",
-            }}
-            className="d-flex flex-column justify-content-center align-items-center"
-          >
-            <img
-              id="loading-image p-2"
-              className="row rounded-circle"
-              style={{
-                zIndex: "200",
-                width: "200px",
-                height: "200px",
-              }}
-              src="favicon.png"
-              alt="Loading..."
-            />
-
+          <div>
             <div
-              className="p-2 mt-4"
+              id="loading"
               style={{
-                zIndex: "200",
-                width: "200px",
+                position: "fixed",
+                display: "block",
+                width: "100%",
+                height: "100%",
+                top: "0",
+                left: "0",
+                text_align: "center",
+                opacity: "0.618",
+                backgroundColor: "#000000",
+                zIndex: "198",
               }}
+              className="d-flex flex-column justify-content-center align-items-center"
+            ></div>
+            <div
+              id="loading"
+              style={{
+                position: "fixed",
+                display: "block",
+                width: "100%",
+                height: "100%",
+                top: "0",
+                left: "0",
+                text_align: "center",
+                opacity: "1",
+                zIndex: "199",
+              }}
+              className="d-flex flex-column justify-content-center align-items-center"
             >
-              <ProgressBar
-                variant="light"
+              <img
+                id="loading-image p-2"
+                className="row rounded-circle"
                 style={{
-                  backgroundColor: "gray",
+                  zIndex: "200",
+                  width: "200px",
+                  height: "200px",
+                  opacity: "1",
                 }}
-                className="rounded"
-                now={progress / 10}
+                src="favicon.png"
+                alt="Loading..."
               />
+
+              <div
+                className="p-2 mt-4"
+                style={{
+                  zIndex: "200",
+                  width: "200px",
+                }}
+              >
+                <ProgressBar
+                  variant="light"
+                  style={{
+                    backgroundColor: "gray",
+                  }}
+                  className="rounded"
+                  now={progress / 10}
+                />
+              </div>
             </div>
           </div>
         )}
