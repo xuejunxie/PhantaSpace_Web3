@@ -5,7 +5,7 @@ import { SHOW_SPACE, SELECT_SPACE, SET_SPACE_TAB, LOAD_USER_BIDS, ASK_USER_TO_CO
 import abi from "./abi.json";
 import { Tab, Tabs } from "react-bootstrap";
 
-const image_server_url = "https://phantaspace.asuscomm.com/thumbnails/";
+const image_server_url = "http://phantaspace.com/thumbnails/";
 
 const opense_asset_url = process.env.REACT_APP_OPENSEA_URL + "/assets/";
 

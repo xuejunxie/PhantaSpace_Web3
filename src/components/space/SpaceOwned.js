@@ -7,7 +7,7 @@ import { SHOW_SPACE, SELECT_SPACE, CLEAN_OWNED_SPACE, LOAD_OWNED_SPACE, SET_SPAC
 
 // const image_server_url = "http://phantaspace.com/thumbnails/";
 
-const image_server_url = "https://phantaspace.asuscomm.com/thumbnails/";
+const image_server_url = "http://phantaspace.com/thumbnails/";
 
 const opense_asset_url = process.env.REACT_APP_OPENSEA_URL + "/assets/";
 
