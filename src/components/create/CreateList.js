@@ -4,7 +4,26 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import Moralis from "moralis";
 import { useMoralis } from "react-moralis";
-import { REMOVE, SELECT, UPDATE, PLACE, DONE, CREATE, LOOK } from "../../redux/types";
+import {
+  REMOVE,
+  SELECT,
+  UPDATE,
+  PLACE,
+  DONE,
+  CREATE,
+  LOOK,
+} from "../../redux/types";
+import {
+  Container,
+  Modal,
+  Row,
+  Col,
+  InputGroup,
+  Form,
+  Button,
+  Card,
+} from "react-bootstrap";
+import NFTModalInfo from "components/nftModalInfo/NFTModalInfo";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
@@ -14,6 +33,18 @@ Moralis.serverURL = serverUrl;
 const dataClass = Moralis.Object.extend("allNFT");
 var refs = {};
 
+const ModalSection = (props) => {
+  const { title, body } = props;
+  return (
+    <Card className="w-full">
+      <Card.Body>
+        <Card.Title className="text-left">{title}</Card.Title>
+        <Card.Text className="text-left">{body}</Card.Text>
+      </Card.Body>
+    </Card>
+  );
+};
+
 export default function CreateList() {
   const dispatch = useDispatch();
   const { isAuthenticated } = useMoralis();
@@ -21,6 +52,7 @@ export default function CreateList() {
   const loading = useSelector((state) => state.sidebar.loading);
   const click = useSelector((state) => state.map.click);
   const [videoList, setVideoList] = useState([]);
+  const [sellModalNFT, setSellModalNFT] = useState(null);
 
   // var NFTs = [];
   useEffect(() => {
@@ -116,16 +148,26 @@ export default function CreateList() {
     const image = new Image();
     image.src = nft.image;
     image.onload = () => {
-      newNft.wide = image.width / 100;
-      newNft.tall = image.height / 100;
-      newNft.height = newNft.tall;
-      newNft.placed = true;
+      if (!nft.placed) {
+        newNft.wide = image.width / 100;
+        newNft.tall = image.height / 100;
+        newNft.height = newNft.tall;
+        newNft.placed = true;
+      }
+
       dispatch({ type: LOOK, payload: newNft });
       dispatch({ type: SELECT, payload: newNft });
       if (newNft.video) {
-        setVideoList((videoList) => [...videoList, { NFTid: newNft.NFTid, video: newNft.video }]);
+        setVideoList((videoList) => [
+          ...videoList,
+          { NFTid: newNft.NFTid, video: newNft.video },
+        ]);
       }
     };
+  };
+
+  const onSell = (nft) => {
+    setSellModalNFT(nft);
   };
 
   const onEdit = (nft) => {
@@ -164,7 +206,11 @@ export default function CreateList() {
           refs[nft.NFTid] = createRef();
 
           return (
-            <div className="card  bg-dark" key={nft.NFTid} ref={refs[nft.NFTid]}>
+            <div
+              className="card  bg-dark"
+              key={nft.NFTid}
+              ref={refs[nft.NFTid]}
+            >
               <div className="card-body text-center ">
                 <a
                   className="btn rounded-pill"
@@ -177,7 +223,11 @@ export default function CreateList() {
                 >
                   {nft.image ? (
                     <div>
-                      <img className="img-thumbnail rounded-pill" src={nft.image} alt="nft" />
+                      <img
+                        className="img-thumbnail rounded-pill"
+                        src={nft.image}
+                        alt="nft"
+                      />
                       <h5 className="text-light">{nft.metadata.name}</h5>
                     </div>
                   ) : (
@@ -185,12 +235,17 @@ export default function CreateList() {
                   )}
                 </a>
               </div>
-              <div className="collapse" id={"collapse" + nft.NFTid} data-parent="#CreateListAccordion">
+              <div
+                className="collapse"
+                id={"collapse" + nft.NFTid}
+                data-parent="#CreateListAccordion"
+              >
                 {nft.placed ? (
                   nft.editing ? (
                     <div className="card card-body bg-dark">
                       <div className="row justify-content-center">
-                        Double click on the map to place the NFT. Drag to relocate
+                        Double click on the map to place the NFT. Drag to
+                        relocate
                       </div>
 
                       <label className="form-label mt-1">Height</label>
@@ -246,27 +301,57 @@ export default function CreateList() {
                         onChange={(e) => roll(e.target.value, nft)}
                       />
                       <hr />
-                      <div className="row justify-content-center">
-                        <button type="button" className="  btn btn-light rounded mr-5" onClick={() => onDone(nft)}>
+                      <div className="row justify-content-around mb-2">
+                        <button
+                          type="button"
+                          className="btn btn-light rounded"
+                          onClick={() => onDone(nft)}
+                        >
                           Done
                         </button>
-                        <button type="button" className="  btn btn-danger rounded" onClick={() => onRemove(nft)}>
+                        <button
+                          type="button"
+                          className="btn btn-danger rounded"
+                          onClick={() => onRemove(nft)}
+                        >
                           Remove
+                        </button>
+                      </div>
+                      <div className="row justify-content-around">
+                        <button
+                          type="button"
+                          className="btn btn-primary rounded"
+                          onClick={() => onSell(nft)}
+                        >
+                          Sell
                         </button>
                       </div>
                     </div>
                   ) : (
                     <div className="card card-body bg-dark">
-                      <div className="row justify-content-center">
-                        <button type="button" className="  btn btn-light rounded" onClick={() => onEdit(nft)}>
+                      <div className="row justify-content-around">
+                        <button
+                          type="button"
+                          className="  btn btn-light rounded"
+                          onClick={() => onEdit(nft)}
+                        >
                           Place
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-primary rounded"
+                          onClick={() => onDone(nft)}
+                        >
+                          Sell
                         </button>
                       </div>
                     </div>
                   )
                 ) : (
                   <div className="card card-body bg-dark">
-                    <div className="row justify-content-center">Double click on the map to place the NFT</div>
+                    <div className="row justify-content-center">
+                      Double click on the map to place the NFT
+                    </div>
                   </div>
                 )}
               </div>
@@ -280,7 +365,8 @@ export default function CreateList() {
               <h5>Hmmmmm...looks like you don't have NFTs in your wallet.</h5>
             ) : (
               <h5>
-                If you connect your wallet, your NFTs will beautifully show up here. Then you can place NFT on the map.
+                If you connect your wallet, your NFTs will beautifully show up
+                here. Then you can place NFT on the map.
               </h5>
             )}
           </div>
@@ -290,7 +376,10 @@ export default function CreateList() {
         <div className="row justify-content-center">
           {loading ? (
             loading === "error" ? (
-              <h5>Oops. We got some error on the server side. You may have too many NFTs. Refresh later.</h5>
+              <h5>
+                Oops. We got some error on the server side. You may have too
+                many NFTs. Refresh later.
+              </h5>
             ) : (
               <h5> Checking {loading} NFTs from your account</h5>
             )
@@ -319,6 +408,49 @@ export default function CreateList() {
           ></div>
         );
       })}
+      <Modal
+        show={sellModalNFT}
+        dialogClassName="offer-modal"
+        onHide={() => setSellModalNFT(null)}
+      >
+        {sellModalNFT && (
+          <>
+            <NFTModalInfo nft={sellModalNFT} />
+            <Modal.Footer className="offer-modal-footer">
+              <Container>
+                <Row className="mb-3">
+                  <InputGroup>
+                    <InputGroup.Text>Listing Amount</InputGroup.Text>
+                    <Form.Control
+                      type="number"
+                      aria-label="Amount"
+                      className="text-right"
+                      // value={offerValue}
+                      // onChange={handleOfferChange}
+                    />
+                    <Form.Select aria-label="Select Currency" className="px-2">
+                      <option value="ETH">ETH</option>
+                    </Form.Select>
+                  </InputGroup>
+                </Row>
+                {/* <Row className="my-3">
+          <InputGroup>
+            <InputGroup.Text>Offer Expiration</InputGroup.Text>
+            <Form.Control
+              type="datetime-local"
+              name="offer-expiration"
+              placeholder="Offer expires after"
+            />
+          </InputGroup>
+        </Row> */}
+                <Row className="mt-3">
+                  <Button variant="primary">Post Listing</Button>
+                </Row>
+              </Container>
+            </Modal.Footer>
+          </>
+        )}
+      </Modal>
     </div>
   );
 }
