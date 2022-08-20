@@ -12,7 +12,7 @@
 
 - [🌍 Space NFT](token-owner-guide/space-NFT.md)
 - [🚀 Phanton](token-owner-guide/phanton.md)
-- [](token-owner-guide/buy-phanton.md)
+  - [💰 How to buy Phanton](token-owner-guide/buy-phanton.md)
 - [📈 Tokenomics](token-owner-guide/tokenomics.md)
 
 ## NFT owner guide
