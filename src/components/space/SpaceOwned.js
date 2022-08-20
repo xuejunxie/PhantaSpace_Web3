@@ -89,7 +89,7 @@ export default function SpaceOwned() {
                         className="img-thumbnail rounded-pill"
                         src={getThumbnail(space.geocode)}
                         onLoadStart={(e) => {
-                          e.target.src = "faviconS.gif";
+                          e.target.src = "favicon.gif";
                         }}
                         alt="space"
                       />

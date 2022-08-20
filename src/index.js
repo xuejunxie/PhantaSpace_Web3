@@ -33,7 +33,7 @@ const Application = () => {
           />
           <Route
             exact
-            path="/PhantonStandalone"
+            path="/phanton"
             element={
               <MoralisProvider appId={APP_ID} serverUrl={SERVER_URL}>
                 <PhantonStandalone />

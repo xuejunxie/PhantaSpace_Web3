@@ -242,7 +242,7 @@ export default function App() {
               <Route exact path="space" element={<Space />} />
               <Route exact path="space/:geocode" element={<Space />} />
               <Route exact path="jumpin" element={<JumpIn />} />
-              <Route exact path="phanton" element={<Phanton />} />
+              <Route exact path="p" element={<Phanton />} />
             </Routes>
           </div>
 

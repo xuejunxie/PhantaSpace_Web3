@@ -251,10 +251,10 @@ export default function SpaceAuction() {
                 className="img-thumbnail rounded-pill"
                 src={getThumbnail(geocode)}
                 onError={(e) => {
-                  e.target.src = "faviconS.gif";
+                  e.target.src = "favicon.gif";
                 }}
                 onLoadStart={(e) => {
-                  e.target.src = "faviconS.gif";
+                  e.target.src = "favicon.gif";
                 }}
                 alt="auction"
               />

@@ -51,7 +51,7 @@ export default function PhantonWallet() {
     if (getBalanceData) {
       setBalance(getBalanceData / 10 ** 18);
     }
-  }, [getBalanceData]);
+  }, [getBalanceData, web3, isAuthenticated, phanton_tab]);
 
   const onAdd = async () => {
     try {

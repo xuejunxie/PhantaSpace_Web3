@@ -951,3 +951,35 @@ function decodeGeocode(geocode) {
     heightUnit: heightUnit,
   };
 }
+
+function encodeGeocode(longitude, latitude, height, precision) {
+  const size = 0.1 ** precision;
+
+  // const size = size * Math.cos((latitude / 180) * Math.PI).toPrecision(precision);
+  const earth_radius = 6378137; // earth equatorial radius in meters
+  const heightUnit = ((earth_radius * size) / 180) * Math.PI;
+
+  const longitudeRounded = Math.floor(longitude / size) * size;
+  const latitudeRounded = Math.floor(latitude / size) * size;
+
+  const longitudePositive = (longitudeRounded + 180) * 10 ** precision;
+  const longitudeCode = longitudePositive
+    .toFixed(0)
+    .toString()
+    .padStart(3 + precision, "0");
+
+  const latitudePositive = (latitudeRounded + 90) * 10 ** precision;
+  const latitudeCode = latitudePositive
+    .toFixed(0)
+    .toString()
+    .padStart(3 + precision, "0");
+  const levelSign = height + 50 > 0 ? "3" : "1";
+  const level = Math.round(height / heightUnit);
+  const bottom = level * heightUnit - 50;
+  const top = (level + 1) * heightUnit - 50;
+
+  const levelCode = level ? Math.abs(level).toString() : "";
+  const geocode = levelCode + levelSign + latitudeCode + longitudeCode + precision.toString();
+
+  return geocode;
+}

@@ -316,7 +316,7 @@ export default function PhantonBuy() {
       <div className=" row justify-content-start bg-dark mt-1">
         <div className="col-9 justify-content-center">{inputWarning}</div>
       </div>
-      <div className="row  mt-2 ml-1">
+      <div className="row  justify-content-center">
         <h5>you will get:</h5>
       </div>
       <div className="row  justify-content-center  ">
