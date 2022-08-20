@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useMoralisQuery, useMoralis, useWeb3Contract, useMoralisSubscription } from "react-moralis";
 import abi from "./abi.json";
 import "../List.css";
+import "../../App.css";
 
 import { PHANTON_TAB, ASK_USER_FOR_EMAIL } from "redux/types";
 
@@ -277,7 +278,10 @@ export default function PhantonBuy() {
   };
 
   return (
-    <div className="bg-dark text-light col">
+    <div
+      className="bg-dark text-light col overflow-auto"
+      style={{ height: "calc(100vh - var(--navBarHeight) - var(--navTabHeight)" }}
+    >
       <a href="https://whitepaper.phanta.space" target="_blank">
         <h5 className="mt-3"> Check out our whitepaper</h5>
       </a>

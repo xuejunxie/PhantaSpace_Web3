@@ -20,7 +20,7 @@ export default function PhantonWallet() {
     contractAddress: process.env.REACT_APP_PHANTON_ADDRESS,
     functionName: "balanceOf",
     params: {
-      account: account,
+      account: user.attributes.accounts[0],
     },
   });
 
@@ -29,6 +29,23 @@ export default function PhantonWallet() {
   }, [web3, isAuthenticated, phanton_tab]);
 
   const getBalanceData = getBalance.data;
+  // codes for debugging:
+  // const getBalanceError = getBalance.error;
+  // const getBalanceLoading = getBalance.loading;
+  // const getBalanceSuccess = getBalance.success;
+
+  // useEffect(() => {
+  //   console.log(
+  //     "getBalanceData",
+  //     getBalanceData,
+  //     "getBalanceError",
+  //     getBalanceError,
+  //     "getBalanceLoading",
+  //     getBalanceLoading,
+  //     "getBalanceSuccess",
+  //     getBalanceSuccess
+  //   );
+  // }, [getBalanceData, getBalanceError, getBalanceLoading, getBalanceSuccess]);
 
   useEffect(() => {
     if (getBalanceData) {

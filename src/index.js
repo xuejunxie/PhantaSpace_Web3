@@ -7,6 +7,7 @@ import store from "./redux/store";
 import { Provider } from "react-redux";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import SpaceNFT from "components/spaceNFT/SpaceNFT";
+import PhantonStandalone from "components/phanton/PhantonStandalone";
 
 /** Get your free Moralis Account https://moralis.io/ */
 
@@ -27,6 +28,15 @@ const Application = () => {
             element={
               <MoralisProvider appId={APP_ID} serverUrl={SERVER_URL}>
                 <App isServerInfo={isServerInfo} />
+              </MoralisProvider>
+            }
+          />
+          <Route
+            exact
+            path="/PhantonStandalone"
+            element={
+              <MoralisProvider appId={APP_ID} serverUrl={SERVER_URL}>
+                <PhantonStandalone />
               </MoralisProvider>
             }
           />
