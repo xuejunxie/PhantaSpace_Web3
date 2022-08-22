@@ -10,7 +10,7 @@ The space NFT is a dynamic NFT that defines the ownership of the space in Phanta
 
 ## Mint a space NFT
 
-To mint a space NFT, go to the [space page](https://phanta.space/#/space). The initial space offering is conducted on precision = 1. This means early adopters will own a huge space. Each space can be split into 10x10x10 subspaces later for fine-grain ownership. Any space owner can mint their subspace and sell it as space NFT. There are two ways to mint space NFT. One is on-chain auction, the other is random vending. Check out our space NFT collection on Opeansea:
+To mint a space NFT, go to the [space page](https://phanta.space/#/space). The initial space offering is conducted on precision = 1. This means early adopters will own a huge space. Each space can be split into 10x10x10 subspaces later for fine-grain ownership. Any space owner can mint their subspace and sell it as space NFT. There are two ways to mint space NFT. One is on-chain auction, the other is random vending. Check out our space NFT collection on [Opeansea](https://opensea.io/collection/phantaspace).
 
 ### On-chain auction
 
