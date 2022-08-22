@@ -121,7 +121,7 @@ let tokenMinted = {
   abi: pickPhantonAbi("tokenMinted"),
   limit: 500000,
   tableName: "tokenMinted",
-  sync_historical: false,
+  sync_historical: true,
 };
 
 let totalSupplyIncreased = {

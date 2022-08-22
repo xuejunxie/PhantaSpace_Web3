@@ -12,8 +12,6 @@ The space NFT is a dynamic NFT that defines the ownership of the space in Phanta
 
 To mint a space NFT, go to the [space page](https://phanta.space/#/space). The initial space offering is conducted on precision = 1. This means early adopters will own a huge space. Each space can be split into 10x10x10 subspaces later for fine-grain ownership. Any space owner can mint their subspace and sell it as space NFT. There are two ways to mint space NFT. One is on-chain auction, the other is random vending. Check out our space NFT collection on Opeansea:
 
-{% embed url="https://opensea.io/collection/phantaspace" %}
-
 ### On-chain auction
 
 On-chain auction is an innovation introduced by PhantaSpace. Due to the vast amount of space with a large variation in value, we created the first NFT smart contract with on-chain auction. Anyone can pick an unclaimed space and place a bid. At the moment the bid is placed, the smart contract initiates a 48-hour auction. Anyone can join the bid by placing a bid. The highest bid will be the winner. At the end of the auction, the winner will be able to claim and mint the space. Others can withdraw their bid. This way, we make sure of fair space ownership with a fair price. Any space owner can also initiate an on-chain auction for the subspaces.
