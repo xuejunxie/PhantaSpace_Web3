@@ -117,7 +117,7 @@ let tokenMinted = {
   description: "tokenMinted",
   chainId: process.env.CHAIN_ID,
   address: process.env.REACT_APP_PHANTON_ADDRESS,
-  topic: "tokenMinted(address, uint256, uint256)",
+  topic: "tokenMinted(address, uint256)",
   abi: pickPhantonAbi("tokenMinted"),
   limit: 500000,
   tableName: "tokenMinted",
@@ -179,11 +179,11 @@ const main = async () => {
   // Moralis.Cloud.run("watchContractEvent", Transfer, { useMasterKey: true });
   // Moralis.Cloud.run("watchContractEvent", withDrawalRequested, { useMasterKey: true });
 
-  Moralis.Cloud.run("watchContractEvent", seedFund, { useMasterKey: true });
+  // Moralis.Cloud.run("watchContractEvent", seedFund, { useMasterKey: true });
   Moralis.Cloud.run("watchContractEvent", tokenMinted, { useMasterKey: true });
-  Moralis.Cloud.run("watchContractEvent", totalSupplyIncreased, { useMasterKey: true });
-  Moralis.Cloud.run("watchContractEvent", seedFundIncreased, { useMasterKey: true });
-  Moralis.Cloud.run("watchContractEvent", seedTokenSoldIncreased, { useMasterKey: true });
+  // Moralis.Cloud.run("watchContractEvent", totalSupplyIncreased, { useMasterKey: true });
+  // Moralis.Cloud.run("watchContractEvent", seedFundIncreased, { useMasterKey: true });
+  // Moralis.Cloud.run("watchContractEvent", seedTokenSoldIncreased, { useMasterKey: true });
 };
 
 main();

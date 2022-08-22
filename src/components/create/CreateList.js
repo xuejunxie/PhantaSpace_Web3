@@ -157,28 +157,6 @@ export default function CreateList() {
     dispatch({ type: UPDATE, payload: nft });
   };
 
-
-  // const askContract = useWeb3Contract({
-  //   abi: abi.abi,
-  //   contractAddress: process.env.REACT_APP_PHANTAX_CONTRACT_ADDRESS,
-  //   functionName: "createAsk",
-  //   params: {
-  //     _tokenContract: "0x0000000000000000000000000000000000000000",
-  //     _tokenId: "1234512",
-  //     _price: "1231234",
-  //     _currency: "MATIC",
-  //   },
-  // });
-
-  // const ask = async () => {
-  //   askContract.runContractFunction()
-  // }
-
-  useEffect(() => {
-    console.log(askContract.data, 
-      
-      )
-
   return (
     <div className="bg-dark text-light" id="CreateListAccordion">
       {NFTs.length > 0 || loading ? (
