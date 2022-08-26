@@ -8,7 +8,7 @@ PhantaSpace utility token is named "Phanton" which is derived from the light par
 
 ![](../images/phanton-utility.png)
 
-### Check-in to earn
+### Check-in-to-earn
 
 One of the utilities of Phanton is to be used as a currency in the check-in-to-earn mechanism. For example, if the owner of the space wants to attract users to visit the space, he/she can use Phanton to reward the visitor. With more visitors, the NFTs in the space will have more exposure. The more exposure, the more value the NFTs. Another example is if the owner of a real-world space, like a restaurant/shopping mall/theme park, wants to attract users to visit the space, he/she can use Phanton to reward the visitors/shoppers.
 
@@ -18,14 +18,16 @@ Another utility of Phanton is to be used as a measure of the importance of the N
 
 ## Distribution
 
-| Role           | Ratio |
-| -------------- | ----- |
-| Advisors       | 5%    |
-| Seed Sale      | 10%   |
-| Foundation     | 15%   |
-| Strategic Sale | 10%   |
-| Founder & team | 25%   |
-| Community      | 35%   |
+| Role              | Ratio |
+| ----------------- | ----- |
+| Advisors          | 5%    |
+| Seed Sale         | 10%   |
+| Foundation        | 15%   |
+| Strategic Sale    | 10%   |
+| Founder & team    | 25%   |
+| Bootstrap rewards | 35%   |
+
+Bootstrap rewards include the rewards for check-in-to-earn, NFT trading, and airdrop to early space owner.
 
 ## Supply
 
