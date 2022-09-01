@@ -90,8 +90,9 @@ export default function App() {
       // get user owned NFTs
 
       const chainId = 1; // Ethereum Mainnet
+      // const chainId = 4; // Rinkeby
 
-      if (window.ethereum.networkVersion !== chainId) {
+      if (parseInt(window.ethereum.networkVersion) !== chainId) {
         try {
           await window.ethereum.request({
             method: "wallet_switchEthereumChain",

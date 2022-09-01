@@ -12,7 +12,6 @@
     "cesium": "^1.90.0",
     "crypto-js": "^4.1.1",
     "echarts-for-react": "^3.0.2",
-    "ethers": "^5.5.2",
     "hardhat": "^2.8.4",
     "moralis": "^0.0.176",
     "opensea-js": "^3.0.0",

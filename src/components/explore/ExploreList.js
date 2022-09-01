@@ -13,8 +13,9 @@ import {
   Button,
   Card,
 } from "react-bootstrap";
-import { useMoralis, useNFTBalances } from "react-moralis";
+import { useMoralis, useNFTBalances, useWeb3Contract } from "react-moralis";
 import NFTModalInfo from "components/nftModalInfo/NFTModalInfo";
+import abi from "./abi.json";
 
 var refs = {};
 
@@ -38,6 +39,7 @@ export default function ExploreList() {
   const click = useSelector((state) => state.map.click);
   const loading_all = useSelector((state) => state.sidebar.loading_all);
   const { user } = useMoralis();
+  const { runContractFunction, isFetching, isLoading } = useWeb3Contract();
 
   useEffect(() => {
     dispatch({ type: EXPLORE });
@@ -97,9 +99,23 @@ export default function ExploreList() {
     setOfferValue(e.target.value);
   };
 
-  const handleMakeOffer = () => {
-    // TODO: Buy the NFT here
-    console.log(parseFloat(offerValue));
+  const handleMakeOffer = async (nft, amount) => {
+    const params = {
+      _tokenContract: nft.metadata.asset_contract.address,
+      _tokenId: nft.metadata.token_id, // nft.metadata.token_id
+      _currency: "0x0000000000000000000000000000000000000000", // ERC-20 token to accept, or address(0) for ETH
+      _amount: amount,
+      _findersFeeBps: "200", // The bps of the sale amount to be sent to the referrer of the sale
+    };
+
+    const offerContract = {
+      abi: abi.abi,
+      contractAddress: "0x1240ef9f9c56ee981d10cffc6ba5807b6c7fecaa",
+      functionName: "createOffer",
+      params: params,
+    };
+
+    await runContractFunction({ params: offerContract });
   };
 
   const handleQueryChange = (e) => {
@@ -115,8 +131,6 @@ export default function ExploreList() {
   const [offerValue, setOfferValue] = React.useState(0);
   const [searchQuery, setSearchQuery] = React.useState("");
   // const [filteredNFTs, setFilteredNFTs] = React.useState(NFTs);
-
-  console.log(makeOfferModalNFT);
 
   return (
     <div className="bg-dark text-light" id="ExploreListAccordion">
@@ -268,7 +282,12 @@ export default function ExploreList() {
                   </InputGroup>
                 </Row> */}
                   <Row className="mt-3">
-                    <Button variant="primary" onClick={handleMakeOffer}>
+                    <Button
+                      variant="primary"
+                      onClick={() =>
+                        handleMakeOffer(makeOfferModalNFT, offerValue)
+                      }
+                    >
                       Make Offer
                     </Button>
                   </Row>

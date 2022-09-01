@@ -3,7 +3,7 @@ import "../List.css";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import Moralis from "moralis";
-import { useMoralis } from "react-moralis";
+import { useMoralis, useWeb3Contract } from "react-moralis";
 import {
   REMOVE,
   SELECT,
@@ -24,6 +24,7 @@ import {
   Card,
 } from "react-bootstrap";
 import NFTModalInfo from "components/nftModalInfo/NFTModalInfo";
+import abi from "./abi.json";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
@@ -33,26 +34,17 @@ Moralis.serverURL = serverUrl;
 const dataClass = Moralis.Object.extend("allNFT");
 var refs = {};
 
-const ModalSection = (props) => {
-  const { title, body } = props;
-  return (
-    <Card className="w-full">
-      <Card.Body>
-        <Card.Title className="text-left">{title}</Card.Title>
-        <Card.Text className="text-left">{body}</Card.Text>
-      </Card.Body>
-    </Card>
-  );
-};
-
 export default function CreateList() {
   const dispatch = useDispatch();
-  const { isAuthenticated } = useMoralis();
+  const { isAuthenticated, user } = useMoralis();
+  // const { isWeb3Enabled, web3, enableWeb3, isAuthenticated, isWeb3EnableLoading,  } = useMoralis();
+  const { runContractFunction, isFetching, isLoading } = useWeb3Contract();
   const NFTs = useSelector((state) => state.map.owned);
   const loading = useSelector((state) => state.sidebar.loading);
   const click = useSelector((state) => state.map.click);
   const [videoList, setVideoList] = useState([]);
   const [sellModalNFT, setSellModalNFT] = useState(null);
+  const [listingPrice, setListingPrice] = useState(0);
 
   // var NFTs = [];
   useEffect(() => {
@@ -130,9 +122,60 @@ export default function CreateList() {
     });
   };
 
+  // const testContract = useWeb3Contract({
+  //   abi: abi.abi,
+  //   contractAddress: "0xbBf962606Ab3eDC16F9E1fc614132aF7e9BF45e5",
+  //   functionName: "_available",
+  //   // params: {}
+  // });
+
+  // const askContract = useWeb3Contract({
+  //   abi: abi.abi,
+  //   contractAddress: "0xA98D3729265C88c5b3f861a0c501622750fF4806",
+  //   functionName: "createAsk",
+  //   params: {
+  //     _tokenContract: "",
+  //     _tokenId: "", // nft.metadata.token_id
+  //     _askPrice: "",
+  //     _askCurrency: "", // ERC-20 token to accept, or address(0) for ETH
+  //     _sellerFundsRecipient: "", // The address to send funds to once the NFT is sold
+  //     _findersFeeBps: "" // The bps of the sale amount to be sent to the referrer of the sale
+  //   }
+  // });
+
+  // const ask = async () => {
+  //   askContract.runContractFunction()
+  // }
+
+  const onListingPriceChange = (e) => {
+    setListingPrice(e.target.value);
+  };
+
+  const onPostListing = async (nft, price) => {
+    const params = {
+      _tokenContract: nft.metadata.asset_contract.address,
+      _tokenId: nft.metadata.token_id, // nft.metadata.token_id
+      _askPrice: price,
+      _askCurrency: "0x0000000000000000000000000000000000000000", // ERC-20 token to accept, or address(0) for ETH
+      _sellerFundsRecipient: user.attributes.ethAddress, // The address to send funds to once the NFT is sold
+      _findersFeeBps: "200", // The bps of the sale amount to be sent to the referrer of the sale
+    };
+
+    const askContract = {
+      abi: abi.abi,
+      contractAddress: "0xA98D3729265C88c5b3f861a0c501622750fF4806",
+      functionName: "createAsk",
+      params: params,
+    };
+
+    await runContractFunction({ params: askContract });
+  };
+
   const onSelect = (nft) => {
     dispatch({ type: CREATE, payload: "select" });
     var newNft = { ...nft };
+
+    console.log(nft);
 
     // test if  the url works or not
     // axios.get(nft.model).then((response) => {
@@ -425,8 +468,8 @@ export default function CreateList() {
                       type="number"
                       aria-label="Amount"
                       className="text-right"
-                      // value={offerValue}
-                      // onChange={handleOfferChange}
+                      value={listingPrice}
+                      onChange={onListingPriceChange}
                     />
                     <Form.Select aria-label="Select Currency" className="px-2">
                       <option value="ETH">ETH</option>
@@ -444,7 +487,12 @@ export default function CreateList() {
           </InputGroup>
         </Row> */}
                 <Row className="mt-3">
-                  <Button variant="primary">Post Listing</Button>
+                  <Button
+                    variant="primary"
+                    onClick={() => onPostListing(sellModalNFT, listingPrice)}
+                  >
+                    Post Listing
+                  </Button>
                 </Row>
               </Container>
             </Modal.Footer>
