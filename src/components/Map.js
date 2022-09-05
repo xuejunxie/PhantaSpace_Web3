@@ -258,11 +258,11 @@ export default function Map(props) {
     viewer.trackedEntity = undefined;
 
     // Set the initial camera view to look at Manhattan
-    var initialPosition = Cesium.Cartesian3.fromDegrees(-74.01881302800248, 40.69114333714821, 753);
+    var initialPosition = Cesium.Cartesian3.fromDegrees(-74.01881302800248, 40.69114333714821, 200);
     var initialOrientation = new Cesium.HeadingPitchRoll.fromDegrees(
       21.27879878293835,
       -21.34390550872461,
-      0.0716951918898415
+      0.0116951918898415
     );
     viewer.scene.camera.setView({
       destination: initialPosition,
