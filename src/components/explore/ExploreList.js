@@ -3,16 +3,43 @@ import "../List.css";
 import { useDispatch, useSelector } from "react-redux";
 import { LOOK, EXPLORE } from "../../redux/types";
 import { useParams } from "react-router-dom";
-import { Modal } from "react-bootstrap";
+import {
+  Container,
+  Modal,
+  Row,
+  Col,
+  InputGroup,
+  Form,
+  Button,
+  Card,
+} from "react-bootstrap";
+import { useMoralis, useNFTBalances, useWeb3Contract } from "react-moralis";
+import NFTModalInfo from "components/nftModalInfo/NFTModalInfo";
+import abi from "./abi.json";
 
 var refs = {};
+
+const ModalSection = (props) => {
+  const { title, body } = props;
+  return (
+    <Card className="w-full">
+      <Card.Body>
+        <Card.Title className="text-left">{title}</Card.Title>
+        <Card.Text className="text-left">{body}</Card.Text>
+      </Card.Body>
+    </Card>
+  );
+};
 
 export default function ExploreList() {
   const dispatch = useDispatch();
   const NFTid = useParams().NFTid;
+  const ownedNFTs = useSelector((state) => state.map.owned);
   const NFTs = useSelector((state) => state.map.all);
   const click = useSelector((state) => state.map.click);
   const loading_all = useSelector((state) => state.sidebar.loading_all);
+  const { user } = useMoralis();
+  const { runContractFunction, isFetching, isLoading } = useWeb3Contract();
 
   useEffect(() => {
     dispatch({ type: EXPLORE });
@@ -64,20 +91,75 @@ export default function ExploreList() {
     }
   }
 
-  const onMakeOffer = (nft) => {
-    setMakeOfferModalShow(true);
+  const handleSelectNFT = (nft) => {
+    setMakeOfferModalNFT(nft);
   };
 
+  const handleOfferChange = (e) => {
+    setOfferValue(e.target.value);
+  };
+
+  const handleMakeOffer = async (nft, amount) => {
+    const params = {
+      _tokenContract: nft.metadata.asset_contract.address,
+      _tokenId: nft.metadata.token_id, // nft.metadata.token_id
+      _currency: "0x0000000000000000000000000000000000000000", // ERC-20 token to accept, or address(0) for ETH
+      _amount: amount,
+      _findersFeeBps: "200", // The bps of the sale amount to be sent to the referrer of the sale
+    };
+
+    const offerContract = {
+      abi: abi.abi,
+      contractAddress: "0x1240ef9f9c56ee981d10cffc6ba5807b6c7fecaa",
+      functionName: "createOffer",
+      params: params,
+    };
+
+    await runContractFunction({ params: offerContract });
+  };
+
+  const handleQueryChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // const handleSearch = () => {
+  //   setFilteredNFTs()
+  // }
+
   const [copied, setCopied] = React.useState(false);
-  const [makeOfferModalShow, setMakeOfferModalShow] = React.useState(false);
+  const [makeOfferModalNFT, setMakeOfferModalNFT] = React.useState(null);
+  const [offerValue, setOfferValue] = React.useState(0);
+  const [searchQuery, setSearchQuery] = React.useState("");
+  // const [filteredNFTs, setFilteredNFTs] = React.useState(NFTs);
+
   return (
     <div className="bg-dark text-light" id="ExploreListAccordion">
-      {NFTs.slice(0)
+      <InputGroup className="p-1">
+        <Form.Control
+          placeholder="Search"
+          aria-label="Search"
+          value={searchQuery}
+          onChange={handleQueryChange}
+        />
+        {/* <Button onClick={handleSearch}>
+          Search
+        </Button> */}
+      </InputGroup>
+      {NFTs.filter((nft) =>
+        nft.metadata.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+        .slice(0)
         .reverse()
         .map((nft) => {
+          // console.log(nft);
+          // console.log(user)
           refs[nft.NFTid] = createRef();
           return (
-            <div className="card  bg-dark" key={nft.NFTid} ref={refs[nft.NFTid]}>
+            <div
+              className="card  bg-dark"
+              key={nft.NFTid}
+              ref={refs[nft.NFTid]}
+            >
               <div className="card-body text-center justify-content-center">
                 <a
                   className="btn rounded-pill"
@@ -90,7 +172,11 @@ export default function ExploreList() {
                 >
                   {nft.image ? (
                     <div>
-                      <img className="img-thumbnail rounded-pill " src={nft.image} alt="nft" />
+                      <img
+                        className="img-thumbnail rounded-pill "
+                        src={nft.image}
+                        alt="nft"
+                      />
                     </div>
                   ) : (
                     <h5 className="text-light">{nft.metadata.name}</h5>
@@ -102,8 +188,14 @@ export default function ExploreList() {
                 id={"collapse" + nft.NFTid}
                 data-parent="#ExploreListAccordion"
               >
-                <button type="button" className="row btn btn-light rounded" onClick={() => onMakeOffer(nft)}>
-                  Make an offer
+                <button
+                  type="button"
+                  className="row btn btn-light rounded"
+                  onClick={() => handleSelectNFT(nft)}
+                >
+                  {ownedNFTs.map((nft) => nft.NFTid).includes(nft.NFTid)
+                    ? "View"
+                    : "Make an offer"}
                 </button>
                 <span data-toggle="tooltip" title="Copy shareable link">
                   <img
@@ -120,13 +212,21 @@ export default function ExploreList() {
                       height: "25px",
                     }}
                     onClick={() => {
-                      copyToClipboard(`https://phanta.space/#/explore/${nft.NFTid}`);
+                      copyToClipboard(
+                        `https://phanta.space/#/explore/${nft.NFTid}`
+                      );
                       setCopied(true);
                     }}
                   ></img>
                 </span>
-                <a href={nft.metadata.permalink} className="row text-light justify-content-center" target="_blank">
-                  {nft.metadata.description ? nft.metadata.description : "Check out the source for description"}
+                <a
+                  href={nft.metadata.permalink}
+                  className="row text-light justify-content-center"
+                  target="_blank"
+                >
+                  {nft.metadata.description
+                    ? nft.metadata.description
+                    : "Check out the source for description"}
                 </a>
               </div>
             </div>
@@ -140,12 +240,62 @@ export default function ExploreList() {
         </Modal.Header>
       </Modal>
 
-      <Modal show={makeOfferModalShow} onHide={() => setMakeOfferModalShow(false)}>
-        <Modal.Header className="justify-content-center">
-          <Modal.Title>
-            <p>Make offer function is coming</p>
-          </Modal.Title>
-        </Modal.Header>
+      <Modal
+        show={makeOfferModalNFT}
+        dialogClassName="offer-modal"
+        onHide={() => setMakeOfferModalNFT(null)}
+      >
+        {makeOfferModalNFT && (
+          <>
+            <NFTModalInfo nft={makeOfferModalNFT} />
+            {!ownedNFTs
+              .map((nft) => nft.NFTid)
+              .includes(makeOfferModalNFT.NFTid) && (
+              <Modal.Footer className="offer-modal-footer">
+                <Container>
+                  <Row className="mb-3">
+                    <InputGroup>
+                      <InputGroup.Text>Offer Amount</InputGroup.Text>
+                      <Form.Control
+                        type="number"
+                        aria-label="Amount"
+                        className="text-right"
+                        value={offerValue}
+                        onChange={handleOfferChange}
+                      />
+                      <Form.Select
+                        aria-label="Select Currency"
+                        className="px-2"
+                      >
+                        <option value="ETH">ETH</option>
+                      </Form.Select>
+                    </InputGroup>
+                  </Row>
+                  {/* <Row className="my-3">
+                  <InputGroup>
+                    <InputGroup.Text>Offer Expiration</InputGroup.Text>
+                    <Form.Control
+                      type="datetime-local"
+                      name="offer-expiration"
+                      placeholder="Offer expires after"
+                    />
+                  </InputGroup>
+                </Row> */}
+                  <Row className="mt-3">
+                    <Button
+                      variant="primary"
+                      onClick={() =>
+                        handleMakeOffer(makeOfferModalNFT, offerValue)
+                      }
+                    >
+                      Make Offer
+                    </Button>
+                  </Row>
+                </Container>
+              </Modal.Footer>
+            )}
+          </>
+        )}
       </Modal>
     </div>
   );

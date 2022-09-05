@@ -53,3 +53,11 @@
   background: gray;
   border-radius: 3px;
 }
+
+.offer-modal {
+  max-width: 70%;
+}
+
+.offer-modal-footer {
+  justify-content: center;
+}
