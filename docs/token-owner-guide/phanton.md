@@ -6,7 +6,7 @@ PhantaSpace utility token is named "Phanton" which is derived from the light par
 
 ## Utility
 
-![](../images/phanton-utility.png)
+![](images/phanton-utility.png)
 
 ### Check-in-to-earn
 
