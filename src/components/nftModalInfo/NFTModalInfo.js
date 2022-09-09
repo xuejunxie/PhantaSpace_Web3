@@ -1,11 +1,5 @@
 import "../List.css";
-import {
-  Container,
-  Modal,
-  Row,
-  Col,
-  Card,
-} from "react-bootstrap";
+import { Container, Modal, Row, Col, Card } from "react-bootstrap";
 
 const ModalSection = (props) => {
   const { title, body } = props;
@@ -35,40 +29,28 @@ export default function NFTModalInfo(props) {
             <Col md={4} sm={12}>
               {nft.image ? (
                 <div>
-                  <img
-                    className="img-thumbnail rounded-pill m-auto"
-                    src={nft.image}
-                    alt="nft"
-                  />
+                  <img className="img-thumbnail rounded-pill m-auto" src={nft.image} alt="nft" />
                 </div>
               ) : (
-                <h5 className="text-light">
-                  {nft.metadata.name}
-                </h5>
+                <h5 className="text-light">{nft.metadata.name}</h5>
               )}
             </Col>
             <Col md={8} sm={12} className="text-left">
               <ModalSection
                 title="Description"
-                body={
-                  nft.metadata.description ||
-                  "Check out the source for description."
-                }
+                body={nft.metadata.description || "Check out the source for description."}
               />
               <ModalSection
                 title="Source"
                 body={
-                  <a
-                    href={nft.metadata.permalink}
-                    target="_blank"
-                  >
+                  <a href={nft.metadata.permalink} target="_blank">
                     Source here (opens new tab)
                   </a>
                 }
               />
               <ModalSection
                 title="Owner"
-                body={`Owned by ${nft.metadata.owner.user.username}`}
+                // body={`Owned by ${nft.metadata.owner.user.username}`}
               />
             </Col>
           </Row>

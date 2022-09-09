@@ -258,7 +258,7 @@ export default function Map(props) {
     viewer.trackedEntity = undefined;
 
     // Set the initial camera view to look at Manhattan
-    var initialPosition = Cesium.Cartesian3.fromDegrees(-74.01881302800248, 40.69114333714821, 200);
+    var initialPosition = Cesium.Cartesian3.fromDegrees(-74.01881302800248, 40.69114333714821, 753);
     var initialOrientation = new Cesium.HeadingPitchRoll.fromDegrees(
       21.27879878293835,
       -21.34390550872461,
@@ -816,7 +816,7 @@ function drawSpace(cartesian, all_spaces) {
   const longitude = Cesium.Math.toDegrees(newPosition.longitude);
   const latitude = Cesium.Math.toDegrees(newPosition.latitude);
   const ground = newPosition.height;
-  const precision = 1;
+  const precision = 3;
   const size = 0.1 ** precision;
 
   // const size = size * Math.cos((latitude / 180) * Math.PI).toPrecision(precision);

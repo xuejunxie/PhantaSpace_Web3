@@ -15,7 +15,7 @@
   - [💰 How to buy Phanton](token-owner-guide/buy-phanton.md)
 - [📈 Tokenomics](token-owner-guide/tokenomics.md)
 
-## NFT owner guide
+<!-- ## NFT owner guide
 
 - [🖼 Display your NFT](NFT-owner-guide/display-your-NFT.md)
 - [🥳 Attract online viewers](NFT-owner-guide/attract-online-viewer.md)
@@ -25,4 +25,4 @@
 
 - [💸 Check-in-to-earn](explorer-guide/check-in-to-earn.md)
   - [Online](explorer-guide/online.md)
-  - [Real-world](explorer-guide/real-world.md)
+  - [Real-world](explorer-guide/real-world.md) -->
