@@ -2,9 +2,9 @@
 
 ## 3D geocode
 
-The space NFT is a dynamic NFT that defines the ownership of the space in PhantaSpace. Each space has a unique 3D geocode first introduced by PhantaSpace. The geocode consists of \[vertical level + longitude + latitude + precision]. The last digit is precision with a digit from 1\~9. The longitude and latitude are in degrees with the decimal digit number equal to the precision. This way, the world is divided into grids with different precision. In order to record longitude and latitude in Ethereum smart contract, the numbers are + 90 and + 180, respectively, to offset the negative value. The level is divided by the unit height. The unit height is calculated with $$R_{earth} * 0.1^{precision} * \pi / 180$$. This way, the space can be roughly divided into cuboids with reasonable shapes. This way, world space in different 3D locations with sizes from kilometers to micrometers can be addressed by our 3D geocodes.
+The space NFT is a dynamic NFT that defines the ownership of the space in PhantaSpace. Each space has a unique 3D geocode first introduced by PhantaSpace. The geocode consists of \[vertical level + longitude + latitude + precision]. The last digit is precision with a digit from 1\~9. The longitude and latitude are in degrees with the decimal digit number equal to the precision. This way, the world is divided into grids with different precision. In order to record longitude and latitude in Ethereum smart contract, the numbers are + 90 and + 180, respectively, to offset the negative value. The level is divided by the unit height. The unit height is calculated with $$R_{earth} * 0.1^{precision} * \pi / 180$$. This way, the space can be roughly divided into cuboids with reasonable shapes. This way, world space in different 3D locations with sizes from kilometers to micrometers can be addressed by our 3D geocodes.&#x20;
 
-![](../images/geocode.png)
+<figure><img src="../images/geocode.png" alt=""><figcaption></figcaption></figure>
 
 ## Mint a space NFT
 

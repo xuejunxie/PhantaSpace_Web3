@@ -4,7 +4,7 @@ description: Earth-scale mixed reality metaverse
 
 # Welcome to PhantaSpace
 
-![](images/banner.png)
+![](../public/banner.png)
 
 ## What's PhantaSpace?
 
