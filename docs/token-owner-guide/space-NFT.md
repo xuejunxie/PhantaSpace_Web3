@@ -1,6 +1,4 @@
-# 🌎  Space NFT
-
-##
+# 🌎 Space NFT
 
 ## 3D geocode
 
