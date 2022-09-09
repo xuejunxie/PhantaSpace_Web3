@@ -24,8 +24,8 @@ Another utility of Phanton is to be used as a measure of the importance of the N
 | Seed Sale         | 10%   |
 | Foundation        | 15%   |
 | Strategic Sale    | 10%   |
-| Founder & team    | 25%   |
-| Bootstrap rewards | 35%   |
+| Founder & team    | 20%   |
+| Community rewards | 40%   |
 
 Bootstrap rewards include the rewards for check-in-to-earn, NFT trading, and airdrop to early space owner.
 
