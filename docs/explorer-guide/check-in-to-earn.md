@@ -1,3 +1,3 @@
-# 💸 Check-in-to-earn
+# Online
 
-The PhantaSpace builder is still working on this section.
+Online check-in-to-earn will take place in our [Jump In](https://phanta.space/#/jumpin) section. Stay tuned!

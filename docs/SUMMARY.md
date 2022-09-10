@@ -14,3 +14,7 @@
   - [Buy Phanton](token-owner-guide/buy-phanton.md)
 - [Space NFT](token-owner-guide/space-NFT.md)
 - [Tokenomics](token-owner-guide/tokenomics.md)
+
+## Explorer guide
+
+- [Check in to earn](explorer-guide/check-in-to-earn.md)
