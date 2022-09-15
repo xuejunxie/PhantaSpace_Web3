@@ -18,14 +18,17 @@ Another utility of Phanton is to be used as a measure of the importance of the N
 
 ## Distribution
 
-| Role              | Ratio |
-| ----------------- | ----- |
-| Advisors          | 5%    |
-| Seed Sale         | 10%   |
-| Foundation        | 15%   |
-| Strategic Sale    | 10%   |
-| Founder & team    | 20%   |
-| Community rewards | 40%   |
+| Role                                  | Ratio |
+| ------------------------------------- | ----- |
+| Advisors                              | 3%    |
+| Marketing                             | 20%   |
+| Ecosystem and incentives for creators | 10%   |
+| Researve                              | 13%   |
+| Private Sale                          | 10%   |
+| Seed round                            | 12%   |
+| Founder & team                        | 20%   |
+| Community rewards                     | 10%   |
+| Liqudity pool                         | 2%    |
 
 Bootstrap rewards include the rewards for check-in-to-earn, NFT trading, and airdrop to early space owner.
 
