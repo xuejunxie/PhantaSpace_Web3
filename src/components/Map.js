@@ -477,13 +477,6 @@ export default function Map(props) {
     }
   };
 
-  // click to disengage the FPV camera
-  const onClick = (event) => {
-    if (document.pointerLockElement === viewer.scene.canvas) {
-      document.exitPointerLock();
-    }
-  };
-
   // var key_pressed = useSelector((state) => state.jumpIn.key_pressed);
   // handle the FPV camera movement
   const onClockTik = (clock) => {
@@ -491,6 +484,7 @@ export default function Map(props) {
     const globe = viewer.scene.globe;
     var destination = Cesium.Cartesian3.ZERO;
     let dt = clock._clockStep * move_speed;
+    var dHeight = 0;
     if (move_forward) {
       destination = Cesium.Cartesian3.add(
         destination,
@@ -520,11 +514,7 @@ export default function Map(props) {
       );
     }
     if (move_up) {
-      destination = Cesium.Cartesian3.add(
-        destination,
-        Cesium.Cartesian3.multiplyByScalar(camera.up, dt, new Cesium.Cartesian3()),
-        new Cesium.Cartesian3()
-      );
+      dHeight = dt;
     }
 
     if (move_forward || move_back || move_left || move_right || move_up) {
@@ -534,7 +524,7 @@ export default function Map(props) {
 
       var destination_height = globe.getHeight(destinationCartographic);
 
-      destinationCartographic.height = Math.max(destination_height + 1.6, destinationCartographic.height);
+      destinationCartographic.height = Math.max(destination_height + 1.6, destinationCartographic.height + dHeight);
       destination = globe.ellipsoid.cartographicToCartesian(destinationCartographic);
 
       camera.setView({
@@ -557,23 +547,40 @@ export default function Map(props) {
     // }
   };
 
+  // click to disengage the FPV camera
+  // const onClick = (event) => {
+  //   // if (document.pointerLockElement === viewer.scene.canvas) {
+  //   //   document.exitPointerLock();
+  //   // }
+  //   // console.log(event);
+  // };
+
+  //  comment out the event.target.setPointerCapture(event.pointerId);
+  //   in node_modules/cesium/Source/Core/ScreenSpaceEventHandler.js
+  //   to avoid the "InvalidStateError"
+
   useEffect(() => {
     const canvas = viewer.scene.canvas;
     if (jump_in) {
       // click to engage the FPV camera
       canvas.onclick = () => {
-        canvas.requestPointerLock();
+        if (document.pointerLockElement != viewer.scene.canvas) {
+          canvas.requestPointerLock();
+        } else {
+          // click to disengage the FPV camera
+          // document.exitPointerLock();
+        }
       };
 
       document.addEventListener("mousemove", onMouseMove);
-      document.addEventListener("click", onClick);
+      // document.addEventListener("click", onClick);
       document.addEventListener("keydown", onKeyDown);
       document.addEventListener("keyup", onKeyUp);
       viewer.clock.onTick.addEventListener(onClockTik);
     } else {
       canvas.onclick = null;
       document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("click", onClick);
+      // document.removeEventListener("click", onClick);
       document.removeEventListener("keydown", onKeyDown);
       document.removeEventListener("keyup", onKeyUp);
       viewer.clock.onTick.removeEventListener(onClockTik);
