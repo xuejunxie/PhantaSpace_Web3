@@ -8,13 +8,9 @@
 - [Multiverse](worldview/multiverse.md)
 - [Digital renaissance](worldview/digital-renaissance.md)
 
-## Token owner guide
+## Tokenomics
 
-- [Phanton](token-owner-guide/phanton.md)
-  - [Buy Phanton](token-owner-guide/buy-phanton.md)
-- [Space NFT](token-owner-guide/space-NFT.md)
-- [Tokenomics](token-owner-guide/tokenomics.md)
-
-## Explorer guide
-
-- [Check in to earn](explorer-guide/check-in-to-earn.md)
+- [Phanton](tokenomics/phanton.md)
+  - [Buy Phanton](tokenomics/buy-phanton.md)
+- [Hadron](tokenomics/hadron.md)
+- [Space NFT](tokenomics/space-NFT.md)

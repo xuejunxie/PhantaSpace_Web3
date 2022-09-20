@@ -283,6 +283,13 @@ export default function Map(props) {
 
     // viewer.scene.primitives.add(
     //   new Cesium.Cesium3DTileset({
+    //     url: Cesium.IonResource.fromAssetId(775877),
+    //   })
+    // );
+
+    // Boston city
+    // viewer.scene.primitives.add(
+    //   new Cesium.Cesium3DTileset({
     //     url: Cesium.IonResource.fromAssetId(354759),
     //   })
     // );
@@ -563,6 +570,7 @@ export default function Map(props) {
     const canvas = viewer.scene.canvas;
     if (jump_in) {
       // click to engage the FPV camera
+      canvas.requestPointerLock();
       canvas.onclick = () => {
         if (document.pointerLockElement != viewer.scene.canvas) {
           canvas.requestPointerLock();

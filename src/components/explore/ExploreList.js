@@ -3,16 +3,7 @@ import "../List.css";
 import { useDispatch, useSelector } from "react-redux";
 import { LOOK, EXPLORE } from "../../redux/types";
 import { useParams } from "react-router-dom";
-import {
-  Container,
-  Modal,
-  Row,
-  Col,
-  InputGroup,
-  Form,
-  Button,
-  Card,
-} from "react-bootstrap";
+import { Container, Modal, Row, Col, InputGroup, Form, Button, Card } from "react-bootstrap";
 import { useMoralis, useNFTBalances, useWeb3Contract } from "react-moralis";
 import NFTModalInfo from "components/nftModalInfo/NFTModalInfo";
 import abi from "./abi.json";
@@ -136,6 +127,7 @@ export default function ExploreList() {
     <div className="bg-dark text-light" id="ExploreListAccordion">
       <InputGroup className="p-1">
         <Form.Control
+          className="rounded-pill"
           placeholder="Search"
           aria-label="Search"
           value={searchQuery}
@@ -145,9 +137,7 @@ export default function ExploreList() {
           Search
         </Button> */}
       </InputGroup>
-      {NFTs.filter((nft) =>
-        nft.metadata.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      {NFTs.filter((nft) => nft.metadata.name.toLowerCase().includes(searchQuery.toLowerCase()))
         .slice(0)
         .reverse()
         .map((nft) => {
@@ -155,11 +145,7 @@ export default function ExploreList() {
           // console.log(user)
           refs[nft.NFTid] = createRef();
           return (
-            <div
-              className="card  bg-dark"
-              key={nft.NFTid}
-              ref={refs[nft.NFTid]}
-            >
+            <div className="card  bg-dark" key={nft.NFTid} ref={refs[nft.NFTid]}>
               <div className="card-body text-center justify-content-center">
                 <a
                   className="btn rounded-pill"
@@ -172,11 +158,7 @@ export default function ExploreList() {
                 >
                   {nft.image ? (
                     <div>
-                      <img
-                        className="img-thumbnail rounded-pill "
-                        src={nft.image}
-                        alt="nft"
-                      />
+                      <img className="img-thumbnail rounded-pill " src={nft.image} alt="nft" />
                     </div>
                   ) : (
                     <h5 className="text-light">{nft.metadata.name}</h5>
@@ -188,14 +170,8 @@ export default function ExploreList() {
                 id={"collapse" + nft.NFTid}
                 data-parent="#ExploreListAccordion"
               >
-                <button
-                  type="button"
-                  className="row btn btn-light rounded"
-                  onClick={() => handleSelectNFT(nft)}
-                >
-                  {ownedNFTs.map((nft) => nft.NFTid).includes(nft.NFTid)
-                    ? "View"
-                    : "Make an offer"}
+                <button type="button" className="row btn btn-light rounded" onClick={() => handleSelectNFT(nft)}>
+                  {ownedNFTs.map((nft) => nft.NFTid).includes(nft.NFTid) ? "View" : "Make an offer"}
                 </button>
                 <span data-toggle="tooltip" title="Copy shareable link">
                   <img
@@ -212,21 +188,13 @@ export default function ExploreList() {
                       height: "25px",
                     }}
                     onClick={() => {
-                      copyToClipboard(
-                        `https://phanta.space/#/explore/${nft.NFTid}`
-                      );
+                      copyToClipboard(`https://phanta.space/#/explore/${nft.NFTid}`);
                       setCopied(true);
                     }}
                   ></img>
                 </span>
-                <a
-                  href={nft.metadata.permalink}
-                  className="row text-light justify-content-center"
-                  target="_blank"
-                >
-                  {nft.metadata.description
-                    ? nft.metadata.description
-                    : "Check out the source for description"}
+                <a href={nft.metadata.permalink} className="row text-light justify-content-center" target="_blank">
+                  {nft.metadata.description ? nft.metadata.description : "Check out the source for description"}
                 </a>
               </div>
             </div>
@@ -240,17 +208,11 @@ export default function ExploreList() {
         </Modal.Header>
       </Modal>
 
-      <Modal
-        show={makeOfferModalNFT}
-        dialogClassName="offer-modal"
-        onHide={() => setMakeOfferModalNFT(null)}
-      >
+      <Modal show={makeOfferModalNFT} dialogClassName="offer-modal" onHide={() => setMakeOfferModalNFT(null)}>
         {makeOfferModalNFT && (
           <>
             <NFTModalInfo nft={makeOfferModalNFT} />
-            {!ownedNFTs
-              .map((nft) => nft.NFTid)
-              .includes(makeOfferModalNFT.NFTid) && (
+            {!ownedNFTs.map((nft) => nft.NFTid).includes(makeOfferModalNFT.NFTid) && (
               <Modal.Footer className="offer-modal-footer">
                 <Container>
                   <Row className="mb-3">
@@ -263,10 +225,7 @@ export default function ExploreList() {
                         value={offerValue}
                         onChange={handleOfferChange}
                       />
-                      <Form.Select
-                        aria-label="Select Currency"
-                        className="px-2"
-                      >
+                      <Form.Select aria-label="Select Currency" className="px-2">
                         <option value="ETH">ETH</option>
                       </Form.Select>
                     </InputGroup>
@@ -284,11 +243,11 @@ export default function ExploreList() {
                   <Row className="mt-3">
                     <Button
                       variant="primary"
-                      onClick={() =>
-                        handleMakeOffer(makeOfferModalNFT, offerValue)
-                      }
+                      // onClick={() =>
+                      //   handleMakeOffer(makeOfferModalNFT, offerValue)
+                      // }
                     >
-                      Make Offer
+                      Make Offer function is coming
                     </Button>
                   </Row>
                 </Container>
