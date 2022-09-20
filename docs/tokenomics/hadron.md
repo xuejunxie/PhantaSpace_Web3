@@ -1,6 +1,10 @@
-# Hardron
+# Hadron
+
+### Supply
 
 Hadron corresponds to the voting right for PhantaSpace governance with the maximum supply is $$10^9$$.
+
+
 
 ### Hadron Distribution
 
