@@ -1,4 +1,4 @@
-# 👓 Mixed Reality
+# Mixed Reality
 
 ## Grand vision
 
@@ -6,10 +6,10 @@ PhantaSpace is an open metaverse built on top of a 3D earth map. This enables th
 
 ## PhantaField AR glasses
 
-![Check out a short intro video here: https://www.youtube.com/watch?v=F98v1lnaQMA&ab_channel=PhantaSpace](../images/PhantaField.png)
+![Check out a short intro video here](../images/PhantaField.png)
 
 We are building integrated circuits on glasses lenses to make Ironman-style AR glasses with 100-degree field of view and retina resolution. Our approach is using the latest semiconductor breakthrough (2D semiconductor) to directly integrate microLED, integrated circuits, and micro-optics into a transparent lens. If you have watched the 2022 movie ‘Free Guy’, you must remember the AR glass that Guy wore. The glasses shown in the movie are similar to our vision. The lightweight AR glasses with high performance can replace other displays, including smartphones, laptops, TV, etc.
 
-Patents of PhantaField AR glasses:
-https://patents.google.com/patent/US9977248B1/en
-https://patents.google.com/patent/WO2021118896A1/en
+Patents of PhantaField AR glasses: \
+[https://patents.google.com/patent/US9977248B1/en \
+](https://patents.google.com/patent/US9977248B1/en)[https://patents.google.com/patent/WO2021118896A1/en](https://patents.google.com/patent/WO2021118896A1/en)

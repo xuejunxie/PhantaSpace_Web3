@@ -1,4 +1,4 @@
-# 🚀 Phanton
+# Phanton
 
 ### Origin
 
@@ -22,4 +22,32 @@ Another utility of Phanton is to be used as a measure of the importance of the N
 
 ### Buy Phanton
 
-![Open metamask](images/buyPhanton1.png)![Scan](images/buyPhanton2.PNG)![https://phanton.xyz](images/buyPhanton3.png)![Connect wallet](images/buyPhanton4.png)![Choose metamask](images/buyPhanton5.png)![Sign in](images/buyPhanton6.png)![Buy Phanton](images/buyPhanton7.png)
+<div>
+
+<img src="images/buyPhanton1.png" alt="Open metamask">
+
+ 
+
+<figure><img src="../.gitbook/assets/buyPhanton2.png" alt=""><figcaption><p>scan</p></figcaption></figure>
+
+ 
+
+<img src="images/buyPhanton3.png" alt="https://phanton.xyz">
+
+ 
+
+<img src="images/buyPhanton4.png" alt="Connect wallet">
+
+ 
+
+<img src="images/buyPhanton5.png" alt="Choose metamask">
+
+ 
+
+<img src="images/buyPhanton6.png" alt="Sign in">
+
+ 
+
+<img src="images/buyPhanton7.png" alt="Buy Phanton">
+
+</div>
