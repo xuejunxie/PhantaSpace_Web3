@@ -11,6 +11,5 @@
 ## Tokenomics
 
 - [Phanton](tokenomics/phanton.md)
-  - [Buy Phanton](tokenomics/buy-phanton.md)
 - [Hadron](tokenomics/hadron.md)
 - [Space NFT](tokenomics/space-NFT.md)

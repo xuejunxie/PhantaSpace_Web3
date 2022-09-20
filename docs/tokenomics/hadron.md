@@ -2,7 +2,7 @@
 
 Hadron corresponds to the voting right for PhantaSpace governance with the maximum supply is $$10^9$$.
 
-## Hadron Distribution
+### Hadron Distribution
 
 | Holder            | % of total | # of tokens | Vesting Term                                                                                |
 | ----------------- | ---------- | ----------- | ------------------------------------------------------------------------------------------- |

@@ -1,10 +1,10 @@
 # 🚀 Phanton
 
-## Origin
+### Origin
 
 PhantaSpace utility token is named "Phanton" which is derived from the light particle, photon. The basic unit of Phanton is "eV". 1 Phanton = $$10^9$$ eV = 1 GeV.
 
-## Supply
+### Supply
 
 The maximum supply of Phanton is $$10^{10}$$ GeV. The total supply of Phanton will change over time to approach the maximum supply.
 
