@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import * as Cesium from "cesium";
 import { useDispatch, useSelector } from "react-redux";
-import { PLACE, UPDATE, CLICK, SELECT_SPACE, MAP_LOADED, SPACE_PICKED } from "../../redux/types";
+import { PLACE_NFT, UPDATE, CLICK, SELECT_SPACE, MAP_LOADED, SPACE_PICKED } from "../../redux/types";
 
 Cesium.Ion.defaultAccessToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjNmY0NjhmOS1iZGRjLTQ5ODgtYTQyOS0zNGFhZTQ3M2RlYzYiLCJpZCI6NzE5OTUsImlhdCI6MTYzNzIzODcyM30.C_x5USgZL8Gk2tZ7D3hd__1irF9-cyatRD-9GDaRBGc";
@@ -240,7 +240,7 @@ export default function MapNFT(props) {
   }, [explore]);
 
   const dispatchPlace = (nft) => {
-    dispatch({ type: PLACE, payload: nft });
+    dispatch({ type: PLACE_NFT, payload: nft });
   };
 
   const dispatchUpdate = (nft) => {

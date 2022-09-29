@@ -20,6 +20,7 @@ export default function Header(props) {
   const Space = tag("Space", "/space");
   const JumpIn = tag("Jump in!", "/jumpin");
   const Phanton = tag("Phanton", "/phanton");
+  const Place = tag("Place", "/place");
 
   return (
     <nav className="navbar navbar-expand-sm navbar-dark bg-dark" style={{ height: props.headerHeight }}>
@@ -67,6 +68,7 @@ export default function Header(props) {
         {Create}
         {Space}
         {JumpIn}
+        {Place}
         <ul className="navbar-nav ">
           <li className="nav-item">
             <a href="https://whitepaper.phanta.space" className="nav-link" target="_blank">

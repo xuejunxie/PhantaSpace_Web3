@@ -1,6 +1,6 @@
 import {
   SELECT,
-  PLACE,
+  PLACE_NFT,
   UPDATE,
   LOAD_OWNED,
   REMOVE,
@@ -36,7 +36,7 @@ export default function (state = initialState, action) {
         ...state,
         click: action.payload,
       };
-    case PLACE:
+    case PLACE_NFT:
       return {
         ...state,
         // set flag to placed

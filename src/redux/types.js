@@ -1,6 +1,6 @@
 //  types for map operations
 export const SELECT = "SELECT";
-export const PLACE = "PLACE";
+export const PLACE_NFT = "PLACE_NFT";
 export const LOAD_OWNED = "LOAD_OWNED";
 export const CLEAN_OWNED = "CLEAN_OWNED";
 export const UPDATE = "UPDATE";
@@ -25,6 +25,7 @@ export const SET_SPACE_TAB = "SET_SPACE_TAB";
 export const SHOW_ALL_SPACES = "SHOW_ALL_SPACES";
 export const ASK_USER_TO_CONNECT = "ASK_USER_TO_CONNECT";
 export const ASK_USER_FOR_EMAIL = "ASK_USER_FOR_EMAIL";
+export const PLACE_BOX = "PLACE_BOX";
 
 // types for space operations
 export const SELECT_SPACE = "SELECT_SPACE";
@@ -52,3 +53,6 @@ export const KEY_PRESSED = "KEY_PRESSED";
 export const PHANTON = "PHANTON";
 export const UPDATE_FUND = "UPDATE_FUND";
 export const PHANTON_TAB = "PHANTON_TAB";
+
+// types for place box operations
+export const BOX_PLACED = "BOX_PLACED";

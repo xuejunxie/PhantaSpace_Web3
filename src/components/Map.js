@@ -2,7 +2,17 @@ import React, { useEffect } from "react";
 import * as Cesium from "cesium";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { PLACE, UPDATE, CLICK, SELECT_SPACE, MAP_LOADED, SPACE_PICKED, KEY_PRESSED } from "../redux/types";
+import {
+  PLACE_NFT,
+  PLACE_BOX,
+  UPDATE,
+  CLICK,
+  SELECT_SPACE,
+  MAP_LOADED,
+  SPACE_PICKED,
+  KEY_PRESSED,
+  BOX_PLACED,
+} from "../redux/types";
 import sha256 from "crypto-js/sha256";
 import AxisAlignedBoundingBox from "cesium/Source/Core/AxisAlignedBoundingBox";
 
@@ -15,6 +25,7 @@ var viewer = null;
 var createHandler = null;
 var spaceHandler = null;
 var exploreHandler = null;
+var placeBoxHandler = null;
 
 // this global variable is used to pass entity between useEffect on create and mouse event handler
 var entity = null;
@@ -40,6 +51,8 @@ export default function Map(props) {
   const show_all_spaces = useSelector((state) => state.sidebar.show_all_spaces);
 
   const jump_in = useSelector((state) => state.sidebar.jump_in);
+  const place_box = useSelector((state) => state.sidebar.place_box);
+
   // check if the map is loaded
   var loaded = false;
   var numTiles = 0;
@@ -329,13 +342,23 @@ export default function Map(props) {
   // handle mouse events for space page
   useEffect(() => {
     if (pick_a_space && all_spaces) {
-      spaceHandler = handleSpace(dispatch, all_spaces);
+      spaceHandler = handleSpace(dispatch);
     } else {
       if (spaceHandler && !spaceHandler.isDestroyed()) {
         spaceHandler.destroy();
       }
     }
   }, [pick_a_space, all_spaces]);
+
+  useEffect(() => {
+    if (place_box) {
+      placeBoxHandler = handlePlaceBox(dispatch);
+    } else {
+      if (placeBoxHandler && !placeBoxHandler.isDestroyed()) {
+        placeBoxHandler.destroy();
+      }
+    }
+  }, [place_box]);
 
   // clean up on explore page
   useEffect(() => {
@@ -414,6 +437,12 @@ export default function Map(props) {
     if (document.pointerLockElement === viewer.scene.canvas) {
       const heading = camera.heading + event.movementX * movementFactor;
       const pitch = camera.pitch - event.movementY * movementFactor;
+      // var box = Cesium.Cartesian3.add(
+      //   camera.position,
+      //   Cesium.Cartesian3.multiplyByScalar(camera.direction, 200, new Cesium.Cartesian3()),
+      //   new Cesium.Cartesian3()
+      // );
+      // drawSpace(box, 4);
       camera.setView({
         orientation: {
           heading: heading,
@@ -533,7 +562,12 @@ export default function Map(props) {
 
       destinationCartographic.height = Math.max(destination_height + 1.6, destinationCartographic.height + dHeight);
       destination = globe.ellipsoid.cartographicToCartesian(destinationCartographic);
-
+      // var box = Cesium.Cartesian3.add(
+      //   destination,
+      //   Cesium.Cartesian3.multiplyByScalar(camera.direction, 200, new Cesium.Cartesian3()),
+      //   new Cesium.Cartesian3()
+      // );
+      // drawSpace(box, 4);
       camera.setView({
         destination: destination,
         orientation: {
@@ -602,7 +636,7 @@ export default function Map(props) {
         const clickedEndity = viewer.entities.getById(look.NFTid);
         if (clickedEndity) {
           viewer.flyTo(clickedEndity);
-          dispatch({ type: PLACE, payload: look });
+          dispatch({ type: PLACE_NFT, payload: look });
         }
       }
     }
@@ -735,7 +769,7 @@ function handleCreate(dispatch, nft) {
           nft.longitude = newPosition.longitude;
           nft.latitude = newPosition.latitude;
           nft.height = newPosition.height;
-          dispatch({ type: PLACE, payload: nft });
+          dispatch({ type: PLACE_NFT, payload: nft });
         }
       }
     }
@@ -794,7 +828,7 @@ function handleCreate(dispatch, nft) {
 }
 
 // show squre on the map when the user move the mouse
-function handleSpace(dispatch, all_spaces) {
+function handleSpace(dispatch) {
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
   // show a square on the floor when the mouse move
@@ -803,7 +837,7 @@ function handleSpace(dispatch, all_spaces) {
     const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.endPosition), viewer.scene);
 
     if (cartesian) {
-      drawSpace(cartesian, all_spaces);
+      drawSpace(cartesian, 1);
     }
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
@@ -811,7 +845,7 @@ function handleSpace(dispatch, all_spaces) {
   handler.setInputAction(function (movement) {
     const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.position), viewer.scene);
     if (cartesian) {
-      const geocode = drawSpace(cartesian, all_spaces);
+      const geocode = drawSpace(cartesian, 1);
       dispatch({ type: SPACE_PICKED });
       dispatch({
         type: SELECT_SPACE,
@@ -825,15 +859,43 @@ function handleSpace(dispatch, all_spaces) {
   return handler;
 }
 
+// function to haldle of placing a box
+function handlePlaceBox(dispatch) {
+  const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+  const newSpace = null;
+  const precision = 3;
+  handler.setInputAction(function (movement) {
+    const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.endPosition), viewer.scene);
+
+    if (cartesian) {
+      drawBox(cartesian, precision);
+    }
+  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+  // select the space when the mouse click
+  handler.setInputAction(function (movement) {
+    const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.position), viewer.scene);
+    if (cartesian) {
+      const geocode = drawBox(cartesian, precision);
+      dispatch({
+        type: BOX_PLACED,
+        payload: {
+          geocode: geocode,
+        },
+      });
+    }
+  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+  return handler;
+}
+
 // function to draw space
-function drawSpace(cartesian, all_spaces) {
+function drawSpace(cartesian, precision) {
   var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
   const longitude = Cesium.Math.toDegrees(newPosition.longitude);
   const latitude = Cesium.Math.toDegrees(newPosition.latitude);
-  const ground = newPosition.height;
-  const precision = 3;
+  const height = newPosition.height;
   const size = 0.1 ** precision;
-
   // const size = size * Math.cos((latitude / 180) * Math.PI).toPrecision(precision);
   const earth_radius = 6378137; // earth equatorial radius in meters
   const heightUnit = ((earth_radius * size) / 180) * Math.PI;
@@ -852,17 +914,14 @@ function drawSpace(cartesian, all_spaces) {
     .toFixed(0)
     .toString()
     .padStart(3 + precision, "0");
-  const levelSign = ground + 50 > 0 ? "3" : "1";
-  const level = Math.round(ground / heightUnit);
+  const levelSign = height + 50 > 0 ? "3" : "1";
+  const level = Math.round(height / heightUnit);
   const bottom = level * heightUnit - 50;
   const top = (level + 1) * heightUnit - 50;
 
   const levelCode = level ? Math.abs(level).toString() : "";
   const geocode = levelCode + levelSign + latitudeCode + longitudeCode + precision.toString();
 
-  // find geocode in all_spaces
-  // const spaceTaken = all_spaces.find((space) => space.geocode === geocode);
-  // if (spaceTaken === undefined) {
   if (current_space_entity === null) {
     current_space_entity = viewer.entities.add({
       name: "selected_space",
@@ -881,7 +940,69 @@ function drawSpace(cartesian, all_spaces) {
       return Cesium.Cartesian3.fromDegreesArray(rectangleArray(longitudeRounded, latitudeRounded, size));
     }, false); // prevent flashing
   }
-  // }
+  return geocode;
+}
+
+function drawBox(cartesian, precision) {
+  var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
+  const longitude = Cesium.Math.toDegrees(newPosition.longitude);
+  const latitude = Cesium.Math.toDegrees(newPosition.latitude);
+  const height = newPosition.height;
+  const size = 0.1 ** precision;
+  // const size = size * Math.cos((latitude / 180) * Math.PI).toPrecision(precision);
+  const earth_radius = 6378137; // earth equatorial radius in meters
+  const heightUnit = ((earth_radius * size) / 180) * Math.PI;
+
+  const longitudeRounded = Math.floor(longitude / size) * size;
+  const latitudeRounded = Math.floor(latitude / size) * size;
+
+  const longitudePositive = (longitudeRounded + 180) * 10 ** precision;
+  const longitudeCode = longitudePositive
+    .toFixed(0)
+    .toString()
+    .padStart(3 + precision, "0");
+
+  const latitudePositive = (latitudeRounded + 90) * 10 ** precision;
+  const latitudeCode = latitudePositive
+    .toFixed(0)
+    .toString()
+    .padStart(3 + precision, "0");
+  const levelSign = height + 50 > 0 ? "3" : "1";
+  const level = Math.round(height / heightUnit);
+  const bottom = level * heightUnit;
+  const top = (level + 1) * heightUnit;
+
+  const levelCode = level ? Math.abs(level).toString() : "";
+  const geocode = levelCode + levelSign + latitudeCode + longitudeCode + precision.toString();
+
+  if (current_space_entity === null) {
+    current_space_entity = viewer.entities.add({
+      name: "box",
+      rectangle: {
+        coordinates: Cesium.Rectangle.fromDegrees(
+          longitudeRounded,
+          latitudeRounded,
+          longitudeRounded + size,
+          latitudeRounded + size
+        ),
+        material: Cesium.Color.fromBytes(8, 182, 190, 100),
+        extrudedHeight: top,
+        height: bottom,
+        outline: false,
+      },
+    });
+  } else {
+    current_space_entity.rectangle.coordinates = new Cesium.CallbackProperty(function () {
+      return Cesium.Rectangle.fromDegrees(
+        longitudeRounded,
+        latitudeRounded,
+        longitudeRounded + size,
+        latitudeRounded + size
+      );
+    }, false); // prevent flashing
+    current_space_entity.rectangle.height = bottom;
+    current_space_entity.rectangle.extrudedHeight = top;
+  }
   return geocode;
 }
 

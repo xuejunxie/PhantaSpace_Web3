@@ -20,6 +20,7 @@ import getAssetsByMoralis from "components/getAssets/byMoralis";
 import getAssetsByOpenseaMatic from "components/getAssets/byOpenseaMatic";
 import getSpaceByOpensea from "components/getAssets/getSpaceByOpensea";
 import JumpIn from "components/jumpIn/JumpIn";
+import Place from "components/place/Place";
 import Phanton from "components/phanton/Phanton";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
@@ -243,6 +244,7 @@ export default function App() {
               <Route exact path="space" element={<Space />} />
               <Route exact path="space/:geocode" element={<Space />} />
               <Route exact path="jumpin" element={<JumpIn />} />
+              <Route exact path="place" element={<Place />} />
               <Route exact path="p" element={<Phanton />} />
             </Routes>
           </div>

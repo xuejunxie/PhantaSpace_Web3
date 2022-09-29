@@ -14,6 +14,7 @@ import {
   ASK_USER_TO_CONNECT,
   PHANTON,
   ASK_USER_FOR_EMAIL,
+  PLACE_BOX,
 } from "../types";
 
 const initialState = {
@@ -43,9 +44,10 @@ export default function (state = initialState, action) {
         create: false,
         jump_in: false,
         phanton: false,
-
         selected_space: null,
         show_all_spaces: false,
+        space: false,
+        place_box: false,
       };
     case CREATE:
       return {
@@ -54,9 +56,10 @@ export default function (state = initialState, action) {
         explore: false,
         jump_in: false,
         phanton: false,
-
         selected_space: null,
         show_all_spaces: false,
+        space: false,
+        place_box: false,
       };
 
     case SPACE:
@@ -67,6 +70,7 @@ export default function (state = initialState, action) {
         explore: false,
         jump_in: false,
         phanton: false,
+        place_box: false,
       };
     case JUMP_IN:
       return {
@@ -76,9 +80,19 @@ export default function (state = initialState, action) {
         explore: false,
         jump_in: true,
         phanton: false,
-
         selected_space: null,
         show_all_spaces: false,
+        place_box: false,
+      };
+    case PLACE_BOX:
+      return {
+        ...state,
+        space: false,
+        create: false,
+        explore: false,
+        jump_in: false,
+        phanton: false,
+        place_box: true,
       };
     case PHANTON:
       return {
@@ -90,6 +104,7 @@ export default function (state = initialState, action) {
         phanton: true,
         selected_space: null,
         show_all_spaces: false,
+        place_box: false,
       };
     case SHOW_ALL_SPACES:
       return {
