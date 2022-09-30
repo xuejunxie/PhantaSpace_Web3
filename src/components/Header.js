@@ -68,7 +68,7 @@ export default function Header(props) {
         {Create}
         {Space}
         {JumpIn}
-        {Place}
+        {/* {Place} */}
         <ul className="navbar-nav ">
           <li className="nav-item">
             <a href="https://whitepaper.phanta.space" className="nav-link" target="_blank">

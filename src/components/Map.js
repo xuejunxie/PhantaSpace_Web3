@@ -32,6 +32,7 @@ var entity = null;
 
 // this global variable is used to pass selected_space between selected_space and space_level
 var current_space_entity = null;
+var current_box_entity = null;
 var all_space_entity = {};
 
 export default function Map(props) {
@@ -52,6 +53,7 @@ export default function Map(props) {
 
   const jump_in = useSelector((state) => state.sidebar.jump_in);
   const place_box = useSelector((state) => state.sidebar.place_box);
+  const box_placed = useSelector((state) => state.place.box_placed);
 
   // check if the map is loaded
   var loaded = false;
@@ -143,6 +145,9 @@ export default function Map(props) {
       }
     }
   }, [selected_space]);
+
+  // box placed
+  useEffect(() => {}, [box_placed]);
 
   useEffect(() => {
     if (show_space && show_space.geocode) {
@@ -716,6 +721,9 @@ function handleExplore(dispatch) {
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
   handler.setInputAction(function (movement) {
     var pickedObject = viewer.scene.pick(movement.position);
+    // const position = viewer.scene.globe.ellipsoid.cartesianToCartographic(pickedObject, new Cesium.Cartographic());
+    // const geocode = encodeGeocode(position.longitude, position.latitude, position.height, 4);
+    // console.log(geocode);
     if (Cesium.defined(pickedObject)) {
       if (pickedObject.id) {
         dispatch({ type: CLICK, payload: pickedObject.id.id });
@@ -736,7 +744,7 @@ function handleCreate(dispatch, nft) {
 
   handler.setInputAction((click) => {
     if (click.position) {
-      var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(click.position), viewer.scene);
+      var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(click.endPosition), viewer.scene);
       if (cartesian) {
         // increase height
 
@@ -854,7 +862,7 @@ function handleSpace(dispatch) {
         },
       });
     }
-  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+  }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
 
   return handler;
 }
@@ -862,12 +870,15 @@ function handleSpace(dispatch) {
 // function to haldle of placing a box
 function handlePlaceBox(dispatch) {
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-  const newSpace = null;
-  const precision = 3;
+  const precision = 4;
   handler.setInputAction(function (movement) {
     const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.endPosition), viewer.scene);
 
     if (cartesian) {
+      // var pickedObject = viewer.scene.pick(movement.endPosition);
+      // var pickPosition = viewer.scene.pickPosition(movement.endPosition);
+      // console.log(pickedObject);
+      // const position = viewer.scene.globe.ellipsoid.cartesianToCartographic(pickPosition, new Cesium.Cartographic());
       drawBox(cartesian, precision);
     }
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
@@ -877,14 +888,16 @@ function handlePlaceBox(dispatch) {
     const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.position), viewer.scene);
     if (cartesian) {
       const geocode = drawBox(cartesian, precision);
-      dispatch({
-        type: BOX_PLACED,
-        payload: {
-          geocode: geocode,
-        },
-      });
+      current_box_entity.rectangle.material = Cesium.Color.fromBytes(8, 182, 190, 255);
+      current_box_entity = null;
+      // dispatch({
+      //   type: BOX_PLACED,
+      //   payload: {
+      //     geocode: geocode,
+      //   },
+      // });
     }
-  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+  }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
 
   return handler;
 }
@@ -975,9 +988,9 @@ function drawBox(cartesian, precision) {
   const levelCode = level ? Math.abs(level).toString() : "";
   const geocode = levelCode + levelSign + latitudeCode + longitudeCode + precision.toString();
 
-  if (current_space_entity === null) {
-    current_space_entity = viewer.entities.add({
-      name: "box",
+  if (current_box_entity === null) {
+    current_box_entity = viewer.entities.add({
+      name: geocode,
       rectangle: {
         coordinates: Cesium.Rectangle.fromDegrees(
           longitudeRounded,
@@ -992,7 +1005,7 @@ function drawBox(cartesian, precision) {
       },
     });
   } else {
-    current_space_entity.rectangle.coordinates = new Cesium.CallbackProperty(function () {
+    current_box_entity.rectangle.coordinates = new Cesium.CallbackProperty(function () {
       return Cesium.Rectangle.fromDegrees(
         longitudeRounded,
         latitudeRounded,
@@ -1000,8 +1013,8 @@ function drawBox(cartesian, precision) {
         latitudeRounded + size
       );
     }, false); // prevent flashing
-    current_space_entity.rectangle.height = bottom;
-    current_space_entity.rectangle.extrudedHeight = top;
+    current_box_entity.rectangle.height = bottom;
+    current_box_entity.rectangle.extrudedHeight = top;
   }
   return geocode;
 }
