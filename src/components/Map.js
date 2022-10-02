@@ -879,7 +879,7 @@ function handlePlaceBox(dispatch) {
       // var pickPosition = viewer.scene.pickPosition(movement.endPosition);
       // console.log(pickedObject);
       // const position = viewer.scene.globe.ellipsoid.cartesianToCartographic(pickPosition, new Cesium.Cartographic());
-      drawBox(cartesian, precision);
+      // drawBox(cartesian, precision);
     }
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
@@ -888,8 +888,8 @@ function handlePlaceBox(dispatch) {
     const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.position), viewer.scene);
     if (cartesian) {
       const geocode = drawBox(cartesian, precision);
-      current_box_entity.rectangle.material = Cesium.Color.fromBytes(8, 182, 190, 255);
-      current_box_entity = null;
+      // current_box_entity.rectangle.material = Cesium.Color.fromBytes(8, 182, 190, 255);
+      // current_box_entity = null;
       // dispatch({
       //   type: BOX_PLACED,
       //   payload: {
@@ -988,34 +988,50 @@ function drawBox(cartesian, precision) {
   const levelCode = level ? Math.abs(level).toString() : "";
   const geocode = levelCode + levelSign + latitudeCode + longitudeCode + precision.toString();
 
-  if (current_box_entity === null) {
-    current_box_entity = viewer.entities.add({
-      name: geocode,
-      rectangle: {
-        coordinates: Cesium.Rectangle.fromDegrees(
-          longitudeRounded,
-          latitudeRounded,
-          longitudeRounded + size,
-          latitudeRounded + size
-        ),
-        material: Cesium.Color.fromBytes(8, 182, 190, 100),
-        extrudedHeight: top,
-        height: bottom,
-        outline: false,
-      },
-    });
-  } else {
-    current_box_entity.rectangle.coordinates = new Cesium.CallbackProperty(function () {
-      return Cesium.Rectangle.fromDegrees(
-        longitudeRounded,
-        latitudeRounded,
-        longitudeRounded + size,
-        latitudeRounded + size
-      );
-    }, false); // prevent flashing
-    current_box_entity.rectangle.height = bottom;
-    current_box_entity.rectangle.extrudedHeight = top;
-  }
+  // viewer.scene.primitives.add(
+  //   new Cesium.Primitive({
+  //     geometryInstances: new Cesium.GeometryInstance({
+  //       geometry: Cesium.BoxGeometry.fromDimensions({
+  //         vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
+  //         dimensions: new Cesium.Cartesian3(heightUnit, heightUnit, heightUnit),
+  //       }),
+  //       modelMatrix: Cesium.Matrix4.multiplyByTranslation(
+  //         Cesium.Transforms.eastNorthUpToFixedFrame(Cesium.Cartesian3.fromDegrees(longitudeRounded, latitudeRounded)),
+  //         new Cesium.Cartesian3(0.0, 0.0, bottom),
+  //         new Cesium.Matrix4()
+  //       ),
+  //       attributes: {
+  //         color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.RED.withAlpha(0.5)),
+  //       },
+  //     }),
+  //     appearance: new Cesium.PerInstanceColorAppearance({
+  //       closed: true,
+  //     }),
+  //   })
+  // );
+
+  viewer.scene.primitives.add(
+    new Cesium.Primitive({
+      geometryInstances: new Cesium.GeometryInstance({
+        geometry: new Cesium.RectangleGeometry({
+          rectangle: Cesium.Rectangle.fromDegrees(
+            longitudeRounded,
+            latitudeRounded,
+            longitudeRounded + size,
+            latitudeRounded + size
+          ),
+          height: bottom,
+          extrudedHeight: top,
+          vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
+        }),
+        attributes: {
+          color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.BLUE),
+        },
+      }),
+      appearance: new Cesium.PerInstanceColorAppearance(),
+    })
+  );
+
   return geocode;
 }
 
