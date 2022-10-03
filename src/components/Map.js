@@ -236,6 +236,8 @@ export default function Map(props) {
     // check if the map is loaded
     checkLoad();
 
+    viewer.scene.pickTranslucentDepth = true;
+
     // enable shadows
     // viewer.shadowMap.enabled = true;
 
@@ -885,9 +887,22 @@ function handlePlaceBox(dispatch) {
 
   // select the space when the mouse click
   handler.setInputAction(function (movement) {
-    const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.position), viewer.scene);
-    if (cartesian) {
-      const geocode = drawBox(cartesian, precision);
+    // const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.position), viewer.scene);
+    const pickPosition = viewer.scene.pickPosition(movement.position);
+    const cameraPosition = viewer.camera.positionWC;
+    console.log(cameraPosition, pickPosition);
+    const boxPosition = Cesium.Cartesian3.add(
+      pickPosition,
+      Cesium.Cartesian3.multiplyByScalar(
+        Cesium.Cartesian3.subtract(cameraPosition, pickPosition, new Cesium.Cartesian3()),
+        0.001,
+        new Cesium.Cartesian3()
+      ),
+      new Cesium.Cartesian3()
+    );
+    // console.log(cartesian, pickPosition);
+    if (boxPosition) {
+      const geocode = drawBox(boxPosition, precision);
       // current_box_entity.rectangle.material = Cesium.Color.fromBytes(8, 182, 190, 255);
       // current_box_entity = null;
       // dispatch({
@@ -962,9 +977,10 @@ function drawBox(cartesian, precision) {
   const latitude = Cesium.Math.toDegrees(newPosition.latitude);
   const height = newPosition.height;
   const size = 0.1 ** precision;
-  // const size = size * Math.cos((latitude / 180) * Math.PI).toPrecision(precision);
+  const sizeY = size * Math.cos((latitude / 180) * Math.PI);
   const earth_radius = 6378137; // earth equatorial radius in meters
-  const heightUnit = ((earth_radius * size) / 180) * Math.PI;
+  const widthUnit = ((earth_radius * size) / 180) * Math.PI;
+  const lengthUnit = ((earth_radius * sizeY) / 180) * Math.PI * 1.01;
 
   const longitudeRounded = Math.floor(longitude / size) * size;
   const latitudeRounded = Math.floor(latitude / size) * size;
@@ -981,9 +997,9 @@ function drawBox(cartesian, precision) {
     .toString()
     .padStart(3 + precision, "0");
   const levelSign = height + 50 > 0 ? "3" : "1";
-  const level = Math.round(height / heightUnit);
-  const bottom = level * heightUnit;
-  const top = (level + 1) * heightUnit;
+  const level = Math.round(height / widthUnit);
+  const bottom = level * widthUnit;
+  const top = (level + 1) * widthUnit;
 
   const levelCode = level ? Math.abs(level).toString() : "";
   const geocode = levelCode + levelSign + latitudeCode + longitudeCode + precision.toString();
@@ -991,21 +1007,22 @@ function drawBox(cartesian, precision) {
   // viewer.scene.primitives.add(
   //   new Cesium.Primitive({
   //     geometryInstances: new Cesium.GeometryInstance({
-  //       geometry: Cesium.BoxGeometry.fromDimensions({
-  //         vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
-  //         dimensions: new Cesium.Cartesian3(heightUnit, heightUnit, heightUnit),
+  //       geometry: new Cesium.RectangleGeometry({
+  //         rectangle: Cesium.Rectangle.fromDegrees(
+  //           longitudeRounded,
+  //           latitudeRounded,
+  //           longitudeRounded + size,
+  //           latitudeRounded + size
+  //         ),
+  //         height: bottom,
+  //         extrudedHeight: top,
   //       }),
-  //       modelMatrix: Cesium.Matrix4.multiplyByTranslation(
-  //         Cesium.Transforms.eastNorthUpToFixedFrame(Cesium.Cartesian3.fromDegrees(longitudeRounded, latitudeRounded)),
-  //         new Cesium.Cartesian3(0.0, 0.0, bottom),
-  //         new Cesium.Matrix4()
-  //       ),
   //       attributes: {
-  //         color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.RED.withAlpha(0.5)),
+  //         color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.BLUE),
   //       },
   //     }),
   //     appearance: new Cesium.PerInstanceColorAppearance({
-  //       closed: true,
+  //       translucent: false,
   //     }),
   //   })
   // );
@@ -1013,22 +1030,25 @@ function drawBox(cartesian, precision) {
   viewer.scene.primitives.add(
     new Cesium.Primitive({
       geometryInstances: new Cesium.GeometryInstance({
-        geometry: new Cesium.RectangleGeometry({
-          rectangle: Cesium.Rectangle.fromDegrees(
-            longitudeRounded,
-            latitudeRounded,
-            longitudeRounded + size,
-            latitudeRounded + size
-          ),
-          height: bottom,
-          extrudedHeight: top,
+        geometry: Cesium.BoxGeometry.fromDimensions({
           vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
+          dimensions: new Cesium.Cartesian3(lengthUnit, widthUnit, widthUnit),
         }),
+        modelMatrix: Cesium.Matrix4.multiplyByTranslation(
+          Cesium.Transforms.eastNorthUpToFixedFrame(
+            Cesium.Cartesian3.fromDegrees(longitudeRounded + size / 2, latitudeRounded + size / 2)
+          ),
+          new Cesium.Cartesian3(0.0, 0.0, bottom),
+          new Cesium.Matrix4()
+        ),
         attributes: {
-          color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.BLUE),
+          color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.RED.withAlpha(1)),
         },
       }),
-      appearance: new Cesium.PerInstanceColorAppearance(),
+      appearance: new Cesium.PerInstanceColorAppearance({
+        closed: true,
+        translucent: false,
+      }),
     })
   );
 
