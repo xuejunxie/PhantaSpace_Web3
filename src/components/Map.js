@@ -912,7 +912,17 @@ function handlePlaceBox(dispatch) {
       //   },
       // });
     }
-  }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+  // right click to remove the box
+  handler.setInputAction(function (movement) {
+    const pickedObject = viewer.scene.pick(movement.position);
+    if (pickedObject) {
+      if (pickedObject.primitive.constructor.name === "Primitive") {
+        viewer.scene.primitives.remove(pickedObject.primitive);
+      }
+    }
+  }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
   return handler;
 }
@@ -1042,7 +1052,7 @@ function drawBox(cartesian, precision) {
           new Cesium.Matrix4()
         ),
         attributes: {
-          color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.RED.withAlpha(1)),
+          color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.ALICEBLUE.withAlpha(1)),
         },
       }),
       appearance: new Cesium.PerInstanceColorAppearance({
