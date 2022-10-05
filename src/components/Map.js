@@ -890,7 +890,6 @@ function handlePlaceBox(dispatch) {
     // const cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(movement.position), viewer.scene);
     const pickPosition = viewer.scene.pickPosition(movement.position);
     const cameraPosition = viewer.camera.positionWC;
-    console.log(cameraPosition, pickPosition);
     const boxPosition = Cesium.Cartesian3.add(
       pickPosition,
       Cesium.Cartesian3.multiplyByScalar(
@@ -1052,7 +1051,7 @@ function drawBox(cartesian, precision) {
           new Cesium.Matrix4()
         ),
         attributes: {
-          color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.ALICEBLUE.withAlpha(1)),
+          color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.ALICEBLUE),
         },
       }),
       appearance: new Cesium.PerInstanceColorAppearance({

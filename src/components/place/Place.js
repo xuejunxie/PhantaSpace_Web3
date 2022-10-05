@@ -10,7 +10,8 @@ export default function Place() {
 
   return (
     <div className="text-light mt-5">
-      <h5>Left click the map to place a box</h5>
+      <h5>Left click to place a box</h5>
+      <h5>Right click to remove a box</h5>
     </div>
   );
 }
