@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { PLACE_BOX, SET_BOX_COLOR } from "redux/types";
 import { CirclePicker } from "react-color";
+import colors from "./colors.json";
+import { Tab, Tabs } from "react-bootstrap";
 
 export default function Place() {
   const dispatch = useDispatch();
@@ -26,42 +28,46 @@ export default function Place() {
   //   },
   // }
 
-  // reddit place colors
-  const colors = [
-    "#FFFFFF",
-    "#E4E4E4",
-    "#888888",
-    "#222222",
-    "#FFA7D1",
-    "#E50000",
-    "#E59500",
-    "#A06A42",
-    "#E5D900",
-    "#94E044",
-    "#02BE01",
-    "#00D3DD",
-    "#0083C7",
-    "#0000EA",
-    "#CF6EE4",
-    "#820080",
-  ];
+  const [colorPlalette, setColorPlalette] = React.useState(colors.colors1); // colors1 color2 color3 are from reddit place day1 day2 day3
 
   return (
-    <div className="text-light mt-5 col">
-      <h5>Left click to place a box</h5>
-      <h5>Right click to remove a box</h5>
-      <div className="justify-content-center">
-        <CirclePicker
-          colors={colors}
-          circleSpacing={20}
-          circleSize={38}
-          onChange={(color) => setColor(color.rgb)}
-          color={color}
-          onChangeComplete={(color) => {
-            dispatch({ type: SET_BOX_COLOR, payload: color.rgb });
-          }}
-        />
-      </div>
+    <div className="bg-dark text-light">
+      <Tabs activeKey={"place"}>
+        <Tab eventKey="place" title="Place" tabClassName="text-light">
+          <div className="text-light mt-5 col">
+            <h5>Left click to place a box</h5>
+            <h5>Right click to remove a box</h5>
+            Upgrade to
+            <button
+              className="ml-2 rounded-pill"
+              onMouseEnter={() => setColorPlalette(colors.colors2)}
+              onMouseLeave={() => setColorPlalette(colors.colors1)}
+            >
+              Level 2
+            </button>
+            <button
+              className=" rounded-pill"
+              onMouseEnter={() => setColorPlalette(colors.colors3)}
+              onMouseLeave={() => setColorPlalette(colors.colors1)}
+            >
+              Level 3
+            </button>
+            <div className="justify-content-center mt-2">
+              <CirclePicker
+                colors={colorPlalette}
+                circleSpacing={20}
+                circleSize={38}
+                onChange={(color) => setColor(color.rgb)}
+                color={color}
+                onChangeComplete={(color) => {
+                  dispatch({ type: SET_BOX_COLOR, payload: color });
+                }}
+              />
+            </div>
+          </div>
+        </Tab>
+        <Tab eventKey="phanton" title="Buy Phanton" tabClassName="text-light"></Tab>
+      </Tabs>
     </div>
   );
 }

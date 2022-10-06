@@ -1055,7 +1055,7 @@ function drawBox(cartesian, precision) {
         ),
         attributes: {
           color: Cesium.ColorGeometryInstanceAttribute.fromColor(
-            Cesium.Color.fromBytes(box_color.r, box_color.g, box_color.b, box_color.a * 255)
+            Cesium.Color.fromBytes(box_color.rgb.r, box_color.rgb.g, box_color.rgb.b, box_color.rgb.a * 255)
           ),
         },
       }),
