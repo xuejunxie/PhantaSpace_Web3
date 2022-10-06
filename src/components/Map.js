@@ -30,6 +30,8 @@ var placeBoxHandler = null;
 // this global variable is used to pass entity between useEffect on create and mouse event handler
 var entity = null;
 
+var box_color = { r: "241", g: "112", b: "19", a: "1" };
+
 // this global variable is used to pass selected_space between selected_space and space_level
 var current_space_entity = null;
 var current_box_entity = null;
@@ -54,6 +56,7 @@ export default function Map(props) {
   const jump_in = useSelector((state) => state.sidebar.jump_in);
   const place_box = useSelector((state) => state.sidebar.place_box);
   const box_placed = useSelector((state) => state.place.box_placed);
+  box_color = useSelector((state) => state.place.box_color);
 
   // check if the map is loaded
   var loaded = false;
@@ -1051,7 +1054,9 @@ function drawBox(cartesian, precision) {
           new Cesium.Matrix4()
         ),
         attributes: {
-          color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.ALICEBLUE),
+          color: Cesium.ColorGeometryInstanceAttribute.fromColor(
+            Cesium.Color.fromBytes(box_color.r, box_color.g, box_color.b, box_color.a * 255)
+          ),
         },
       }),
       appearance: new Cesium.PerInstanceColorAppearance({

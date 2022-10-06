@@ -56,3 +56,4 @@ export const PHANTON_TAB = "PHANTON_TAB";
 
 // types for place box operations
 export const BOX_PLACED = "BOX_PLACED";
+export const SET_BOX_COLOR = "SET_BOX_COLOR";
