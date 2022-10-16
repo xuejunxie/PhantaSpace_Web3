@@ -12,6 +12,7 @@ import {
   SPACE_PICKED,
   KEY_PRESSED,
   BOX_PLACED,
+  DELETE_BOX,
 } from "../redux/types";
 import sha256 from "crypto-js/sha256";
 import AxisAlignedBoundingBox from "cesium/Source/Core/AxisAlignedBoundingBox";
@@ -30,7 +31,7 @@ var placeBoxHandler = null;
 // this global variable is used to pass entity between useEffect on create and mouse event handler
 var entity = null;
 
-var box_color = { r: "241", g: "112", b: "19", a: "1" };
+var box_color = { rgb: { r: "255", g: "255", b: "255", a: "1" } };
 
 // this global variable is used to pass selected_space between selected_space and space_level
 var current_space_entity = null;
@@ -359,6 +360,52 @@ export default function Map(props) {
       }
     }
   }, [pick_a_space, all_spaces]);
+
+  // load all boxes
+
+  const boxes_placed = useSelector((state) => state.place.boxes_placed);
+  useEffect(() => {
+    if (boxes_placed.length > 0) {
+      boxes_placed.map((box) => {
+        drawBox(
+          box.geocode,
+          box.lengthUnit,
+          box.widthUnit,
+          box.longitudeRounded,
+          box.latitudeRounded,
+          box.size,
+          box.bottom,
+          box.box_color.rgb
+        );
+      });
+    }
+  }, [boxes_placed]);
+
+  // add box placed by others
+  const box_placed_by_others = useSelector((state) => state.place.box_placed_by_others);
+  useEffect(() => {
+    if (box_placed_by_others) {
+      drawBox(
+        box_placed_by_others.geocode,
+        box_placed_by_others.lengthUnit,
+        box_placed_by_others.widthUnit,
+        box_placed_by_others.longitudeRounded,
+        box_placed_by_others.latitudeRounded,
+        box_placed_by_others.size,
+        box_placed_by_others.bottom,
+        box_placed_by_others.box_color.rgb
+      );
+    }
+  }, [box_placed_by_others]);
+
+  // remove box deteled by others
+  const box_deleted_by_others = useSelector((state) => state.place.box_deleted_by_others);
+  useEffect(() => {
+    if (box_deleted_by_others) {
+      const box = viewer.entities.getById(box_deleted_by_others);
+      viewer.entities.remove(box);
+    }
+  }, [box_deleted_by_others]);
 
   useEffect(() => {
     if (place_box) {
@@ -884,7 +931,7 @@ function handlePlaceBox(dispatch) {
       // var pickPosition = viewer.scene.pickPosition(movement.endPosition);
       // console.log(pickedObject);
       // const position = viewer.scene.globe.ellipsoid.cartesianToCartographic(pickPosition, new Cesium.Cartographic());
-      // drawBox(cartesian, precision);
+      // putBox(cartesian, precision);
     }
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
@@ -904,15 +951,14 @@ function handlePlaceBox(dispatch) {
     );
     // console.log(cartesian, pickPosition);
     if (boxPosition) {
-      const geocode = drawBox(boxPosition, precision);
+      const box_info = putBox(boxPosition, precision);
+
       // current_box_entity.rectangle.material = Cesium.Color.fromBytes(8, 182, 190, 255);
       // current_box_entity = null;
-      // dispatch({
-      //   type: BOX_PLACED,
-      //   payload: {
-      //     geocode: geocode,
-      //   },
-      // });
+      dispatch({
+        type: BOX_PLACED,
+        payload: box_info,
+      });
     }
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
@@ -922,6 +968,10 @@ function handlePlaceBox(dispatch) {
     if (pickedObject) {
       if (pickedObject.primitive.constructor.name === "Primitive") {
         viewer.scene.primitives.remove(pickedObject.primitive);
+        dispatch({
+          type: DELETE_BOX,
+          payload: pickedObject.id,
+        });
       }
     }
   }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
@@ -983,7 +1033,7 @@ function drawSpace(cartesian, precision) {
   return geocode;
 }
 
-function drawBox(cartesian, precision) {
+function putBox(cartesian, precision) {
   var newPosition = Cesium.Cartographic.fromCartesian(cartesian);
   const longitude = Cesium.Math.toDegrees(newPosition.longitude);
   const latitude = Cesium.Math.toDegrees(newPosition.latitude);
@@ -1016,32 +1066,17 @@ function drawBox(cartesian, precision) {
   const levelCode = level ? Math.abs(level).toString() : "";
   const geocode = levelCode + levelSign + latitudeCode + longitudeCode + precision.toString();
 
-  // viewer.scene.primitives.add(
-  //   new Cesium.Primitive({
-  //     geometryInstances: new Cesium.GeometryInstance({
-  //       geometry: new Cesium.RectangleGeometry({
-  //         rectangle: Cesium.Rectangle.fromDegrees(
-  //           longitudeRounded,
-  //           latitudeRounded,
-  //           longitudeRounded + size,
-  //           latitudeRounded + size
-  //         ),
-  //         height: bottom,
-  //         extrudedHeight: top,
-  //       }),
-  //       attributes: {
-  //         color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.BLUE),
-  //       },
-  //     }),
-  //     appearance: new Cesium.PerInstanceColorAppearance({
-  //       translucent: false,
-  //     }),
-  //   })
-  // );
+  drawBox(geocode, lengthUnit, widthUnit, longitudeRounded, latitudeRounded, size, bottom, box_color.rgb);
 
+  // return geocode;
+  return { geocode, lengthUnit, widthUnit, longitudeRounded, latitudeRounded, size, bottom, box_color };
+}
+
+function drawBox(geocode, lengthUnit, widthUnit, longitudeRounded, latitudeRounded, size, bottom, color) {
   viewer.scene.primitives.add(
     new Cesium.Primitive({
       geometryInstances: new Cesium.GeometryInstance({
+        id: geocode,
         geometry: Cesium.BoxGeometry.fromDimensions({
           vertexFormat: Cesium.PerInstanceColorAppearance.VERTEX_FORMAT,
           dimensions: new Cesium.Cartesian3(lengthUnit, widthUnit, widthUnit),
@@ -1055,7 +1090,7 @@ function drawBox(cartesian, precision) {
         ),
         attributes: {
           color: Cesium.ColorGeometryInstanceAttribute.fromColor(
-            Cesium.Color.fromBytes(box_color.rgb.r, box_color.rgb.g, box_color.rgb.b, box_color.rgb.a * 255)
+            Cesium.Color.fromBytes(color.r, color.g, color.b, color.a * 255)
           ),
         },
       }),
@@ -1065,8 +1100,6 @@ function drawBox(cartesian, precision) {
       }),
     })
   );
-
-  return geocode;
 }
 
 // function to get the rectangle array

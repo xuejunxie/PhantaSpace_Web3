@@ -57,3 +57,8 @@ export const PHANTON_TAB = "PHANTON_TAB";
 // types for place box operations
 export const BOX_PLACED = "BOX_PLACED";
 export const SET_BOX_COLOR = "SET_BOX_COLOR";
+export const PLACE_TAB = "PLACE_TAB";
+export const LOAD_ALL_BOXES = "LOAD_ALL_BOXES";
+export const DELETE_BOX = "DELETE_BOX";
+export const BOX_PLACED_BY_OTHERS = "BOX_PLACED_BY_OTHERS";
+export const BOX_DELETED_BY_OTHERS = "BOX_DELETED_BY_OTHERS";

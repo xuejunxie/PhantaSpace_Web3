@@ -1,38 +1,99 @@
 import React, { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { PLACE_BOX, SET_BOX_COLOR } from "redux/types";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  PLACE_BOX,
+  SET_BOX_COLOR,
+  PLACE_TAB,
+  LOAD_ALL_BOXES,
+  BOX_PLACED_BY_OTHERS,
+  BOX_DELETED_BY_OTHERS,
+} from "redux/types";
 import { CirclePicker } from "react-color";
 import colors from "./colors.json";
 import { Tab, Tabs } from "react-bootstrap";
+import Phanton from "components/phanton/Phanton";
+import { useMoralis, useMoralisQuery, useMoralisSubscription } from "react-moralis";
+import Moralis from "moralis";
+
+const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
+const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
+
+Moralis.initialize(appId);
+Moralis.serverURL = serverUrl;
+const boxClass = Moralis.Object.extend("box");
 
 export default function Place() {
   const dispatch = useDispatch();
+  const place_tab = useSelector((state) => state.place.place_tab);
+  const box_placed = useSelector((state) => state.place.box_placed);
+  var box_deleted = useSelector((state) => state.place.box_deleted);
+  const { isAuthenticated, user } = useMoralis();
+  const limit = 10000;
+
   useEffect(() => {
     dispatch({ type: PLACE_BOX });
   }, []);
 
-  const [color, setColor] = React.useState({ r: "241", g: "112", b: "19", a: "1" });
-  // color = {
-  //   hex: '#333',
-  //   rgb: {
-  //     r: 51,
-  //     g: 51,
-  //     b: 51,
-  //     a: 1,
-  //   },
-  //   hsl: {
-  //     h: 0,
-  //     s: 0,
-  //     l: .20,
-  //     a: 1,
-  //   },
-  // }
+  const { data, error, isLoading } = useMoralisQuery("box", (query) => query.limit(limit));
+
+  useEffect(async () => {
+    const list = [];
+    if (data) {
+      data.map((box) => {
+        list.push(box.attributes); // attributes has auctionEndTime, geocode, highestBid, highestBidder, createdAT, updatedAT
+      });
+    }
+    dispatch({ type: LOAD_ALL_BOXES, payload: list });
+  }, [data]);
+
+  useMoralisSubscription("box", (q) => q, [], {
+    onCreate: (data) => {
+      console.log(user);
+      if (user == null || data.attributes.owner != user.attributes.ethAddress) {
+        dispatch({ type: BOX_PLACED_BY_OTHERS, payload: data.attributes });
+      }
+    },
+    onDelete: (data) => {
+      if (user == null || data.attributes.owner != user.attributes.ethAddress) {
+        dispatch({ type: BOX_DELETED_BY_OTHERS, payload: data.attributes });
+      }
+    },
+  });
+
+  useEffect(() => {
+    var newBox = new boxClass();
+
+    if (isAuthenticated) {
+      if (box_placed && box_placed.geocode) {
+        box_placed.owner = user.attributes.ethAddress;
+        newBox.save(box_placed).then((result) => {});
+      }
+    }
+  }, [box_placed]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (box_deleted && box_deleted.id) {
+        var query = new Moralis.Query(boxClass);
+        query.get(box_deleted.id).then((result) => {
+          result.destroy().then((result) => {});
+        });
+      }
+    }
+  }, [box_deleted]);
+
+  const [color, setColor] = React.useState({ r: "255", g: "255", b: "255", a: "1" });
 
   const [colorPlalette, setColorPlalette] = React.useState(colors.colors1); // colors1 color2 color3 are from reddit place day1 day2 day3
 
   return (
     <div className="bg-dark text-light">
-      <Tabs activeKey={"place"}>
+      <Tabs
+        activeKey={place_tab}
+        onSelect={(k) => {
+          dispatch({ type: PLACE_TAB, payload: k });
+        }}
+      >
         <Tab eventKey="place" title="Place" tabClassName="text-light">
           <div className="text-light mt-5 col">
             <h5>Left click to place a box</h5>
@@ -66,7 +127,9 @@ export default function Place() {
             </div>
           </div>
         </Tab>
-        <Tab eventKey="phanton" title="Buy Phanton" tabClassName="text-light"></Tab>
+        <Tab eventKey="phanton" title="Buy Phanton" tabClassName="text-light">
+          <Phanton />
+        </Tab>
       </Tabs>
     </div>
   );

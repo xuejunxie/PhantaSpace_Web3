@@ -14,7 +14,7 @@ const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
 
 Moralis.initialize(appId);
 Moralis.serverURL = serverUrl;
-const dataClass = Moralis.Object.extend("allNFT");
+const allNFTClass = Moralis.Object.extend("allNFT");
 var refs = {};
 
 export default function CreateList() {
@@ -48,7 +48,7 @@ export default function CreateList() {
   const onDone = async (nft) => {
     dispatch({ type: DONE, payload: nft });
     // create moralis object
-    const query = new Moralis.Query(dataClass);
+    const query = new Moralis.Query(allNFTClass);
     query.equalTo("NFTid", nft.NFTid);
     const result = await query.find();
     if (result.length > 0) {
@@ -56,7 +56,7 @@ export default function CreateList() {
 
       await data.save();
     } else {
-      var data = new dataClass();
+      var data = new allNFTClass();
     }
     var date = new Date().toISOString();
 
@@ -95,7 +95,7 @@ export default function CreateList() {
 
   const onRemove = (nft) => {
     dispatch({ type: REMOVE, payload: nft });
-    const query = new Moralis.Query(dataClass);
+    const query = new Moralis.Query(allNFTClass);
     query.equalTo("NFTid", nft.NFTid);
     query.find().then((results) => {
       const data = results[0];
