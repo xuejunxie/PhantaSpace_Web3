@@ -76,10 +76,11 @@ export default function Place() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      if (box_deleted && box_deleted.id) {
+      if (box_deleted) {
         var query = new Moralis.Query(boxClass);
-        query.get(box_deleted.id).then((result) => {
-          result.destroy().then((result) => {});
+        query.equalTo("geocode", box_deleted);
+        query.find().then((results) => {
+          results[0].destroy().then((result) => {});
         });
       }
     }

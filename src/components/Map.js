@@ -402,8 +402,16 @@ export default function Map(props) {
   const box_deleted_by_others = useSelector((state) => state.place.box_deleted_by_others);
   useEffect(() => {
     if (box_deleted_by_others) {
-      console.log(box_deleted_by_others);
-      viewer.scene.primitives.remove(viewer.scene.primitives.get(box_deleted_by_others.geocode));
+      // viewer.scene.primitives.remove(Cesium.PrimitiveCollection.get(box_deleted_by_others.geocode));
+      //remove a box by geocode
+      viewer.scene.primitives._primitives.map((primitive) => {
+        if (primitive.constructor.name === "Primitive" && primitive._instanceIds[0] === box_deleted_by_others.geocode) {
+          viewer.scene.primitives.remove(primitive);
+        }
+        // if (primitive._instanceIds[0] === box_deleted_by_others.geocode) {
+        //   viewer.scene.primitives.remove(primitive);
+        // }
+      });
     }
   }, [box_deleted_by_others]);
 
