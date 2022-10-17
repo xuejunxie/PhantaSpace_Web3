@@ -402,8 +402,8 @@ export default function Map(props) {
   const box_deleted_by_others = useSelector((state) => state.place.box_deleted_by_others);
   useEffect(() => {
     if (box_deleted_by_others) {
-      const box = viewer.entities.getById(box_deleted_by_others);
-      viewer.entities.remove(box);
+      console.log(box_deleted_by_others);
+      viewer.scene.primitives.remove(viewer.scene.primitives.get(box_deleted_by_others.geocode));
     }
   }, [box_deleted_by_others]);
 

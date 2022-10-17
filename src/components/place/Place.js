@@ -48,13 +48,16 @@ export default function Place() {
 
   useMoralisSubscription("box", (q) => q, [], {
     onCreate: (data) => {
-      console.log(user);
+      console.log(user, data);
       if (user == null || data.attributes.owner != user.attributes.ethAddress) {
+        console.log(data);
         dispatch({ type: BOX_PLACED_BY_OTHERS, payload: data.attributes });
       }
     },
     onDelete: (data) => {
+      console.log(user, data);
       if (user == null || data.attributes.owner != user.attributes.ethAddress) {
+        console.log(data);
         dispatch({ type: BOX_DELETED_BY_OTHERS, payload: data.attributes });
       }
     },
