@@ -28,23 +28,10 @@ export default function Place() {
   const box_placed = useSelector((state) => state.place.box_placed);
   const box_deleted = useSelector((state) => state.place.box_deleted);
   const { isAuthenticated, user } = useMoralis();
-  const limit = 10000;
 
   useEffect(() => {
     dispatch({ type: PLACE_BOX });
   }, []);
-
-  const { data, error, isLoading } = useMoralisQuery("box", (query) => query.limit(limit));
-
-  useEffect(async () => {
-    const list = [];
-    if (data) {
-      data.map((box) => {
-        list.push(box.attributes); // attributes has auctionEndTime, geocode, highestBid, highestBidder, createdAT, updatedAT
-      });
-    }
-    dispatch({ type: LOAD_ALL_BOXES, payload: list });
-  }, [data]);
 
   useMoralisSubscription("box", (q) => q, [], {
     onCreate: (data) => {

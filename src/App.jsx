@@ -1,5 +1,5 @@
 import { useEffect, Fragment, useState } from "react";
-import { useMoralis } from "react-moralis";
+import { useMoralis, useMoralisQuery } from "react-moralis";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import { ProgressBar } from "react-bootstrap";
@@ -11,7 +11,15 @@ import { useDispatch, useSelector } from "react-redux";
 import ExploreList from "./components/explore/ExploreList";
 import CreateList from "./components/create/CreateList";
 import Map from "./components/Map";
-import { LOAD_ALL, LOADING_ALL, UPDATE, CLEAN_OWNED, CLEAN_OWNED_SPACE, SET_ACCOUNT } from "redux/types";
+import {
+  LOAD_ALL,
+  LOADING_ALL,
+  UPDATE,
+  CLEAN_OWNED,
+  CLEAN_OWNED_SPACE,
+  SET_ACCOUNT,
+  LOAD_ALL_BOXES,
+} from "redux/types";
 import Moralis from "moralis";
 import Space from "components/space/Space";
 import Contract from "web3Parts/Contract/Contract";
@@ -143,6 +151,18 @@ export default function App() {
       });
     }
   }, [loadingOwn, loading_all]);
+
+  const { data, error, isLoading } = useMoralisQuery("box", (query) => query.limit(10000));
+
+  useEffect(async () => {
+    const list = [];
+    if (data) {
+      data.map((box) => {
+        list.push(box.attributes); // attributes has auctionEndTime, geocode, highestBid, highestBidder, createdAT, updatedAT
+      });
+    }
+    dispatch({ type: LOAD_ALL_BOXES, payload: list });
+  }, [data]);
 
   const map_loaded = useSelector((state) => state.map.map_loading);
   const [progress, setProgress] = useState(0);
