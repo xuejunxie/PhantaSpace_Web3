@@ -29,7 +29,6 @@ export default function (state = initialState, action) {
     case BOX_PLACED:
       return {
         ...state,
-        boxes_placed: [...state.boxes_placed, action.payload],
         box_placed: action.payload,
       };
 
@@ -47,19 +46,16 @@ export default function (state = initialState, action) {
       return {
         ...state,
         box_deleted: action.payload,
-        boxes_placed: state.boxes_placed.filter((box) => box.id !== action.payload.id),
       };
     case BOX_PLACED_BY_OTHERS:
       return {
         ...state,
         box_placed_by_others: action.payload,
-        boxes_placed: [...state.boxes_placed, action.payload],
       };
     case BOX_DELETED_BY_OTHERS:
       return {
         ...state,
         box_deleted_by_others: action.payload,
-        boxes_placed: state.boxes_placed.filter((box) => box.id !== action.payload.id),
       };
     default:
       return state;

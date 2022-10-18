@@ -56,7 +56,6 @@ export default function Map(props) {
 
   const jump_in = useSelector((state) => state.sidebar.jump_in);
   const place_box = useSelector((state) => state.sidebar.place_box);
-  const box_placed = useSelector((state) => state.place.box_placed);
   box_color = useSelector((state) => state.place.box_color);
 
   // check if the map is loaded
@@ -149,9 +148,6 @@ export default function Map(props) {
       }
     }
   }, [selected_space]);
-
-  // box placed
-  useEffect(() => {}, [box_placed]);
 
   useEffect(() => {
     if (show_space && show_space.geocode) {

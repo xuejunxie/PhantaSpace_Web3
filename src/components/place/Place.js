@@ -26,7 +26,7 @@ export default function Place() {
   const dispatch = useDispatch();
   const place_tab = useSelector((state) => state.place.place_tab);
   const box_placed = useSelector((state) => state.place.box_placed);
-  var box_deleted = useSelector((state) => state.place.box_deleted);
+  const box_deleted = useSelector((state) => state.place.box_deleted);
   const { isAuthenticated, user } = useMoralis();
   const limit = 10000;
 
@@ -48,12 +48,14 @@ export default function Place() {
 
   useMoralisSubscription("box", (q) => q, [], {
     onCreate: (data) => {
-      if (user == null || data.attributes.owner != user.attributes.ethAddress) {
+      if (box_placed && box_placed.geocode == data.attributes.geocode) {
+      } else {
         dispatch({ type: BOX_PLACED_BY_OTHERS, payload: data.attributes });
       }
     },
     onDelete: (data) => {
-      if (user == null || data.attributes.owner != user.attributes.ethAddress) {
+      if (box_deleted && box_deleted.geocode == data.attributes.geocode) {
+      } else {
         dispatch({ type: BOX_DELETED_BY_OTHERS, payload: data.attributes });
       }
     },
