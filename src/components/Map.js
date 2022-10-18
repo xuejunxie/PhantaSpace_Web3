@@ -974,7 +974,7 @@ function handlePlaceBox(dispatch) {
   handler.setInputAction(function (movement) {
     const pickedObject = viewer.scene.pick(movement.position);
     if (pickedObject) {
-      if (pickedObject.primitive.constructor.name === "Primitive") {
+      if ("primitive" in pickedObject) {
         viewer.scene.primitives.remove(pickedObject.primitive);
         dispatch({
           type: DELETE_BOX,

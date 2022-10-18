@@ -48,16 +48,12 @@ export default function Place() {
 
   useMoralisSubscription("box", (q) => q, [], {
     onCreate: (data) => {
-      console.log(user, data);
       if (user == null || data.attributes.owner != user.attributes.ethAddress) {
-        console.log(data);
         dispatch({ type: BOX_PLACED_BY_OTHERS, payload: data.attributes });
       }
     },
     onDelete: (data) => {
-      console.log(user, data);
       if (user == null || data.attributes.owner != user.attributes.ethAddress) {
-        console.log(data);
         dispatch({ type: BOX_DELETED_BY_OTHERS, payload: data.attributes });
       }
     },
@@ -66,29 +62,27 @@ export default function Place() {
   useEffect(() => {
     var newBox = new boxClass();
 
-    if (isAuthenticated) {
-      if (box_placed && box_placed.geocode) {
+    if (box_placed && box_placed.geocode) {
+      if (isAuthenticated) {
         box_placed.owner = user.attributes.ethAddress;
-        newBox.save(box_placed).then((result) => {});
       }
+      newBox.save(box_placed).then((result) => {});
     }
   }, [box_placed]);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      if (box_deleted) {
-        var query = new Moralis.Query(boxClass);
-        query.equalTo("geocode", box_deleted);
-        query.find().then((results) => {
-          results[0].destroy().then((result) => {});
-        });
-      }
+    if (box_deleted) {
+      var query = new Moralis.Query(boxClass);
+      query.equalTo("geocode", box_deleted);
+      query.find().then((results) => {
+        results[0].destroy().then((result) => {});
+      });
     }
   }, [box_deleted]);
 
   const [color, setColor] = React.useState({ r: "255", g: "255", b: "255", a: "1" });
 
-  const [colorPlalette, setColorPlalette] = React.useState(colors.colors1); // colors1 color2 color3 are from reddit place day1 day2 day3
+  const [colorPlalette, setColorPlalette] = React.useState(colors.colors3); // colors1 color2 color3 are from reddit place day1 day2 day3
 
   return (
     <div className="bg-dark text-light">
@@ -102,7 +96,9 @@ export default function Place() {
           <div className="text-light mt-5 col">
             <h5>Left click to place a box</h5>
             <h5>Right click to remove a box</h5>
-            Upgrade to
+            <h5>Pick a color:</h5>
+
+            {/* Upgrade to
             <button
               className="ml-2 rounded-pill"
               onMouseEnter={() => setColorPlalette(colors.colors2)}
@@ -116,12 +112,13 @@ export default function Place() {
               onMouseLeave={() => setColorPlalette(colors.colors1)}
             >
               Level 3
-            </button>
-            <div className="justify-content-center mt-2">
+            </button> */}
+            <div className="justify-content-center mt-2 ml-3">
               <CirclePicker
                 colors={colorPlalette}
-                circleSpacing={20}
-                circleSize={38}
+                circleSpacing={16}
+                width={"100%"}
+                circleSize={34}
                 onChange={(color) => setColor(color.rgb)}
                 color={color}
                 onChangeComplete={(color) => {
