@@ -71,7 +71,7 @@ export default function Place() {
 
   const [color, setColor] = React.useState({ r: "255", g: "255", b: "255", a: "1" });
 
-  const [colorPlalette, setColorPlalette] = React.useState(colors.colors3); // colors1 color2 color3 are from reddit place day1 day2 day3
+  const [colorPlalette, setColorPlalette] = React.useState(colors.colors1); // colors1 color2 color3 are from reddit place day1 day2 day3
 
   return (
     <div className="bg-dark text-light">

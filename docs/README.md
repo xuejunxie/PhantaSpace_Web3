@@ -8,11 +8,17 @@ description: Earth-scale mixed reality metaverse
 
 ## What's PhantaSpace?
 
-PhantaSpace is a cross-platform open metaverse based on a 3D earth map that enables users to create a mixed reality user experience with their NFT collections. PhantaSpace provides engagement mechanisms for players to earn tokens (e.g., Check-in to earn) and a marketplace for players to exchange NFTs.
+PhantaSpace is an infrastructure layer for the mixed reality metaverse that sits on top of the real-world map. It gives artists and brands the ability to create NFT galleries and games with mixed reality user experiences.
+
+We provide:
+
+1. Web-based XR Metaverse codeless & one click building tools.
+2. XR Metaverse content distribution hosting service.
+3. XR Metaverse marketing platform: https://phanta.space
 
 Here are some features:
 
-- PhantaSpace is an earth-scale NFT gallery. NFT artists or collectors can place their artworks on the earth-scale 3D world map.
+- An earth-scale NFT gallery. NFT artists or collectors can place their artworks on the earth-scale 3D world map.
 - Players could see those arts in the real world with AR devices - mobile AR app to start with and AR glasses in the future.
 - We believe in decentralization, and therefore we offer space NFT where users can own and govern the space in PhantaSpace.
 - Spaces can be addressed precisely in 3D with our unique 3D geocode and also split spaces into any scale for flexible ownership.
