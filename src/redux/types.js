@@ -48,6 +48,7 @@ export const SET_ACCOUNT = "SET_ACCOUNT";
 // types for jumpIn operations
 export const JUMP_IN = "JUMP_IN";
 export const KEY_PRESSED = "KEY_PRESSED";
+export const CHECK_IN = "CHECK_IN";
 
 // types for phanton
 export const PHANTON = "PHANTON";

@@ -8,7 +8,7 @@ description: Earth-scale mixed reality metaverse
 
 ## What's PhantaSpace?
 
-PhantaSpace is a mixed reality metaverse infrastructure layer that sits on top of the real-world map. It enables artists and brands to create NFT galleries and games with mixed reality user experiences, thus bridging the digital assets and physical worlds.
+PhantaSpace is a mixed reality metaverse infrastructure layer that sits on top of the real-world map. It enables artists and brands to create NFT galleries and games with mixed reality user experiences, thus bridging the digital assets and physical worlds. Users can interact with PhantaSpace both online as a digital twin and in real life as augmented reality, and check in to earn crypto tokens.
 
 We provide:
 

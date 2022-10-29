@@ -13,6 +13,7 @@ import {
   KEY_PRESSED,
   BOX_PLACED,
   DELETE_BOX,
+  CHECK_IN,
 } from "../redux/types";
 import sha256 from "crypto-js/sha256";
 import AxisAlignedBoundingBox from "cesium/Source/Core/AxisAlignedBoundingBox";
@@ -521,6 +522,7 @@ export default function Map(props) {
   var high_speed = 50;
   var low_speed = 2;
   var move_speed = 2;
+  var check_in = false;
 
   // FPV move
   const onKeyDown = (event) => {
@@ -543,6 +545,9 @@ export default function Map(props) {
         return;
       case 32: // space
         move_up = true;
+        return;
+      case "E".charCodeAt(0):
+        check_in = true;
         return;
       default:
         return;
@@ -569,6 +574,10 @@ export default function Map(props) {
         return;
       case 32: // space
         move_up = false;
+        return;
+      case "E".charCodeAt(0):
+        check_in = false;
+        return;
       default:
         return;
     }
@@ -612,6 +621,17 @@ export default function Map(props) {
     }
     if (move_up) {
       dHeight = dt;
+    }
+
+    if (check_in) {
+      dispatch({
+        type: CHECK_IN,
+        payload: {
+          longitude: camera.positionCartographic.longitude,
+          latitude: camera.positionCartographic.latitude,
+          height: camera.positionCartographic.height,
+        },
+      });
     }
 
     if (move_forward || move_back || move_left || move_right || move_up) {
@@ -800,7 +820,7 @@ function handleCreate(dispatch, nft) {
 
   handler.setInputAction((click) => {
     if (click.position) {
-      var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(click.endPosition), viewer.scene);
+      var cartesian = viewer.scene.globe.pick(viewer.camera.getPickRay(click.position), viewer.scene);
       if (cartesian) {
         // increase height
 

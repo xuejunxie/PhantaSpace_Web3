@@ -1,7 +1,8 @@
-import { KEY_PRESSED } from "../types";
+import { KEY_PRESSED, CHECK_IN } from "../types";
 
 const initialState = {
   key_pressed: null,
+  position: null,
 };
 
 export default function (state = initialState, action) {
@@ -11,7 +12,11 @@ export default function (state = initialState, action) {
         ...state,
         key_pressed: action.payload,
       };
-
+    case CHECK_IN:
+      return {
+        ...state,
+        position: action.payload,
+      };
     default:
       return state;
   }

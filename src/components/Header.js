@@ -76,6 +76,13 @@ export default function Header(props) {
             </a>
           </li>
         </ul>
+        <ul className="navbar-nav ">
+          <li className="nav-item">
+            <a href="mailto:info@phanta.space" className="nav-link" target="_blank">
+              Contact us
+            </a>
+          </li>
+        </ul>
         {/* {Phanton} */}
         <div className="mr-3" />
         <Account />
