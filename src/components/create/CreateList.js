@@ -178,7 +178,6 @@ export default function CreateList() {
         newNft.wide = image.width / 100;
         newNft.tall = image.height / 100;
         newNft.height = newNft.tall;
-        newNft.placed = true;
         dispatch({ type: SELECT, payload: newNft });
       } else {
         dispatch({ type: LOOK, payload: nft });
@@ -329,7 +328,7 @@ export default function CreateList() {
                     <div className="card card-body bg-dark">
                       <div className="row justify-content-around">
                         <button type="button" className="  btn btn-light rounded" onClick={() => onEdit(nft)}>
-                          Place
+                          {nft.placed ? "Edit" : "Place"}
                         </button>
                         <button type="button" className="btn btn-primary rounded" onClick={() => onDone(nft)}>
                           Sell
