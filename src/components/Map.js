@@ -1,19 +1,17 @@
 import React, { useEffect } from "react";
 import * as Cesium from "cesium";
-import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import {
   PLACE_NFT,
-  PLACE_BOX,
   UPDATE,
   CLICK,
   SELECT_SPACE,
   MAP_LOADED,
   SPACE_PICKED,
-  KEY_PRESSED,
   BOX_PLACED,
   DELETE_BOX,
   CHECK_IN,
+  EDIT,
 } from "../redux/types";
 import sha256 from "crypto-js/sha256";
 import AxisAlignedBoundingBox from "cesium/Source/Core/AxisAlignedBoundingBox";

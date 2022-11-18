@@ -158,8 +158,6 @@ export default function CreateList() {
     dispatch({ type: CREATE, payload: "select" });
     var newNft = { ...nft };
 
-    console.log(nft);
-
     // test if  the url works or not
     // axios.get(nft.model).then((response) => {
     //   newNft.model = nft.model;
