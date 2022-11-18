@@ -4,6 +4,7 @@ export const PLACE_NFT = "PLACE_NFT";
 export const LOAD_OWNED = "LOAD_OWNED";
 export const CLEAN_OWNED = "CLEAN_OWNED";
 export const UPDATE = "UPDATE";
+export const EDIT = "EDIT";
 export const REMOVE = "REMOVE";
 export const REMOVED = "REMOVED";
 export const DONE = "DONE";

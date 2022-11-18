@@ -4,7 +4,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import Moralis from "moralis";
 import { useMoralis, useWeb3Contract } from "react-moralis";
-import { REMOVE, SELECT, UPDATE, PLACE_NFT, DONE, CREATE, LOOK } from "../../redux/types";
+import { REMOVE, SELECT, UPDATE, PLACE_NFT, DONE, CREATE, LOOK, EDIT } from "../../redux/types";
 import { Container, Modal, Row, Col, InputGroup, Form, Button, Card } from "react-bootstrap";
 import NFTModalInfo from "components/nftModalInfo/NFTModalInfo";
 import abi from "./abi.json";
@@ -179,10 +179,10 @@ export default function CreateList() {
         newNft.tall = image.height / 100;
         newNft.height = newNft.tall;
         newNft.placed = true;
+        dispatch({ type: SELECT, payload: newNft });
+      } else {
+        dispatch({ type: LOOK, payload: nft });
       }
-
-      dispatch({ type: LOOK, payload: newNft });
-      dispatch({ type: SELECT, payload: newNft });
       if (newNft.video) {
         setVideoList((videoList) => [...videoList, { NFTid: newNft.NFTid, video: newNft.video }]);
       }
@@ -194,7 +194,7 @@ export default function CreateList() {
   };
 
   const onEdit = (nft) => {
-    dispatch({ type: PLACE_NFT, payload: nft });
+    dispatch({ type: EDIT, payload: nft });
   };
 
   const height = (value, nft) => {

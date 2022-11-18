@@ -2,6 +2,7 @@ import {
   SELECT,
   PLACE_NFT,
   UPDATE,
+  EDIT,
   LOAD_OWNED,
   REMOVE,
   DONE,
@@ -36,12 +37,22 @@ export default function (state = initialState, action) {
         ...state,
         click: action.payload,
       };
+
+    case EDIT:
+      return {
+        ...state,
+        // set flag to placed
+        owned: state.owned.map((nft) => {
+          return nft.NFTid === action.payload.NFTid ? { ...nft, editing: true } : nft;
+        }),
+      };
+
     case PLACE_NFT:
       return {
         ...state,
         // set flag to placed
         owned: state.owned.map((nft) => {
-          return nft.NFTid === action.payload.NFTid ? { ...nft, placed: true, editing: true } : nft;
+          return nft.NFTid === action.payload.NFTid ? { ...nft, placed: true } : nft;
         }),
       };
 

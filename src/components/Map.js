@@ -680,20 +680,41 @@ export default function Map(props) {
   //  comment out the event.target.setPointerCapture(event.pointerId);
   //   in node_modules/cesium/Source/Core/ScreenSpaceEventHandler.js
   //   to avoid the "InvalidStateError"
+  function getMobileOperatingSystem() {
+    var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+    // Windows Phone must come first because its UA also contains "Android"
+    if (/windows phone/i.test(userAgent)) {
+      return "Windows Phone";
+    }
+
+    if (/android/i.test(userAgent)) {
+      return "Android";
+    }
+
+    // iOS detection from: http://stackoverflow.com/a/9039885/177710
+    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+      return "iOS";
+    }
+
+    return "unknown";
+  }
 
   useEffect(() => {
     const canvas = viewer.scene.canvas;
     if (jump_in) {
       // click to engage the FPV camera
-      canvas.requestPointerLock();
-      canvas.onclick = () => {
-        if (document.pointerLockElement != viewer.scene.canvas) {
-          canvas.requestPointerLock();
-        } else {
-          // click to disengage the FPV camera
-          // document.exitPointerLock();
-        }
-      };
+      if (getMobileOperatingSystem() != "iOS") {
+        canvas.requestPointerLock();
+        canvas.onclick = () => {
+          if (document.pointerLockElement != viewer.scene.canvas) {
+            canvas.requestPointerLock();
+          } else {
+            // click to disengage the FPV camera
+            // document.exitPointerLock();
+          }
+        };
+      }
 
       document.addEventListener("mousemove", onMouseMove);
       // document.addEventListener("click", onClick);
@@ -717,7 +738,6 @@ export default function Map(props) {
         const clickedEndity = viewer.entities.getById(look.NFTid);
         if (clickedEndity) {
           viewer.flyTo(clickedEndity);
-          dispatch({ type: PLACE_NFT, payload: look });
         }
       }
     }

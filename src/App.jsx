@@ -165,6 +165,7 @@ export default function App() {
   }, [data]);
 
   const map_loaded = useSelector((state) => state.map.map_loading);
+  // const map_loaded = null;
   const [progress, setProgress] = useState(0);
   const timerId = setTimeout(() => {
     setProgress((prev) => {

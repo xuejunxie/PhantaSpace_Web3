@@ -111,7 +111,7 @@ function Account() {
     return (
       <>
         <div onClick={() => setIsAuthModalVisible(true)}>
-          <p style={styles.account}>Connect wallet</p>
+          <p style={styles.account}>Connect</p>
         </div>
         <Modal show={isAuthModalVisible} onHide={() => setIsAuthModalVisible(false)}>
           <Modal.Header>
@@ -219,7 +219,7 @@ function Account() {
               dispatch({ type: SET_ACCOUNT, payload: "" });
             }}
           >
-            Disconnect Wallet
+            Disconnect
           </Button>
         </Modal.Footer>
       </Modal>
