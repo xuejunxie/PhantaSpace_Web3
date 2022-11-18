@@ -874,6 +874,7 @@ function handleCreate(dispatch, nft) {
           nft.latitude = newPosition.latitude;
           nft.height = newPosition.height;
           dispatch({ type: PLACE_NFT, payload: nft });
+          dispatch({ type: EDIT, payload: nft });
         }
       }
     }
