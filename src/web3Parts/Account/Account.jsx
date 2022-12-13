@@ -51,13 +51,57 @@ const signingMessage = "Welcome to PhantaSpace!";
 
 function Account() {
   const dispatch = useDispatch();
-  const { authenticate, isAuthenticated, chainId, logout, Moralis, user } = useMoralis();
+  const { authenticate, enableWeb3, isAuthenticated, chainId, logout, Moralis, user } = useMoralis();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEmailModalVisible, setIsEmailModalVisible] = useState(false);
   const [isAuthModalVisible, setIsAuthModalVisible] = useState(false);
   const connectorIdInStore = useSelector((state) => state.account.connectorId);
   const ask_user_to_connect = useSelector((state) => state.sidebar.ask_user_to_connect);
   const ask_user_for_email = useSelector((state) => state.sidebar.ask_user_for_email);
+
+  const [authError, setAuthError] = useState(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+
+  /**
+   * 1) Connect to a Evm
+   * 2) Request message to sign using the Moralis Auth Api of moralis (handled on server)
+   * 3) Login via parse using the signed message (verification handled on server via Moralis Auth Api)
+   */
+  const handleAuth = async (provider) => {
+    try {
+      setAuthError(null);
+      setIsAuthenticating(true);
+
+      // Enable web3 to get user address and chain
+      await enableWeb3({ throwOnError: true, provider });
+      const { account, chainId } = Moralis;
+
+      if (!account) {
+        throw new Error("Connecting to chain failed, as no connected account was found");
+      }
+      if (!chainId) {
+        throw new Error("Connecting to chain failed, as no connected chain was found");
+      }
+
+      // Get message to sign from the auth api
+      const { message } = await Moralis.Cloud.run("requestMessage", {
+        address: account,
+        chain: parseInt(chainId, 16),
+        networkType: "evm",
+      });
+
+      // Authenticate and login via parse
+      await authenticate({
+        signingMessage: message,
+        throwOnError: true,
+      });
+      setIsAuthModalVisible(false);
+    } catch (error) {
+      setAuthError(error);
+    } finally {
+      setIsAuthenticating(false);
+    }
+  };
 
   useEffect(() => {
     if (ask_user_to_connect) {
@@ -124,9 +168,8 @@ function Account() {
                 key={key}
                 onClick={async () => {
                   try {
-                    await authenticate({ provider: connectorId, signingMessage: signingMessage });
+                    await handleAuth(connectorId);
                     dispatch({ type: SET_CONNECTOR_ID, payload: connectorId });
-                    setIsAuthModalVisible(false);
                   } catch (e) {
                     console.error(e);
                   }
@@ -137,13 +180,13 @@ function Account() {
               </div>
             ))}
 
-            <div
+            {/* <div
               style={styles.connector}
               // key={key}
               onClick={async () => {
                 try {
                   Moralis.setEnableWeb3(customEnable);
-                  await authenticate({ signingMessage: signingMessage });
+                  await handleAuth('chainlink');
                   dispatch({ type: SET_CONNECTOR_ID, payload: "injected" });
                   setIsAuthModalVisible(false);
                 } catch (e) {
@@ -153,7 +196,7 @@ function Account() {
             >
               <img src={coinbaseIcon} alt={"Coinbase"} style={styles.icon} />
               <h2 style={{ fontSize: "14px" }}>Coinbase Wallet</h2>
-            </div>
+            </div> */}
           </div>
         </Modal>
       </>

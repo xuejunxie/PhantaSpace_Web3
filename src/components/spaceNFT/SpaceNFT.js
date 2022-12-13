@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { LOAD_ALL, LOADING_ALL, SELECT_SPACE, SHOW_SPACE } from "redux/types";
 import MapNFT from "./MapNFT";
 
-import Moralis from "moralis";
+import Moralis from "moralis-v1";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;

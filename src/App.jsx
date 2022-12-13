@@ -20,7 +20,7 @@ import {
   SET_ACCOUNT,
   LOAD_ALL_BOXES,
 } from "redux/types";
-import Moralis from "moralis";
+import Moralis from "moralis-v1";
 import Space from "components/space/Space";
 import Contract from "web3Parts/Contract/Contract";
 import getAssetsByOpensea from "components/getAssets/byOpensea";
@@ -30,6 +30,7 @@ import getSpaceByOpensea from "components/getAssets/getSpaceByOpensea";
 import JumpIn from "components/jumpIn/JumpIn";
 import Place from "components/place/Place";
 import Phanton from "components/phanton/Phanton";
+import web3Utils from "web3-utils";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
@@ -57,7 +58,7 @@ export default function App() {
     };
   }, []);
 
-  const { isWeb3Enabled, web3, enableWeb3, isAuthenticated, isWeb3EnableLoading, user } = useMoralis();
+  const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading, user } = useMoralis();
   const dispatch = useDispatch();
   const allNFTs = useSelector((state) => state.map.all);
   const ownedNFTs = useSelector((state) => state.map.owned);
@@ -105,7 +106,7 @@ export default function App() {
         try {
           await window.ethereum.request({
             method: "wallet_switchEthereumChain",
-            params: [{ chainId: web3.utils.toHex(chainId) }],
+            params: [{ chainId: web3Utils.toHex(chainId) }],
           });
         } catch (err) {
           // This error code indicates that the chain has not been added to MetaMask
@@ -115,7 +116,7 @@ export default function App() {
           //     params: [
           //       {
           //         chainName: "Polygon Mainnet",
-          //         chainId: web3.utils.toHex(chainId),
+          //         chainId: web3Utils.toHex(chainId),
           //         nativeCurrency: { name: "MATIC", decimals: 18, symbol: "MATIC" },
           //         rpcUrls: ["https://polygon-rpc.com/"],
           //       },

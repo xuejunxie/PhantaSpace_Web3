@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { SHOW_SPACE, SELECT_SPACE, SET_SPACE_TAB, LOAD_USER_BIDS, ASK_USER_TO_CONNECT } from "redux/types";
 import abi from "./abi.json";
 import { Tab, Tabs } from "react-bootstrap";
+import web3Utils from "web3-utils";
 
 const image_server_url = "http://phantaspace.com/thumbnails/";
 
@@ -123,7 +124,7 @@ export default function SpaceAuction() {
     }
     bidContract.runContractFunction().then(async (res) => {
       // if (userOldBidEther > 0) {
-      //   const userOldBidWei = web3.utils.toWei(userOldBidEther, "ether");
+      //   const userOldBidWei = web3Utils.toWei(userOldBidEther, "ether");
       //   const totalBidWei = new BN(userOldBidWei).add(new BN(cleanBidWei)).toString();
       //   dispatch({ type: UPDATE_USER_BIDS, payload: { geocode: selected_space.geocode, bid: totalBidWei } });
       // } else {
@@ -142,7 +143,7 @@ export default function SpaceAuction() {
   useEffect(() => {
     if (isNumeric(bid)) {
       setBidWarning(" ");
-      setCleanBidWei(web3.utils.toWei(bid.toString(), "ether"));
+      setCleanBidWei(web3Utils.toWei(bid.toString(), "ether"));
     } else {
       if (bid) {
         setBidWarning("Invalid number");
@@ -226,11 +227,10 @@ export default function SpaceAuction() {
   function renderAuctionCard(auction) {
     const geocode = auction.geocode;
     const timeLeft = parseInt(auction.auctionEndTime) - date / 1000;
-    const highestBid =
-      auction.highestBid !== undefined ? web3.utils.fromWei(auction.highestBid.toString(), "ether") : 0;
+    const highestBid = auction.highestBid !== undefined ? web3Utils.fromWei(auction.highestBid.toString(), "ether") : 0;
     const userBidded = userBids ? userBids.find((bid) => bid.geocode === geocode) : null;
-    const userBidEther = userBidded ? web3.utils.fromWei(userBidded.bid, "ether") : 0;
-    //   userBids !== undefined ? web3.utils.fromWei(auction.userBidEther.toString(), "ether") : 0;
+    const userBidEther = userBidded ? web3Utils.fromWei(userBidded.bid, "ether") : 0;
+    //   userBids !== undefined ? web3Utils.fromWei(auction.userBidEther.toString(), "ether") : 0;
     //   console.log(auction.highestBidder, account);
     refs[geocode] = createRef();
 

@@ -12,6 +12,7 @@ import { PHANTON_TAB, ASK_USER_FOR_EMAIL } from "redux/types";
 
 import ReactECharts from "echarts-for-react";
 import Item from "antd/lib/list/Item";
+import web3Utils from "web3-utils";
 
 const showDecimals = 5;
 
@@ -136,7 +137,7 @@ export default function PhantonBuy() {
     abi: abi.abi,
     contractAddress: process.env.REACT_APP_PHANTON_ADDRESS,
     functionName: "seedSale",
-    msgValue: web3.utils.toWei(contractFund, "ether"),
+    msgValue: web3Utils.toWei(contractFund, "ether"),
   });
 
   const [loadingBuy, setLoadingBuy] = useState(false);

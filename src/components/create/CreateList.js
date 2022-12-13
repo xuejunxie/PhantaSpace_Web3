@@ -2,7 +2,7 @@ import React, { useEffect, createRef, useState } from "react";
 import "../List.css";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import Moralis from "moralis";
+import Moralis from "moralis-v1";
 import { useMoralis, useWeb3Contract } from "react-moralis";
 import { REMOVE, SELECT, UPDATE, PLACE_NFT, DONE, CREATE, LOOK, EDIT } from "../../redux/types";
 import { Container, Modal, Row, Col, InputGroup, Form, Button, Card } from "react-bootstrap";

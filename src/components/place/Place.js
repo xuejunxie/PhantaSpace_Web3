@@ -13,7 +13,7 @@ import colors from "./colors.json";
 import { Tab, Tabs } from "react-bootstrap";
 import Phanton from "components/phanton/Phanton";
 import { useMoralis, useMoralisQuery, useMoralisSubscription } from "react-moralis";
-import Moralis from "moralis";
+import Moralis from "moralis-v1";
 
 const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
 const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;

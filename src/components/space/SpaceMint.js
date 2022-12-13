@@ -5,6 +5,7 @@ import { useMoralis, useWeb3Contract } from "react-moralis";
 import abi from "./abi.json";
 import "./Space.css";
 import axios from "axios";
+import web3Utils from "web3-utils";
 
 const opense_asset_url = process.env.REACT_APP_OPENSEA_URL + "/assets/";
 
@@ -26,7 +27,7 @@ export default function SpaceMint() {
   const all_space = useSelector((state) => state.space.all);
   const [spaceIsTaken, setSpaceIsTaken] = useState(null);
 
-  var BN = web3.utils.BN;
+  var BN = web3Utils.BN;
 
   const [decimal, setDecimal] = useState(0);
 
@@ -49,7 +50,7 @@ export default function SpaceMint() {
     abi: abi.abi,
     contractAddress: process.env.REACT_APP_CONTRACT_ADDRESS,
     functionName: "vending",
-    msgValue: web3.utils.toWei((vendingPrice * count).toFixed(decimal), "ether"),
+    msgValue: web3Utils.toWei((vendingPrice * count).toFixed(decimal), "ether"),
     params: {
       vendingLevel: "03",
     },
@@ -192,7 +193,7 @@ export default function SpaceMint() {
     if (isNumeric(bid)) {
       if (bid >= auctionFloor) {
         setBidWarning(" ");
-        setCleanBid(web3.utils.toWei(bid.toString(), "ether"));
+        setCleanBid(web3Utils.toWei(bid.toString(), "ether"));
       } else {
         setBidWarning("Must be ≥ " + auctionFloor);
       }
