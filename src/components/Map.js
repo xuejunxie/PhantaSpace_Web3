@@ -171,21 +171,8 @@ export default function Map(props) {
   }, [show_space]);
 
   // initialize the viewer
-  useEffect(() => {
+  useEffect(async () => {
     const imageryViewModels = [];
-    imageryViewModels.push(
-      new Cesium.ProviderViewModel({
-        name: "Watercolor",
-        iconUrl: Cesium.buildModuleUrl("Widgets/Images/ImageryProviders/stamenWatercolor.png"),
-        tooltip: "Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.",
-        creationFunction: function () {
-          return new Cesium.OpenStreetMapImageryProvider({
-            url: "https://stamen-tiles.a.ssl.fastly.net/watercolor/",
-          });
-        },
-      })
-    );
-
     imageryViewModels.push(
       new Cesium.ProviderViewModel({
         name: "Real world",
@@ -196,6 +183,19 @@ export default function Map(props) {
             url: "https://dev.virtualearth.net",
             key: process.env.REACT_APP_BING_API_KEY,
             mapStyle: Cesium.BingMapsStyle.AERIAL,
+          });
+        },
+      })
+    );
+
+    imageryViewModels.push(
+      new Cesium.ProviderViewModel({
+        name: "Watercolor",
+        iconUrl: Cesium.buildModuleUrl("Widgets/Images/ImageryProviders/stamenWatercolor.png"),
+        tooltip: "Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.",
+        creationFunction: function () {
+          return new Cesium.OpenStreetMapImageryProvider({
+            url: "https://stamen-tiles.a.ssl.fastly.net/watercolor/",
           });
         },
       })
@@ -299,6 +299,13 @@ export default function Map(props) {
         url: Cesium.IonResource.fromAssetId(96188),
       })
     );
+
+    // try {
+    //   const tileset = await Cesium.createGooglePhotorealistic3DTileset();
+    //   viewer.scene.primitives.add(tileset);
+    // } catch (error) {
+    //   console.log(`Failed to load tileset: ${error}`);
+    // }
 
     // viewer.scene.primitives.add(
     //   new Cesium.Cesium3DTileset({
