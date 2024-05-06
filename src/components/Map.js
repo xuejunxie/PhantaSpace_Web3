@@ -173,6 +173,7 @@ export default function Map(props) {
   // initialize the viewer
   useEffect(async () => {
     const imageryViewModels = [];
+
     imageryViewModels.push(
       new Cesium.ProviderViewModel({
         name: "Real world",
@@ -195,7 +196,7 @@ export default function Map(props) {
         tooltip: "Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.",
         creationFunction: function () {
           return new Cesium.OpenStreetMapImageryProvider({
-            url: "https://stamen-tiles.a.ssl.fastly.net/watercolor/",
+            url: "https://tiles.stadiamaps.com/tiles/stamen_watercolor/",
           });
         },
       })

@@ -157,10 +157,20 @@ export default function MapNFT(props) {
 
     // use stamen map
     // viewer.imageryLayers.removeAll();
-    const imageryProvider = new Cesium.OpenStreetMapImageryProvider({
-      url: "https://stamen-tiles.a.ssl.fastly.net/watercolor/",
+
+    // const imageryProvider = new Cesium.OpenStreetMapImageryProvider({
+    //   url: "https://tiles.stadiamaps.com/tiles/stamen_watercolor/",
+    //   fileExtension: "jpg",
+    //   credit: "Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.",
+    // });
+    // viewer.imageryLayers.addImageryProvider(imageryProvider);
+
+    const imageryProvider = new Cesium.BingMapsImageryProvider({
+      url: "https://dev.virtualearth.net",
+      key: process.env.REACT_APP_BING_API_KEY,
+      mapStyle: Cesium.BingMapsStyle.AERIAL,
       fileExtension: "jpg",
-      credit: "Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.",
+      credit: "Map tiles by Bing",
     });
     viewer.imageryLayers.addImageryProvider(imageryProvider);
 
