@@ -74,13 +74,27 @@ export default function SpaceMint() {
 
   const onMint = async () => {
     setLoadingMint(true);
-    vendingContract.runContractFunction().then(async (res) => {
-      console.log("res", res);
-      if (res === undefined) {
-        setLoadingMint(false);
-        return;
-      }
-    });
+    try {
+      await vendingContract.runContractFunction({
+        throwOnError: true,
+        onComplete: async (res) => {
+          console.log("res", res);
+          if (res === undefined) {
+            setLoadingMint(false);
+            return;
+          }
+        },
+        onError: (error) => {
+          console.error("Error during minting:", error);
+          alert("Failed to mint. Please check your connection and try again.");
+          setLoadingMint(false);
+        },
+      });
+    } catch (error) {
+      console.error("Error caught during minting:", error);
+      alert("Failed to mint. Please check your connection and try again.");
+      setLoadingMint(false);
+    }
   };
 
   const image_server_url = "http://phantaspace.com/thumbnails/";
@@ -173,15 +187,26 @@ export default function SpaceMint() {
 
   const onAuction = async () => {
     setLoadingAuction(true);
-    auctionContract.runContractFunction().then(async (res) => {
-      await refetchUserData();
-      const getUserAuction = await user.get("auction");
-      if (getUserAuction && getUserAuction.length > 0) {
-        dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
-      }
-      dispatch({ type: SET_SPACE_TAB, payload: "auction" });
+    try {
+      await auctionContract.runContractFunction({
+        throwOnError: true,
+        onSuccess: async (res) => {
+          await refetchUserData();
+          const getUserAuction = await user.get("auction");
+          if (getUserAuction && getUserAuction.length > 0) {
+            dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
+          }
+          dispatch({ type: SET_SPACE_TAB, payload: "auction" });
+          setLoadingAuction(false);
+        },
+      });
+    } catch (error) {
+      // This catch block is for additional safety, but onError should handle most cases
+      // console.error("Error caught during auction contract execution:", error);
+
+      alert(`Caught error: ${error.message}`);
       setLoadingAuction(false);
-    });
+    }
   };
 
   //   useEffect(async () => {
