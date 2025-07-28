@@ -158,11 +158,16 @@ export default function MapNFT(props) {
     // use stamen map
     // viewer.imageryLayers.removeAll();
 
+    // const imageryProvider = new Cesium.OpenStreetMapImageryProvider({
+    //   url: "https://tiles.stadiamaps.com/tiles/stamen_watercolor/",
+    //   fileExtension: "jpg",
+    //   credit: "Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.",
+    // })
+
     const imageryProvider = new Cesium.OpenStreetMapImageryProvider({
-      url: "https://tiles.stadiamaps.com/tiles/stamen_watercolor/",
-      fileExtension: "jpg",
-      credit: "Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.",
+      url: "https://tile.openstreetmap.org/",
     })
+
     viewer.imageryLayers.addImageryProvider(imageryProvider)
 
     // const imageryProvider = new Cesium.BingMapsImageryProvider({
@@ -172,7 +177,7 @@ export default function MapNFT(props) {
     //   fileExtension: "jpg",
     //   credit: "Map tiles by Bing",
     // });
-    viewer.imageryLayers.addImageryProvider(imageryProvider)
+    // viewer.imageryLayers.addImageryProvider(imageryProvider)
 
     // change saturation
     // var layer = viewer.imageryLayers.get(0);
