@@ -37,13 +37,13 @@ Users can place colored blocks (P1–P4 tiers) anywhere on the map. Placement ra
 |---|---|
 | Frontend framework | React 17, Redux, React Router 6 |
 | 3D Globe | [CesiumJS](https://cesium.com/) + [Resium](https://resium.reearth.io/) |
-| Web3 / Auth | [Moralis v1](https://moralis.io/), web3.js |
-| NFT data | OpenSea API (Ethereum + Polygon), Moralis NFT API |
-| Smart contracts | Hardhat (Solidity) |
+| Database / Auth | [Supabase](https://supabase.com/) (Postgres, Realtime, Sign in with Ethereum) |
+| Web3 | react-moralis (client-side wallet connection & contract calls only), web3-utils |
+| NFT data | OpenSea API (Ethereum + Polygon) |
+| Smart contracts | Hardhat (Solidity), in `PhantaSpace_contract` |
 | Wallet support | MetaMask, WalletConnect, WalletLink (Coinbase) |
 | UI components | Ant Design, React-Bootstrap |
-| Backend / sync | Moralis Cloud Functions, event watcher (`events/watchEvents.js`) |
-| Mint sync | Cloud function (`cloud/mintSync.js`) |
+| Backend | [`PhantaSpace_server`](https://github.com/xuejunxie/PhantaSpace_server) on [Render](https://render.com): NFT metadata, thumbnails, chain-event sync into Supabase |
 
 ---
 
@@ -52,7 +52,7 @@ Users can place colored blocks (P1–P4 tiers) anywhere on the map. Placement ra
 ### Prerequisites
 
 - Node.js ≥ 16
-- A Moralis v1 account ([legacy.moralis.io](https://legacy.moralis.io)) with an app created
+- A Supabase project set up with `PhantaSpace_server/supabase/schema.sql` (see that repo's README)
 - MetaMask or another Web3 wallet
 
 ### Installation
@@ -73,18 +73,22 @@ cp .env.example .env
 
 | Variable | Description |
 |---|---|
-| `REACT_APP_MORALIS_APPLICATION_ID` | Your Moralis app ID |
-| `REACT_APP_MORALIS_SERVER_URL` | Your Moralis server URL |
+| `REACT_APP_SUPABASE_URL` | Supabase project URL |
+| `REACT_APP_SUPABASE_ANON_KEY` | Supabase anon (public) key, never the service role key |
+| `REACT_APP_API_URL` | PhantaSpace server on Render (e.g. `https://phantaspace.com`) |
 | `REACT_APP_OPENSEA_API_URL` | OpenSea API endpoint |
 | `REACT_APP_CONTRACT_ADDRESS` | Deployed Space NFT contract address |
+| `REACT_APP_PHANTON_ADDRESS` | Deployed Phanton token contract address |
 
 > **Note:** Never commit `.env` to version control. It is already listed in `.gitignore`.
 
 ### Run Locally
 
 ```bash
-npm start
+NODE_OPTIONS=--openssl-legacy-provider npm start
 ```
+
+(`--openssl-legacy-provider` is needed on Node ≥ 17 because of react-scripts 4.)
 
 The app opens at [http://localhost:3000](http://localhost:3000).
 
@@ -113,7 +117,7 @@ PhantaSpace_Web3/
 │   ├── components/
 │   │   ├── create/       # NFT placement / creation flow
 │   │   ├── explore/      # Explore / browse NFTs on the map
-│   │   ├── getAssets/    # OpenSea & Moralis NFT fetch helpers
+│   │   ├── getAssets/    # OpenSea NFT fetch helpers
 │   │   ├── jumpIn/       # FPV jump-in navigation
 │   │   ├── phanton/      # Phanton token UI (wallet, buy, stake)
 │   │   ├── place/        # Block placement system
@@ -121,14 +125,10 @@ PhantaSpace_Web3/
 │   │   └── spaceNFT/     # Space-scoped NFT display
 │   ├── redux/            # Redux store, reducers, action types
 │   ├── web3Parts/        # Wallet connection (Account, WalletConnect)
-│   ├── hooks/            # Custom React hooks (ERC-20, IPFS, token price…)
 │   ├── helpers/          # Formatters, network config
+│   ├── supabase.js       # Supabase client, wallet auth (useAuth), live tables
 │   ├── App.jsx           # Root component & routing
 │   └── index.js          # Entry point
-├── cloud/
-│   └── mintSync.js       # Moralis Cloud Function — sync mint events
-├── events/
-│   └── watchEvents.js    # Moralis event watcher setup
 ├── docs/                 # GitBook documentation source
 └── package.json
 ```
@@ -157,8 +157,6 @@ Contract addresses are supplied via environment variables (see above).
 | `npm start` | Start local dev server (port 3000) |
 | `npm run build` | Production build |
 | `npm test` | Run tests |
-| `npm run connect` | Connect local dev chain to Moralis |
-| `npm run watch:events` | Register contract event listeners on Moralis |
 | `npm run deploypage` | Deploy `build/` to GitHub Pages |
 | `npm run clean` | Clean GitHub Pages cache |
 

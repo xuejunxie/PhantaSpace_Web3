@@ -2,24 +2,18 @@ import React, { useEffect, createRef, useState } from "react";
 import "../List.css";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import Moralis from "moralis-v1";
-import { useMoralis, useWeb3Contract } from "react-moralis";
+import { useWeb3Contract } from "react-moralis";
+import { supabase, useAuth } from "../../supabase";
 import { REMOVE, SELECT, UPDATE, PLACE_NFT, DONE, CREATE, LOOK, EDIT } from "../../redux/types";
 import { Container, Modal, Row, Col, InputGroup, Form, Button, Card } from "react-bootstrap";
 import NFTModalInfo from "components/nftModalInfo/NFTModalInfo";
 import abi from "./abi.json";
 
-const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
-const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
-
-Moralis.initialize(appId);
-Moralis.serverURL = serverUrl;
-const allNFTClass = Moralis.Object.extend("allNFT");
 var refs = {};
 
 export default function CreateList() {
   const dispatch = useDispatch();
-  const { isAuthenticated, user } = useMoralis();
+  const { isAuthenticated, account } = useAuth();
   // const { isWeb3Enabled, web3, enableWeb3, isAuthenticated, isWeb3EnableLoading,  } = useMoralis();
   const { runContractFunction, isFetching, isLoading } = useWeb3Contract();
   const NFTs = useSelector((state) => state.map.owned);
@@ -47,17 +41,6 @@ export default function CreateList() {
 
   const onDone = async (nft) => {
     dispatch({ type: DONE, payload: nft });
-    // create moralis object
-    const query = new Moralis.Query(allNFTClass);
-    query.equalTo("NFTid", nft.NFTid);
-    const result = await query.find();
-    if (result.length > 0) {
-      var data = result[0];
-
-      await data.save();
-    } else {
-      var data = new allNFTClass();
-    }
     var date = new Date().toISOString();
 
     var created = null;
@@ -69,8 +52,9 @@ export default function CreateList() {
     } else {
       created = date;
     }
-    data.set({
+    const { error } = await supabase.from("allNFT").upsert({
       NFTid: nft.NFTid,
+      owner: account,
       model: nft.model,
       video: nft.video,
       image: nft.image,
@@ -89,20 +73,16 @@ export default function CreateList() {
       updated: updated,
       removed: removed,
     });
-
-    data.save();
+    if (error) console.error(error);
   };
 
   const onRemove = (nft) => {
     dispatch({ type: REMOVE, payload: nft });
-    const query = new Moralis.Query(allNFTClass);
-    query.equalTo("NFTid", nft.NFTid);
-    query.find().then((results) => {
-      const data = results[0];
-      if (data) {
-        data.destroy();
-      }
-    });
+    supabase
+      .from("allNFT")
+      .delete()
+      .eq("NFTid", nft.NFTid)
+      .then(({ error }) => error && console.error(error));
   };
 
   // const testContract = useWeb3Contract({
@@ -140,7 +120,7 @@ export default function CreateList() {
       _tokenId: nft.metadata.token_id, // nft.metadata.token_id
       _askPrice: price,
       _askCurrency: "0x0000000000000000000000000000000000000000", // ERC-20 token to accept, or address(0) for ETH
-      _sellerFundsRecipient: user.attributes.ethAddress, // The address to send funds to once the NFT is sold
+      _sellerFundsRecipient: account, // The address to send funds to once the NFT is sold
       _findersFeeBps: "200", // The bps of the sale amount to be sent to the referrer of the sale
     };
 

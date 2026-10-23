@@ -3,7 +3,7 @@ import { useState } from "react";
 import { getEllipsisTxt } from "../../helpers/formatters";
 import Blockie from "../Blockie";
 import "./identicon.css";
-import { useMoralis } from "react-moralis";
+import { useAuth } from "../../supabase";
 
 const styles = {
   address: {
@@ -41,14 +41,9 @@ function copyToClipboard(textToCopy) {
 }
 
 function Address(props) {
-  const { user, isAuthenticated } = useMoralis();
+  const { account, isAuthenticated } = useAuth();
   const [address, setAddress] = useState();
   const [isClicked, setIsClicked] = useState(false);
-  var account = "";
-  if (user) {
-    // account = user.attributes.accounts[0];
-    account = user.get("ethAddress");
-  }
   useEffect(() => {
     setAddress(props?.address || (isAuthenticated && account));
   }, [account, isAuthenticated, props]);

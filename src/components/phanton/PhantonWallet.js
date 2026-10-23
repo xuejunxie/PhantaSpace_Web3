@@ -2,7 +2,8 @@ import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useMoralisQuery, useMoralis, useWeb3Contract } from "react-moralis";
+import { useMoralis, useWeb3Contract } from "react-moralis";
+import { useAuth } from "../../supabase";
 import { ASK_USER_FOR_EMAIL } from "redux/types";
 
 import abi from "./abi.json";
@@ -12,7 +13,8 @@ export default function PhantonWallet() {
 
   const [balance, setBalance] = useState(0);
   const account = useSelector((state) => state.account.account);
-  const { isAuthenticated, web3, user, refetchUserData } = useMoralis();
+  const { web3 } = useMoralis();
+  const { isAuthenticated } = useAuth();
   const phanton_tab = useSelector((state) => state.phanton.phanton_tab);
 
   const getBalance = useWeb3Contract({
@@ -20,7 +22,7 @@ export default function PhantonWallet() {
     contractAddress: process.env.REACT_APP_PHANTON_ADDRESS,
     functionName: "balanceOf",
     params: {
-      account: user.attributes.accounts[0],
+      account,
     },
   });
 

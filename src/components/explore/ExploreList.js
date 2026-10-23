@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { LOOK, EXPLORE } from "../../redux/types";
 import { useParams } from "react-router-dom";
 import { Container, Modal, Row, Col, InputGroup, Form, Button, Card } from "react-bootstrap";
-import { useMoralis, useNFTBalances, useWeb3Contract } from "react-moralis";
+import { useWeb3Contract } from "react-moralis";
 import NFTModalInfo from "components/nftModalInfo/NFTModalInfo";
 import abi from "./abi.json";
 
@@ -29,7 +29,6 @@ export default function ExploreList() {
   const NFTs = useSelector((state) => state.map.all);
   const click = useSelector((state) => state.map.click);
   const loading_all = useSelector((state) => state.sidebar.loading_all);
-  const { user } = useMoralis();
   const { runContractFunction, isFetching, isLoading } = useWeb3Contract();
 
   useEffect(() => {

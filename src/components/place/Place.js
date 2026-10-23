@@ -12,60 +12,53 @@ import { CirclePicker } from "react-color";
 import colors from "./colors.json";
 import { Tab, Tabs } from "react-bootstrap";
 import Phanton from "components/phanton/Phanton";
-import { useMoralis, useMoralisQuery, useMoralisSubscription } from "react-moralis";
-import Moralis from "moralis-v1";
-
-const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
-const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
-
-Moralis.initialize(appId);
-Moralis.serverURL = serverUrl;
-const boxClass = Moralis.Object.extend("box");
+import { supabase, useAuth } from "../../supabase";
 
 export default function Place() {
   const dispatch = useDispatch();
   const place_tab = useSelector((state) => state.place.place_tab);
   const box_placed = useSelector((state) => state.place.box_placed);
   const box_deleted = useSelector((state) => state.place.box_deleted);
-  const { isAuthenticated, user } = useMoralis();
+  const { account } = useAuth();
 
   useEffect(() => {
     dispatch({ type: PLACE_BOX });
   }, []);
 
-  useMoralisSubscription("box", (q) => q, [], {
-    onCreate: (data) => {
-      if (box_placed && box_placed.geocode == data.attributes.geocode) {
-      } else {
-        dispatch({ type: BOX_PLACED_BY_OTHERS, payload: data.attributes });
-      }
-    },
-    onDelete: (data) => {
-      if (box_deleted && box_deleted.geocode == data.attributes.geocode) {
-      } else {
-        dispatch({ type: BOX_DELETED_BY_OTHERS, payload: data.attributes });
-      }
-    },
-  });
+  // boxes placed / removed by others
+  useEffect(() => {
+    const channel = supabase
+      .channel("live:box")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "box" }, ({ new: box }) => {
+        if (!(box_placed && box_placed.geocode == box.geocode)) {
+          dispatch({ type: BOX_PLACED_BY_OTHERS, payload: box });
+        }
+      })
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "box" }, ({ old: box }) => {
+        if (box_deleted != box.geocode) {
+          dispatch({ type: BOX_DELETED_BY_OTHERS, payload: box });
+        }
+      })
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, [box_placed, box_deleted]);
 
   useEffect(() => {
-    var newBox = new boxClass();
-
     if (box_placed && box_placed.geocode) {
-      if (isAuthenticated) {
-        box_placed.owner = user.attributes.ethAddress;
-      }
-      newBox.save(box_placed).then((result) => {});
+      supabase
+        .from("box")
+        .upsert({ ...box_placed, owner: account || null })
+        .then(({ error }) => error && console.error(error));
     }
   }, [box_placed]);
 
   useEffect(() => {
     if (box_deleted) {
-      var query = new Moralis.Query(boxClass);
-      query.equalTo("geocode", box_deleted);
-      query.find().then((results) => {
-        results[0].destroy().then((result) => {});
-      });
+      supabase
+        .from("box")
+        .delete()
+        .eq("geocode", box_deleted)
+        .then(({ error }) => error && console.error(error));
     }
   }, [box_deleted]);
 

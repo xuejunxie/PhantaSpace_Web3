@@ -4,12 +4,12 @@ import { Tab, Tabs } from "react-bootstrap";
 import { ASK_USER_FOR_EMAIL, PHANTON, PHANTON_TAB } from "redux/types";
 import PhantonBuy from "./PhantonBuy";
 import PhantonWallet from "./PhantonWallet";
-import { useMoralis } from "react-moralis";
+import { useAuth } from "../../supabase";
 
 export default function Phanton() {
   const dispatch = useDispatch();
   const phanton_tab = useSelector((state) => state.phanton.phanton_tab);
-  const { isAuthenticated, web3, user } = useMoralis();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     dispatch({ type: PHANTON });

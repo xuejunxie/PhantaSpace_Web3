@@ -1,19 +1,11 @@
 import React, { useEffect, createRef } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
-import { useMoralis } from "react-moralis";
+import { useAuth, getThumbnail } from "../../supabase";
 
 import { SHOW_SPACE, SELECT_SPACE, CLEAN_OWNED_SPACE, LOAD_OWNED_SPACE, SET_SPACE_TAB } from "redux/types";
 
-// const image_server_url = "http://phantaspace.com/thumbnails/";
-
-const image_server_url = "http://phantaspace.com/thumbnails/";
-
 const opense_asset_url = process.env.REACT_APP_OPENSEA_URL + "/assets/";
-
-const getThumbnail = (geocode) => {
-  return image_server_url + geocode + ".jpg";
-};
 
 const getPermalink = (geocode) => {
   return opense_asset_url + process.env.REACT_APP_CONTRACT_ADDRESS + "/" + geocode;
@@ -23,7 +15,7 @@ export default function SpaceOwned() {
   const owned_space = useSelector((state) => state.space.owned);
   const loading = useSelector((state) => state.space.loading);
   const dispatch = useDispatch();
-  const { isAuthenticated, user, refetchUserData } = useMoralis();
+  const { isAuthenticated, user, refetchUser } = useAuth();
   const space_tab = useSelector((state) => state.sidebar.space_tab);
   var refs = {};
 
@@ -31,8 +23,8 @@ export default function SpaceOwned() {
     dispatch({ type: CLEAN_OWNED_SPACE });
   }, []);
 
-  async function updateUserSpace() {
-    const userSpace = (await user.fetch()).attributes.space;
+  function updateUserSpace(u) {
+    const userSpace = u?.space;
     if (userSpace) {
       const userSpaceObject = userSpace.map((space) => {
         return { geocode: space };
@@ -43,15 +35,12 @@ export default function SpaceOwned() {
 
   useEffect(async () => {
     if (space_tab == "owned") {
-      await refetchUserData();
-      await updateUserSpace();
+      updateUserSpace(await refetchUser());
     }
   }, [space_tab]);
 
   useEffect(async () => {
-    if (user) {
-      updateUserSpace();
-    }
+    updateUserSpace(user);
   }, [user]);
 
   const onSelect = (geocode) => {

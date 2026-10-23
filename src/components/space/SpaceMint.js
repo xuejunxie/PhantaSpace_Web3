@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { PICK_A_SPACE, ADD_OWNED_SPACE, SET_SPACE_TAB, LOAD_USER_BIDS } from "redux/types";
 import { useMoralis, useWeb3Contract } from "react-moralis";
+import { useAuth, getThumbnail } from "../../supabase";
 import abi from "./abi.json";
 import "./Space.css";
 import axios from "axios";
@@ -12,7 +13,8 @@ const opense_asset_url = process.env.REACT_APP_OPENSEA_URL + "/assets/";
 export default function SpaceMint() {
   const dispatch = useDispatch();
   const selected_space = useSelector((state) => state.sidebar.selected_space);
-  const { isAuthenticated, web3, user, refetchUserData } = useMoralis();
+  const { web3 } = useMoralis();
+  const { isAuthenticated, refetchUser } = useAuth();
   const [vendingPrice, setVendingPrice] = useState(0);
   const [auctionFloor, setAuctionFloor] = useState(0);
 
@@ -97,10 +99,9 @@ export default function SpaceMint() {
     }
   };
 
-  const image_server_url = "http://phantaspace.com/thumbnails/";
-
+  // ask the API server to render the thumbnail now; ownership is synced from chain events by the backend
   const prepareThumbnail = async (geocode) => {
-    axios.get(image_server_url + geocode + ".jpg");
+    axios.get(getThumbnail(geocode)).catch(() => {});
   };
 
   useEffect(() => {
@@ -111,17 +112,14 @@ export default function SpaceMint() {
       if (spaceMinted.length === undefined) {
         const geocode = spaceMinted.returnValues.geocode;
         allGeocode = [{ geocode: geocode }];
-        user.addUnique("space", geocode);
         prepareThumbnail(geocode);
       } else {
         result?.events?.SpaceMinted.map((space) => {
           const geocode = space.returnValues.geocode;
           allGeocode.push({ geocode: geocode });
-          user.addUnique("space", geocode);
           prepareThumbnail(geocode);
         });
       }
-      user.save();
       setLoadingMint(false);
       dispatch({ type: SET_SPACE_TAB, payload: "owned" });
       dispatch({ type: ADD_OWNED_SPACE, payload: allGeocode });
@@ -191,10 +189,9 @@ export default function SpaceMint() {
       await auctionContract.runContractFunction({
         throwOnError: true,
         onSuccess: async (res) => {
-          await refetchUserData();
-          const getUserAuction = await user.get("auction");
-          if (getUserAuction && getUserAuction.length > 0) {
-            dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
+          const u = await refetchUser();
+          if (u?.auction?.length > 0) {
+            dispatch({ type: LOAD_USER_BIDS, payload: u.auction });
           }
           dispatch({ type: SET_SPACE_TAB, payload: "auction" });
           setLoadingAuction(false);

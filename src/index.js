@@ -8,17 +8,16 @@ import { Provider } from "react-redux";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import SpaceNFT from "components/spaceNFT/SpaceNFT";
 import PhantonStandalone from "components/phanton/PhantonStandalone";
+import { AuthProvider } from "./supabase";
 
-/** Get your free Moralis Account https://moralis.io/ */
-
-const APP_ID = process.env.REACT_APP_MORALIS_APPLICATION_ID;
-const SERVER_URL = process.env.REACT_APP_MORALIS_SERVER_URL;
+// Moralis is only used client-side for wallet connection and contract calls (no Moralis server).
+const Web3 = ({ children }) => (
+  <MoralisProvider initializeOnMount={false}>
+    <AuthProvider>{children}</AuthProvider>
+  </MoralisProvider>
+);
 
 const Application = () => {
-  const isServerInfo = APP_ID && SERVER_URL ? true : false;
-  //Validate
-  if (!APP_ID || !SERVER_URL)
-    throw new Error("Missing Moralis Application ID or Server URL. Make sure to set your .env file.");
   return (
     <Provider store={store}>
       <Router>
@@ -26,18 +25,18 @@ const Application = () => {
           <Route
             path="/*"
             element={
-              <MoralisProvider appId={APP_ID} serverUrl={SERVER_URL}>
-                <App isServerInfo={isServerInfo} />
-              </MoralisProvider>
+              <Web3>
+                <App />
+              </Web3>
             }
           />
           <Route
             exact
             path="/phanton"
             element={
-              <MoralisProvider appId={APP_ID} serverUrl={SERVER_URL}>
+              <Web3>
                 <PhantonStandalone />
-              </MoralisProvider>
+              </Web3>
             }
           />
           <Route exact path="/NFT/space/:geocode" element={<SpaceNFT />} />

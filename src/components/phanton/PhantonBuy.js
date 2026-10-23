@@ -3,7 +3,8 @@ import { useState } from "react";
 import { useEffect } from "react";
 import MailchimpSubscribe from "react-mailchimp-subscribe";
 import { useSelector, useDispatch } from "react-redux";
-import { useMoralisQuery, useMoralis, useWeb3Contract, useMoralisSubscription } from "react-moralis";
+import { useMoralis, useWeb3Contract } from "react-moralis";
+import { useAuth } from "../../supabase";
 import abi from "./abi.json";
 import "../List.css";
 import "../../App.css";
@@ -25,7 +26,8 @@ export default function PhantonBuy() {
   const [totalSupply, setTotalSupply] = useState(1);
   const [valuation, setValuation] = useState(1);
   const [maximumSupply, setMaximumSupply] = useState(10000000000);
-  const { isAuthenticated, web3, user, refetchUserData } = useMoralis();
+  const { web3 } = useMoralis();
+  const { isAuthenticated } = useAuth();
   const [inputWarning, setInputWarning] = useState("");
 
   const getMaximumSupply = useWeb3Contract({
@@ -74,28 +76,11 @@ export default function PhantonBuy() {
     }
   }, [getMaximumSupplyData, getTokenSoldData, getFundRaisedData]);
 
-  // get live fund raised data
-  const limit = 5;
-  const { data, error, isLoading } = useMoralisQuery(
-    "seedFundIncreased",
-    (query) =>
-      // query all
-      query.descending("block_number"),
-    [limit],
-    {
-      live: true,
-      onLiveEnter: (entity, all) => [...all, entity],
-      onLiveCreate: (entity, all) => [...all, entity],
-      onLiveDelete: (entity, all) => all.filter((e) => e.id !== entity.id),
-      onLiveLeave: (entity, all) => all.filter((e) => e.id !== entity.id),
-      onLiveUpdate: (entity, all) => [...all, entity],
-    }
-  );
-
-  useEffect(async () => {
-    fetchFundInfo();
-    // Moralis live query can not get synced data, so we need to fetch data manually
-  }, [data]);
+  // keep fund raised data fresh
+  useEffect(() => {
+    const timerId = setInterval(fetchFundInfo, 30000);
+    return () => clearInterval(timerId);
+  }, [web3]);
 
   const [boxInput, setBoxInput] = useState("1");
   const [slideInput, setSlideInput] = useState(0);

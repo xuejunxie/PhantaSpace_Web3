@@ -1,12 +1,11 @@
 import React, { useEffect, useState, createRef } from "react";
-import { useMoralisQuery, useMoralis, useWeb3Contract } from "react-moralis";
+import { useWeb3Contract } from "react-moralis";
+import { useAuth, useLiveTable, getThumbnail } from "../../supabase";
 import { useDispatch, useSelector } from "react-redux";
 import { SHOW_SPACE, SELECT_SPACE, SET_SPACE_TAB, LOAD_USER_BIDS, ASK_USER_TO_CONNECT } from "redux/types";
 import abi from "./abi.json";
 import { Tab, Tabs } from "react-bootstrap";
 import web3Utils from "web3-utils";
-
-const image_server_url = "http://phantaspace.com/thumbnails/";
 
 const opense_asset_url = process.env.REACT_APP_OPENSEA_URL + "/assets/";
 
@@ -14,13 +13,10 @@ const getPermalink = (geocode) => {
   return opense_asset_url + process.env.REACT_APP_CONTRACT_ADDRESS + "/" + geocode;
 };
 
-var account;
-
 export default function SpaceAuction() {
-  const limit = 10000;
-  const [auctionList, setAuctionList] = useState();
+
   const dispatch = useDispatch();
-  const { isAuthenticated, web3, user, refetchUserData } = useMoralis();
+  const { isAuthenticated, account, user, refetchUser } = useAuth();
   const [bidWarning, setBidWarning] = useState("");
   const [bid, setBid] = useState("0");
   const [cleanBidWei, setCleanBidWei] = useState("0");
@@ -54,53 +50,20 @@ export default function SpaceAuction() {
     };
   }, []);
 
+  const loadUserBids = (u) => {
+    if (u?.auction?.length > 0) {
+      dispatch({ type: LOAD_USER_BIDS, payload: u.auction });
+    }
+  };
+
   // deal with user
-  useEffect(async () => {
-    if (user) {
-      //   account = user.attributes.accounts[0];
-      account = user.get("ethAddress");
+  useEffect(() => loadUserBids(user), [user]);
 
-      //   account = user.attributes.ethAddress;
-      const getUserAuction = await user.get("auction");
-      if (getUserAuction && getUserAuction.length > 0) {
-        dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
-      }
-    }
-  }, [user]);
-
-  // get live with auction list
-  const { data, error, isLoading } = useMoralisQuery(
-    "auction",
-    (query) =>
-      // query all
-      query.limit(limit),
-    [limit],
-    {
-      live: true,
-      onLiveEnter: (entity, all) => [...all, entity],
-      onLiveCreate: (entity, all) => [...all, entity],
-      onLiveDelete: (entity, all) => all.filter((e) => e.id !== entity.id),
-      onLiveLeave: (entity, all) => all.filter((e) => e.id !== entity.id),
-      onLiveUpdate: (entity, all) => all.map((e) => (e.id === entity.id ? entity : e)),
-    }
-  );
-
-  useEffect(async () => {
-    const list = [];
-    if (data) {
-      data.map((auction) => {
-        list.push(auction.attributes); // attributes has auctionEndTime, geocode, highestBid, highestBidder, createdAT, updatedAT, claimed
-      });
-    }
-    setAuctionList(list);
-    if (user) {
-      await refetchUserData();
-      const getUserAuction = await user.get("auction");
-      if (getUserAuction && getUserAuction.length > 0) {
-        dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
-      }
-    }
-  }, [data]);
+  // live auction list; refresh the user's bids when it changes
+  const auctionList = useLiveTable("auction");
+  useEffect(() => {
+    refetchUser();
+  }, [auctionList]);
 
   const onSelect = (geocode) => {
     dispatch({ type: SHOW_SPACE, payload: { geocode: geocode } });
@@ -164,12 +127,7 @@ export default function SpaceAuction() {
     setLoadingWithdraw(true);
     withdrawContract.runContractFunction().then(async (res) => {
       setLoadingWithdraw(false);
-
-      await refetchUserData();
-      const getUserAuction = await user.get("auction");
-      if (getUserAuction && getUserAuction.length > 0) {
-        dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
-      }
+      loadUserBids(await refetchUser());
     });
   };
 
@@ -187,31 +145,11 @@ export default function SpaceAuction() {
     claimContract.runContractFunction().then(async (res) => {
       setLoadingClaim(false);
       dispatch({ type: SET_SPACE_TAB, payload: "owned" });
-      // user.set(
-      //   "auction",
-      //   userBids.map((bid) => {
-      //     if (bid.geocode == geocode) {
-      //       bid.claimed = true;
-      //       return bid;
-      //     } else {
-      //       return bid;
-      //     }
-      //   })
-      // );
-      // user.save();
-      await refetchUserData();
-      const getUserAuction = await user.get("auction");
-      if (getUserAuction && getUserAuction.length > 0) {
-        dispatch({ type: LOAD_USER_BIDS, payload: getUserAuction });
-      }
+      loadUserBids(await refetchUser());
     });
   };
 
   const [key, setKey] = useState("active");
-
-  const getThumbnail = (geocode) => {
-    return image_server_url + geocode + ".jpg";
-  };
 
   useEffect(() => {
     if (selected_space && refs[selected_space.geocode]) {

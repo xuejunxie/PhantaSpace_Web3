@@ -34,3 +34,6 @@ typechain
 /Truffle/build
 /Truffle/data
 .qodo
+
+# copied from node_modules on postinstall
+/public/supabase.js

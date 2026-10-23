@@ -11,7 +11,7 @@ import {
   SET_SPACE_TAB,
 } from "redux/types";
 import { Tab, Tabs } from "react-bootstrap";
-import { useMoralis, useMoralisQuery } from "react-moralis";
+import { useAuth, useLiveTable } from "../../supabase";
 import "./Space.css";
 import SpaceOwned from "./SpaceOwned";
 import SpaceMint from "./SpaceMint";
@@ -22,9 +22,7 @@ export default function Space() {
   var spacePosition = useParams();
   const selected_space = useSelector((state) => state.sidebar.selected_space);
   const space_tab = useSelector((state) => state.sidebar.space_tab);
-  const { isAuthenticated, web3 } = useMoralis();
-  const all_space = useSelector((state) => state.space.all);
-  const limit = 10000;
+  const { isAuthenticated } = useAuth();
 
   // deal with time
 
@@ -61,32 +59,11 @@ export default function Space() {
     dispatch({ type: SET_SPACE_TAB, payload: "mint" });
   }, []);
 
-  // get live with space list
-  const { data, error, isLoading } = useMoralisQuery(
-    "space",
-    (query) =>
-      // query all
-      query.limit(limit),
-    [limit],
-    {
-      live: true,
-      onLiveEnter: (entity, all) => [...all, entity],
-      onLiveCreate: (entity, all) => [...all, entity],
-      onLiveDelete: (entity, all) => all.filter((e) => e.id !== entity.id),
-      onLiveLeave: (entity, all) => all.filter((e) => e.id !== entity.id),
-      onLiveUpdate: (entity, all) => all.map((e) => (e.id === entity.id ? entity : e)),
-    }
-  );
-
-  useEffect(async () => {
-    const list = [];
-    if (data) {
-      data.map((auction) => {
-        list.push(auction.attributes); // attributes has auctionEndTime, geocode, highestBid, highestBidder, createdAT, updatedAT
-      });
-    }
-    dispatch({ type: LOAD_ALL_SPACES, payload: list });
-  }, [data]);
+  // live space list
+  const spaces = useLiveTable("space");
+  useEffect(() => {
+    dispatch({ type: LOAD_ALL_SPACES, payload: spaces });
+  }, [spaces]);
 
   useEffect(() => {
     dispatch({ type: SPACE });

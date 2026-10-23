@@ -1,5 +1,6 @@
 import { useEffect, Fragment, useState } from "react";
-import { useMoralis, useMoralisQuery } from "react-moralis";
+import { useMoralis } from "react-moralis";
+import { supabase, useAuth } from "./supabase";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import { ProgressBar } from "react-bootstrap";
@@ -20,25 +21,13 @@ import {
   SET_ACCOUNT,
   LOAD_ALL_BOXES,
 } from "redux/types";
-import Moralis from "moralis-v1";
 import Space from "components/space/Space";
-import Contract from "web3Parts/Contract/Contract";
 import getAssetsByOpensea from "components/getAssets/byOpensea";
-import getAssetsByMoralis from "components/getAssets/byMoralis";
 import getAssetsByOpenseaMatic from "components/getAssets/byOpenseaMatic";
-import getSpaceByOpensea from "components/getAssets/getSpaceByOpensea";
 import JumpIn from "components/jumpIn/JumpIn";
 import Place from "components/place/Place";
 import Phanton from "components/phanton/Phanton";
 import web3Utils from "web3-utils";
-
-const appId = process.env.REACT_APP_MORALIS_APPLICATION_ID;
-const serverUrl = process.env.REACT_APP_MORALIS_SERVER_URL;
-
-Moralis.initialize(appId);
-Moralis.serverURL = serverUrl;
-
-const dataClass = Moralis.Object.extend("allNFT");
 
 var viewerWidth = "calc(100% - var(--listWidth))";
 const height = "calc(100vh - var(--navBarHeight))";
@@ -58,7 +47,8 @@ export default function App() {
     };
   }, []);
 
-  const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading, user } = useMoralis();
+  const { isWeb3Enabled, enableWeb3, isWeb3EnableLoading } = useMoralis();
+  const { isAuthenticated, account } = useAuth();
   const dispatch = useDispatch();
   const allNFTs = useSelector((state) => state.map.all);
   const ownedNFTs = useSelector((state) => state.map.owned);
@@ -73,31 +63,18 @@ export default function App() {
 
   // get all NFTs
   useEffect(() => {
-    const query = new Moralis.Query(dataClass);
-    query.find().then((results) => {
-      dispatch({ type: LOAD_ALL, payload: results.map((item) => item.attributes) });
-      dispatch({ type: LOADING_ALL, payload: false });
-    });
+    supabase
+      .from("allNFT")
+      .select()
+      .then(({ data }) => {
+        dispatch({ type: LOAD_ALL, payload: data || [] });
+        dispatch({ type: LOADING_ALL, payload: false });
+      });
   }, []);
 
-  var account = "";
-
   useEffect(async () => {
-    if (user) {
-      account = user.attributes.accounts[0];
+    if (account) {
       dispatch({ type: SET_ACCOUNT, payload: account });
-      // account = "0x9931fCA711C65b94B07D921159Fffa3798F4BeF9";
-      // account = user.get("ethAddress");
-      // account = "0x4A5577675951Cd448f5537F7Ed2828d6B09d66B0";
-      // account = "0xD7B60740E6663c6595e77dD686b07E0870Cb6bc7";
-      // big account
-      // account = "0x7cEd6E99BD19e923b2B756A1aBf6eA2D27dCf748";
-      // account = "0x8f00dD4Fa196D287f9E862dbB39d66D8C7Ef7364";
-      // account = "0xcda72070e455bb31c7690a170224ce43623d0b6f";
-      // account = "0x8b87e652922445bcac00887e637a07a31af47b02";
-      // account = "0xce90a7949bb78892f159f428d0dc23a8e3584d75";
-      // account = "0x5a501b42cfab342571f8ddf18e5e952a8a9bf60f";
-      // get user owned NFTs
 
       const chainId = 1; // Ethereum Mainnet
       // const chainId = 4; // Rinkeby
@@ -128,13 +105,11 @@ export default function App() {
 
       getAssetsByOpensea(account, dispatch);
       getAssetsByOpenseaMatic(account, dispatch);
-      // getSpaceByOpensea(account, dispatch);
-      // getAssetsByMoralis(account, dispatch);
     } else {
       dispatch({ type: CLEAN_OWNED });
       dispatch({ type: CLEAN_OWNED_SPACE });
     }
-  }, [user]);
+  }, [account]);
 
   // mark existing NFTs as placed
   // save user NFT list on server and add a refresh button to remove this step
@@ -153,17 +128,13 @@ export default function App() {
     }
   }, [loadingOwn, loading_all]);
 
-  const { data, error, isLoading } = useMoralisQuery("box", (query) => query.limit(10000));
-
-  useEffect(async () => {
-    const list = [];
-    if (data) {
-      data.map((box) => {
-        list.push(box.attributes); // attributes has auctionEndTime, geocode, highestBid, highestBidder, createdAT, updatedAT
-      });
-    }
-    dispatch({ type: LOAD_ALL_BOXES, payload: list });
-  }, [data]);
+  useEffect(() => {
+    supabase
+      .from("box")
+      .select()
+      .limit(10000)
+      .then(({ data }) => dispatch({ type: LOAD_ALL_BOXES, payload: data || [] }));
+  }, []);
 
   const map_loaded = useSelector((state) => state.map.map_loading);
   // const map_loaded = null;

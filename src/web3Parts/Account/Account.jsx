@@ -1,13 +1,10 @@
-import { useMoralis } from "react-moralis";
+import { useAuth } from "../../supabase";
 import { getEllipsisTxt } from "helpers/formatters";
 import Blockie from "../Blockie";
 import { Button, Card, Modal } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import Address from "../Address/Address";
-import { getExplorer } from "helpers/networks";
 import { connectors } from "./config";
-import { customEnable } from "./walletlink";
-import coinbaseIcon from "./WalletIcons/coinbase.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { DISCONNECT, REMOVE_CONNECTOR_ID, SET_ACCOUNT, SET_CONNECTOR_ID, ASK_USER_FOR_EMAIL } from "redux/types";
 import MailchimpSubscribe from "react-mailchimp-subscribe";
@@ -47,11 +44,9 @@ const styles = {
   },
 };
 
-const signingMessage = "Welcome to PhantaSpace!";
-
 function Account() {
   const dispatch = useDispatch();
-  const { authenticate, enableWeb3, isAuthenticated, chainId, logout, Moralis, user } = useMoralis();
+  const { login, isAuthenticated, logout, user, account, saveProfile } = useAuth();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEmailModalVisible, setIsEmailModalVisible] = useState(false);
   const [isAuthModalVisible, setIsAuthModalVisible] = useState(false);
@@ -62,39 +57,11 @@ function Account() {
   const [authError, setAuthError] = useState(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
-  /**
-   * 1) Connect to a Evm
-   * 2) Request message to sign using the Moralis Auth Api of moralis (handled on server)
-   * 3) Login via parse using the signed message (verification handled on server via Moralis Auth Api)
-   */
   const handleAuth = async (provider) => {
     try {
       setAuthError(null);
       setIsAuthenticating(true);
-
-      // Enable web3 to get user address and chain
-      await enableWeb3({ throwOnError: true, provider });
-      const { account, chainId } = Moralis;
-
-      if (!account) {
-        throw new Error("Connecting to chain failed, as no connected account was found");
-      }
-      if (!chainId) {
-        throw new Error("Connecting to chain failed, as no connected chain was found");
-      }
-
-      // Get message to sign from the auth api
-      const { message } = await Moralis.Cloud.run("requestMessage", {
-        address: account,
-        chain: parseInt(chainId, 16),
-        networkType: "evm",
-      });
-
-      // Authenticate and login via parse
-      await authenticate({
-        signingMessage: message,
-        throwOnError: true,
-      });
+      await login(provider);
       setIsAuthModalVisible(false);
     } catch (error) {
       setAuthError(error);
@@ -115,24 +82,15 @@ function Account() {
     }
   }, [ask_user_for_email]);
 
-  var account = "";
-  if (user) {
-    // account = user.attributes.accounts[0];
-    account = user.get("ethAddress");
-  }
-
   useEffect(() => {
-    if (isAuthenticated) {
-      const email = user.get("email");
-      const firstName = user.get("firstName");
-      const lastName = user.get("lastName");
-      const organization = user.get("organization");
-      setUserData({ email, firstName, lastName, organization });
+    if (user) {
+      const { email, firstName, lastName, organization } = user;
+      setUserData({ email: email || "", firstName: firstName || "", lastName: lastName || "", organization: organization || "" });
       if (!email) {
         dispatch({ type: ASK_USER_FOR_EMAIL, payload: true });
       }
     }
-  }, [isAuthenticated]);
+  }, [user]);
 
   const [userData, setUserData] = useState({
     email: "",
@@ -143,11 +101,7 @@ function Account() {
 
   const submitEmail = (event) => {
     event.preventDefault();
-    user.set("email", userData.email);
-    user.set("firstName", userData.firstName);
-    user.set("lastName", userData.lastName);
-    user.set("organization", userData.organization);
-    user.save();
+    saveProfile(userData).catch(console.error);
     setIsEmailModalVisible(false);
   };
 
@@ -179,25 +133,8 @@ function Account() {
                 <h2 style={{ fontSize: "14px" }}>{title}</h2>
               </div>
             ))}
-
-            {/* <div
-              style={styles.connector}
-              // key={key}
-              onClick={async () => {
-                try {
-                  Moralis.setEnableWeb3(customEnable);
-                  await handleAuth('chainlink');
-                  dispatch({ type: SET_CONNECTOR_ID, payload: "injected" });
-                  setIsAuthModalVisible(false);
-                } catch (e) {
-                  console.error(e);
-                }
-              }}
-            >
-              <img src={coinbaseIcon} alt={"Coinbase"} style={styles.icon} />
-              <h2 style={{ fontSize: "14px" }}>Coinbase Wallet</h2>
-            </div> */}
           </div>
+          {authError && <p className="text-danger px-3">{authError.message}</p>}
         </Modal>
       </>
     );
@@ -205,22 +142,6 @@ function Account() {
 
   return (
     <>
-      {/* <button
-        onClick={async () => {
-          try {
-            console.log("change")
-            await web3._provider.request({
-              method: "wallet_switchEthereumChain",
-              params: [{ chainId: "0x38" }],
-            });
-            console.log("changed")
-          } catch (e) {
-            console.error(e);
-          }
-        }}
-      >
-        Hi
-      </button> */}
 
       <div style={styles.account} onClick={() => setIsModalVisible(true)}>
         <Blockie address={account} scale={3} />
@@ -233,11 +154,6 @@ function Account() {
         <Modal.Body>
           <Card>
             <Address avatar="left" size={6} copyable style={{ fontSize: "20px" }} />
-            {/* <div style={{ marginTop: "10px", padding: "0 10px" }}>
-              <a href={`${getExplorer(chainId)}/address/${account}`} target="_blank" rel="noreferrer">
-                View on Explorer
-              </a>
-            </div> */}
             <div style={{ marginTop: "10px", padding: "0 10px" }}>
               <a
                 className="link-primary"
