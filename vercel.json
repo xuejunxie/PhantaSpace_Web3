@@ -1,0 +1,5 @@
+{
+  "buildCommand": "CI=false NODE_OPTIONS=--openssl-legacy-provider npm run build",
+  "outputDirectory": "build",
+  "framework": "create-react-app"
+}
