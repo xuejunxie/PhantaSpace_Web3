@@ -1,5 +1,5 @@
 {
-  "buildCommand": "CI=false NODE_OPTIONS=--openssl-legacy-provider npm run build",
+  "buildCommand": "CI=false GENERATE_SOURCEMAP=false NODE_OPTIONS='--openssl-legacy-provider --max-old-space-size=6144' npm run build",
   "outputDirectory": "build",
   "framework": "create-react-app"
 }
