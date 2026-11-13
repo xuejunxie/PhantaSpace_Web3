@@ -26,6 +26,7 @@ var createHandler = null
 var spaceHandler = null
 var exploreHandler = null
 var placeBoxHandler = null
+var fpv = null // first-person ("Jump in") handlers currently attached
 
 // this global variable is used to pass entity between useEffect on create and mouse event handler
 var entity = null
@@ -737,29 +738,39 @@ map of the world.\nhttp://www.openstreetmap.org",
         }
       }
 
+      // keep the attached handlers: later renders create new functions, which removeEventListener would not match
+      fpv = { onMouseMove, onKeyDown, onKeyUp, onClockTik }
       document.addEventListener("mousemove", onMouseMove)
       // document.addEventListener("click", onClick);
       document.addEventListener("keydown", onKeyDown)
       document.addEventListener("keyup", onKeyUp)
       viewer.clock.onTick.addEventListener(onClockTik)
-    } else {
+    } else if (fpv) {
       canvas.onclick = null
-      document.removeEventListener("mousemove", onMouseMove)
+      document.removeEventListener("mousemove", fpv.onMouseMove)
       // document.removeEventListener("click", onClick);
-      document.removeEventListener("keydown", onKeyDown)
-      document.removeEventListener("keyup", onKeyUp)
-      viewer.clock.onTick.removeEventListener(onClockTik)
+      document.removeEventListener("keydown", fpv.onKeyDown)
+      document.removeEventListener("keyup", fpv.onKeyUp)
+      viewer.clock.onTick.removeEventListener(fpv.onClockTik)
+      fpv = null
+      if (document.pointerLockElement === canvas) document.exitPointerLock()
     }
   }, [jump_in])
 
-  // look at the entity when clicked on the list
+  // look at the entity when clicked on the list.
+  // Not viewer.flyTo: it waits for the model file to download and parse, and does nothing if the model fails to load.
   useEffect(() => {
-    if (viewer) {
-      if (look) {
-        const clickedEndity = viewer.entities.getById(look.NFTid)
-        if (clickedEndity) {
-          viewer.flyTo(clickedEndity)
+    if (viewer && look) {
+      const target = viewer.entities.getById(look.NFTid)
+      if (target) {
+        const time = viewer.clock.currentTime
+        const sphere = new Cesium.BoundingSphere()
+        if (viewer.dataSourceDisplay.getBoundingSphere(target, false, sphere) !== Cesium.BoundingSphereState.DONE) {
+          sphere.center = target.position.getValue(time)
+          // model not loaded (yet): assume about one unit across, times its scale
+          sphere.radius = (target.model && target.model.scale && target.model.scale.getValue(time)) || 10
         }
+        viewer.camera.flyToBoundingSphere(sphere, { duration: 2 })
       }
     }
   }, [look])
