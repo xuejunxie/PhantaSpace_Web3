@@ -53,6 +53,7 @@ export default function ExploreList() {
   }, [click]);
 
   const onSelect = (nft) => {
+    setOpen(open === nft.NFTid ? null : nft.NFTid);
     dispatch({ type: LOOK, payload: { NFTid: nft.NFTid } });
     window.history.pushState("", "", `#/explore/${nft.NFTid}`);
   };
@@ -117,6 +118,8 @@ export default function ExploreList() {
   // }
 
   const [copied, setCopied] = React.useState(false);
+  // expanded card, kept in React: Bootstrap's accordion ignores clicks during its animation
+  const [open, setOpen] = React.useState(null);
   const [makeOfferModalNFT, setMakeOfferModalNFT] = React.useState(null);
   const [offerValue, setOfferValue] = React.useState(0);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -148,10 +151,8 @@ export default function ExploreList() {
               <div className="card-body text-center justify-content-center">
                 <a
                   className="btn rounded-pill"
-                  data-toggle="collapse"
-                  href={"#collapse" + nft.NFTid}
                   role="button"
-                  aria-expanded="false"
+                  aria-expanded={open === nft.NFTid}
                   aria-controls={"collapse" + nft.NFTid}
                   onClick={() => onSelect(nft)}
                 >
@@ -165,9 +166,8 @@ export default function ExploreList() {
                 </a>
               </div>
               <div
-                className="collapse col justify-content-center"
+                className={"collapse col justify-content-center" + (open === nft.NFTid ? " show" : "")}
                 id={"collapse" + nft.NFTid}
-                data-parent="#ExploreListAccordion"
               >
                 <button type="button" className="row btn btn-light rounded" onClick={() => handleSelectNFT(nft)}>
                   {ownedNFTs.map((nft) => nft.NFTid).includes(nft.NFTid) ? "View" : "Make an offer"}

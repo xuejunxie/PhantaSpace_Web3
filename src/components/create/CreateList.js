@@ -20,6 +20,8 @@ export default function CreateList() {
   const loading = useSelector((state) => state.sidebar.loading);
   const click = useSelector((state) => state.map.click);
   const [videoList, setVideoList] = useState([]);
+  // expanded card, kept in React: Bootstrap's accordion ignores clicks during its animation
+  const [open, setOpen] = useState(null);
   const [sellModalNFT, setSellModalNFT] = useState(null);
   const [listingPrice, setListingPrice] = useState(0);
 
@@ -135,6 +137,7 @@ export default function CreateList() {
   };
 
   const onSelect = (nft) => {
+    setOpen(open === nft.NFTid ? null : nft.NFTid);
     dispatch({ type: CREATE, payload: "select" });
     var newNft = { ...nft };
 
@@ -210,10 +213,8 @@ export default function CreateList() {
               <div className="card-body text-center ">
                 <a
                   className="btn rounded-pill"
-                  data-toggle="collapse"
-                  href={"#collapse" + nft.NFTid}
                   role="button"
-                  aria-expanded="false"
+                  aria-expanded={open === nft.NFTid}
                   aria-controls={"collapse" + nft.NFTid}
                   onClick={() => onSelect(nft)}
                 >
@@ -227,7 +228,7 @@ export default function CreateList() {
                   )}
                 </a>
               </div>
-              <div className="collapse" id={"collapse" + nft.NFTid} data-parent="#CreateListAccordion">
+              <div className={"collapse" + (open === nft.NFTid ? " show" : "")} id={"collapse" + nft.NFTid}>
                 {nft.placed ? (
                   nft.editing ? (
                     <div className="card card-body bg-dark">
